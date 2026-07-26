@@ -318,7 +318,9 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 /* PWA 全屏模式顶部适配 */
 @media(display-mode:standalone){.app{padding-top:max(24px,env(safe-area-inset-top))}}
 /* standalone 模式下 html/body 背景兜底，避免安全区外露白 */
-@media(display-mode:standalone){html,body{background:#0f172a}}
+@media(display-mode:standalone){html,body{background-color:#0f172a}}
+/* standalone 模式下强制底部安全区也用深色填充 */
+@media(display-mode:standalone){html{background-color:#0f172a;padding-bottom:env(safe-area-inset-bottom)}}
 </style>
 </head>
 <body>
@@ -487,7 +489,7 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <input type="file" id="importFile" accept="application/json,.json" hidden="">
 </div>
 <p><span class="cloud-status " id="cloudStatus"><span class="dot"></span><span class="ctxt">未连接</span></span> · 修改电价后历史用电按新电价重新折算 · 当前电价 <b id="footPrice">0.65</b> 元/度</p>
-<p style="text-align:center;font-size:.7rem;color:var(--dim);margin-top:8px;font-family:var(--mono)">build 2026.07.27d</p>
+<p style="text-align:center;font-size:.7rem;color:var(--dim);margin-top:8px;font-family:var(--mono)">build 2026.07.27e</p>
 </footer>
 </div>
 <div class="tip" id="tip"></div>
