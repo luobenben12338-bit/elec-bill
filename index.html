@@ -1500,32 +1500,66 @@ if(!_reloaded){_reloaded=true;window.location.reload();}
 let _deferredPrompt=null;
 // 已安装并以 standalone 全屏模式运行时，不再显示安装按钮
 const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-if(_isStandalone){
-const btn=document.getElementById('installBtn');if(btn)btn.hidden=true;
+// 记住是否已安装：appinstalled 触发后写入 localStorage，浏览器里再次打开也不再显示按钮
+let _pwaInstalled = _isStandalone || localStorage.getItem('pwa_installed')==='1';
+function _hideInstallBtn(){const btn=document.getElementById('installBtn');if(btn)btn.hidden=true;}
+function _showInstallBtn(){const btn=document.getElementById('installBtn');if(btn)btn.hidden=false;}
+// 用标准 API 检测是否已安装（Chrome Android 支持，首次安装后尚未触发 appinstalled 时也能识别）
+async function _checkInstalled(){
+if(_pwaInstalled) return true;
+if('getInstalledRelatedApps' in navigator){
+try{
+const apps = await navigator.getInstalledRelatedApps();
+if(apps && apps.length>0){
+_pwaInstalled=true;
+localStorage.setItem('pwa_installed','1');
+return true;
+}
+}catch(e){}
+}
+return false;
+}
+if(_isStandalone || _pwaInstalled){
+_hideInstallBtn();
 }else{
+_checkInstalled().then(installed=>{
+if(installed){_hideInstallBtn();return;}
+// 未安装，监听 beforeinstallprompt 显示按钮
 window.addEventListener('beforeinstallprompt',e=>{
 e.preventDefault();_deferredPrompt=e;
-const btn=document.getElementById('installBtn');if(btn)btn.hidden=false;
+_showInstallBtn();
 });
+});
+// 安装成功后标记并隐藏按钮
 window.addEventListener('appinstalled',()=>{
 _deferredPrompt=null;
-const btn=document.getElementById('installBtn');if(btn)btn.hidden=true;
+_pwaInstalled=true;
+localStorage.setItem('pwa_installed','1');
+_hideInstallBtn();
 });
-document.getElementById('installBtn')&&document.getElementById('installBtn').addEventListener('click',async()=>{
+// 点击按钮触发安装
+const _btn=document.getElementById('installBtn');
+if(_btn){
+_btn.addEventListener('click',async()=>{
 if(!_deferredPrompt){toast('请用浏览器菜单的「添加到主屏幕」');return;}
 _deferredPrompt.prompt();
 const {outcome}=_deferredPrompt.userChoice;
 if(outcome==='accepted'){toast('已添加到主屏幕');}
 _deferredPrompt=null;
-document.getElementById('installBtn').hidden=true;
+_hideInstallBtn();
 });
+}
 // iOS 不支持 beforeinstallprompt，检测到 iOS Safari 时显示提示
 if(/iphone|ipad|ipod/i.test(navigator.userAgent) && /safari/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent)){
 window.addEventListener('load',()=>{
-const btn=document.getElementById('installBtn');if(btn){btn.hidden=false;btn.textContent='📱 添加到主屏幕';}
-btn&&btn.addEventListener('click',()=>{
+_checkInstalled().then(installed=>{
+if(installed){_hideInstallBtn();return;}
+const b=document.getElementById('installBtn');
+if(b){b.hidden=false;b.textContent='📱 添加到主屏幕';}
+b&&b.addEventListener('click',()=>{
 toast('点击 Safari 底部分享按钮 → 添加到主屏幕');
 },{once:true});
+});
 });
 }
 }
