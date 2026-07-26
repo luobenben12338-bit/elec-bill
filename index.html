@@ -1,481 +1,2051 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
+<html lang="zh-CN" data-trae-theme="light" data-immersive-translate-page-theme="dark"><head>
 <meta charset="UTF-8">
-<meta name="viewport" href="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f172a">
 <title>⚡ 电费小账本</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Doto:wght@700;900&family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;⚡&lt;/text&gt;&lt;/svg&gt;">
 <style>
-:root{--bg:#0c1613;--surface:#13221d;--surface2:#0d1915;--line:#23403a;--text:#e9f2ed;--muted:#93aca3;--dim:#5f7a72;--amber:#ffc247;--amber-deep:#e8a020;--mint:#45e0a0;--coral:#ff7f6e;--blue:#6db8ff;
---fd:'ZCOOL QingKe HuangYou','Noto Sans SC',sans-serif;--fb:'Noto Sans SC',system-ui,sans-serif;--fn:'Doto','Courier New',monospace}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;overflow-x:hidden}
-::selection{background:rgba(255,194,71,.3)}
-input[type=datetime-local]{color-scheme:dark}
-.bg-glow,.bg-grid,.sparks{position:fixed;inset:0;pointer-events:none;z-index:0}
-.bg-glow{background:radial-gradient(700px 420px at 12% -6%,rgba(255,194,71,.10),transparent 60%),radial-gradient(820px 540px at 96% 16%,rgba(69,224,160,.07),transparent 60%),radial-gradient(620px 420px at 50% 112%,rgba(255,127,110,.05),transparent 60%)}
-.bg-grid{background-image:linear-gradient(rgba(120,180,160,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(120,180,160,.05) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse 95% 75% at 50% 0%,#000 25%,transparent 100%);mask-image:radial-gradient(ellipse 95% 75% at 50% 0%,#000 25%,transparent 100%)}
-.sparks i{position:absolute;bottom:-12px;border-radius:50%;filter:blur(1px);opacity:0;animation:rise linear infinite}
-@keyframes rise{0%{transform:translateY(0);opacity:0}12%{opacity:.5}75%{opacity:.2}100%{transform:translateY(-108vh);opacity:0}}
-.page{max-width:860px;margin:0 auto;padding:0 20px 70px;position:relative;z-index:2}
-header{display:flex;justify-content:space-between;align-items:center;padding:22px 0 14px}
-.brand{display:flex;gap:13px;align-items:center}
-.bolt{width:42px;height:42px;background:linear-gradient(160deg,var(--amber),var(--amber-deep));display:grid;place-items:center;border-radius:9px;box-shadow:0 0 24px rgba(255,194,71,.35);clip-path:polygon(0 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%)}
-.brand h1{font-family:var(--fd);font-weight:400;font-size:24px;letter-spacing:3px}
-.brand p{font-size:9px;letter-spacing:4px;color:var(--dim);margin-top:2px}
-.gear-btn{width:42px;height:42px;border-radius:10px;border:1px solid #2a4a3f;background:#12211c;color:var(--muted);cursor:pointer;display:grid;place-items:center;transition:.35s}
-.gear-btn:hover{color:var(--amber);border-color:rgba(255,194,71,.5);transform:rotate(80deg)}
-.powerline{height:2px;border-radius:2px;opacity:.5;background:repeating-linear-gradient(90deg,var(--amber) 0 10px,transparent 10px 22px);background-size:22px 2px;animation:flow 1.1s linear infinite}
-@keyframes flow{to{background-position:22px 0}}
-/* 电表面板 */
-.meter{margin-top:26px;background:linear-gradient(170deg,#1a2c26,#12211c 55%,#0f1c17);border:1px solid var(--line);border-radius:14px;clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,0 100%);padding:20px 24px 22px;filter:drop-shadow(0 26px 40px rgba(0,0,0,.45))}
-.meter-top{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);letter-spacing:1px;margin-bottom:16px;flex-wrap:wrap;gap:8px}
-.meter-tag{display:flex;align-items:center;gap:8px}
-.led{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 9px var(--mint);animation:pulse 2.2s infinite}
-@keyframes pulse{50%{opacity:.35}}
-.meter-body{display:grid;grid-template-columns:1.65fr 1fr;gap:24px;align-items:center}
-.lcd{background:linear-gradient(180deg,#0d1a15,#13231c);border:1px solid #2a4a3f;border-radius:10px;padding:16px 22px 15px;position:relative;overflow:hidden;box-shadow:inset 0 2px 16px rgba(0,0,0,.65)}
-.lcd::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.022) 0 1px,transparent 1px 3px);pointer-events:none}
-.lcd.flash{animation:lcdflash .7s ease-out}
-@keyframes lcdflash{0%{box-shadow:inset 0 0 48px rgba(255,194,71,.55)}100%{box-shadow:inset 0 0 0 rgba(255,194,71,0)}}
-.lcd-label{display:flex;justify-content:space-between;font-size:10px;letter-spacing:3px;color:var(--dim)}
-.lcd-value{font-family:var(--fn);font-weight:900;font-size:clamp(50px,9vw,78px);color:#ffd27a;text-shadow:0 0 20px rgba(255,194,71,.45);line-height:1.15;letter-spacing:2px;display:flex;align-items:baseline}
-.lcd-cur{font-size:.42em;color:rgba(255,210,122,.7);margin-right:8px}
-.lcd-cursor{width:.4em;height:.09em;background:#ffd27a;margin-left:8px;align-self:flex-end;margin-bottom:10px;box-shadow:0 0 10px rgba(255,194,71,.6);animation:blink 1.2s infinite}
-@keyframes blink{0%,45%{opacity:1}50%,100%{opacity:0}}
-.lcd-sub{margin-top:6px;font-size:13px;color:var(--mint)}
-.lcd-sub.dim{color:var(--dim)}
-.lcd-sub.warn{color:var(--coral)}
-.lcd-sub b{font-family:var(--fn);font-size:15px}
-.disc-side{display:flex;flex-direction:column;align-items:center;gap:12px}
-.disc-ring{padding:10px;border-radius:50%;border:1px dashed #2c473e}
-.disc{width:110px;height:110px;border-radius:50%;position:relative;background:radial-gradient(circle at 34% 30%,#3a4f47,#17241f 62%,#0c1512);border:3px solid #2c473e;box-shadow:inset 0 4px 12px rgba(0,0,0,.6);animation:spin 30s linear infinite}
-.disc::before{content:'';position:absolute;left:50%;top:7px;bottom:7px;width:3px;margin-left:-1.5px;border-radius:3px;background:linear-gradient(180deg,var(--amber),rgba(255,194,71,.12))}
-.disc::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#0a120f;border:2px solid #35544a;left:50%;top:50%;transform:translate(-50%,-50%)}
-@keyframes spin{to{transform:rotate(360deg)}}
-.disc-cap{text-align:center;font-size:13px;color:var(--muted)}
-.disc-cap b{font-family:var(--fn);color:var(--mint);font-size:17px}
-.disc-cap span{display:block;font-size:10px;color:var(--dim);letter-spacing:1px;margin-top:2px}
-.registers{margin-top:20px;display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface2);border:1px solid #24403a;border-radius:10px;overflow:hidden}
-.reg{padding:12px 16px;border-left:1px solid #1e362f;display:flex;flex-direction:column;gap:3px;transition:background .25s}
-.reg:first-child{border-left:none}
-.reg:hover{background:#12211c}
-.reg label{font-size:10px;letter-spacing:2px;color:var(--dim)}
-.reg b{font-family:var(--fn);font-weight:700;font-size:23px;color:#cfe8dc}
-.reg i{font-style:normal;font-size:10px;color:var(--dim)}
-.c-amber{color:var(--amber)!important}.c-mint{color:var(--mint)!important}.c-coral{color:var(--coral)!important}.c-blue{color:var(--blue)!important}
-/* 区块 */
-section.block{margin-top:38px}
-.block-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
-.block-head::before{content:'';width:8px;height:20px;background:linear-gradient(var(--amber),var(--amber-deep));clip-path:polygon(0 0,100% 0,100% 65%,0 100%);flex:none;align-self:center}
-h2{font-family:var(--fd);font-weight:400;font-size:22px;letter-spacing:3px}
-.block-sub{font-size:12px;color:var(--dim)}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px}
-/* 表单 */
-.seg{position:relative;display:grid;grid-template-columns:1fr 1fr;background:var(--surface2);border:1px solid #24403a;border-radius:9px;padding:4px;margin-bottom:16px}
-.seg-thumb{position:absolute;top:4px;left:4px;width:calc(50% - 4px);bottom:4px;border-radius:7px;border:1px solid rgba(255,194,71,.5);background:linear-gradient(160deg,rgba(255,194,71,.22),rgba(255,194,71,.07));transition:transform .35s cubic-bezier(.55,0,.2,1.35),border-color .3s,background .3s}
-.seg.recharge .seg-thumb{transform:translateX(100%);border-color:rgba(69,224,160,.55);background:linear-gradient(160deg,rgba(69,224,160,.2),rgba(69,224,160,.06))}
-.seg button{position:relative;z-index:1;background:none;border:none;color:var(--muted);font:inherit;font-weight:600;padding:9px;cursor:pointer;transition:color .2s;letter-spacing:1px}
-.seg button.on{color:var(--amber)}
-.seg.recharge button.on{color:var(--mint)}
-.form-row{display:flex;gap:12px;margin-bottom:12px;align-items:stretch}
-.amount-box{flex:1.2;display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid #2a4a3f;border-radius:9px;padding:4px 16px;transition:border-color .2s,box-shadow .2s}
-.amount-box:focus-within{border-color:var(--amber);box-shadow:0 0 0 3px rgba(255,194,71,.14)}
-.amount-box>span{font-family:var(--fn);font-size:24px;color:var(--amber)}
-.amount-box input{flex:1;min-width:0;background:none;border:none;outline:none;color:var(--text);font-family:var(--fn);font-weight:700;font-size:26px;padding:10px 0}
-.amount-box input::placeholder{color:#3d5a51;font-size:18px;font-weight:400}
-.field{flex:1;background:var(--surface2);border:1px solid #2a4a3f;border-radius:9px;color:var(--text);padding:12px 14px;font:inherit;outline:none;transition:border-color .2s,box-shadow .2s}
-.field:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(255,194,71,.14)}
-.chips{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-.chips button{padding:6px 16px;border-radius:20px;border:1px solid rgba(69,224,160,.4);background:rgba(69,224,160,.08);color:var(--mint);font-family:var(--fn);font-size:14px;cursor:pointer;transition:.2s}
-.chips button:hover{background:rgba(69,224,160,.2);transform:translateY(-2px)}
-.btn-save{width:100%;padding:13px;border:none;border-radius:9px;background:linear-gradient(160deg,var(--amber),var(--amber-deep));color:#231a05;font:inherit;font-size:16px;font-weight:700;letter-spacing:3px;cursor:pointer;transition:.2s;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}
-.btn-save:hover{filter:brightness(1.1)}
-.btn-save:active{transform:scale(.97)}
-/* 分析卡片 */
-.seg-card{background:var(--surface2);border:1px solid #24403a;border-radius:10px;padding:14px 16px;margin-bottom:10px;transition:border-color .25s,transform .25s}
-.seg-card:hover{border-color:#3a6157;transform:translateX(4px)}
-.seg-head{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-bottom:10px;flex-wrap:wrap;gap:6px}
-.seg-head .dur{color:var(--blue);font-family:var(--fn)}
-.seg-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.seg-grid div{display:flex;flex-direction:column;gap:2px}
-.seg-grid label{font-size:10px;color:var(--dim)}
-.seg-grid b{font-family:var(--fn);font-size:17px;font-weight:700}
-.bar{height:5px;border-radius:3px;background:#1a2f28;margin-top:10px;overflow:hidden}
-.bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--coral),var(--amber));width:0;transition:width .8s cubic-bezier(.2,.7,.3,1)}
-.tag-short{font-size:10px;color:var(--coral);border:1px solid rgba(255,127,110,.4);border-radius:4px;padding:1px 6px}
-/* 图表 */
-canvas{width:100%;height:230px;display:block}
-/* 记录列表 */
-.rec{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface2);border:1px solid #24403a;border-radius:10px;margin-bottom:8px;transition:border-color .2s,transform .2s}
-.rec:hover{border-color:#3a6157;transform:translateX(4px)}
-.rec-ico{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;font-size:16px;flex:none}
-.rec-ico.balance{background:rgba(255,194,71,.12)}
-.rec-ico.recharge{background:rgba(69,224,160,.12)}
-.rec-info{flex:1;min-width:0}
-.rec-info .t{font-size:13px;font-weight:600}
-.rec-info .d{font-size:11px;color:var(--dim);margin-top:2px;font-family:var(--fn)}
-.rec-amt{font-family:var(--fn);font-size:18px;font-weight:700}
-.rec-amt.balance{color:var(--amber)}
-.rec-amt.recharge{color:var(--mint)}
-.rec-del{width:28px;height:28px;border:none;background:rgba(255,127,110,.1);color:var(--coral);border-radius:6px;cursor:pointer;font-size:13px;flex:none;transition:.2s}
-.rec-del:hover{background:rgba(255,127,110,.3)}
-.empty{text-align:center;padding:36px 0;color:var(--dim);font-size:13px}
-/* 工具栏 */
-.toolbar{display:flex;gap:10px;margin-top:38px;flex-wrap:wrap}
-.toolbar button{flex:1;min-width:110px;padding:11px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--muted);font:inherit;font-size:13px;cursor:pointer;transition:.25s}
-.toolbar button:hover{border-color:var(--amber);color:var(--amber);transform:translateY(-2px)}
-.foot{text-align:center;font-size:11px;color:var(--dim);margin-top:26px;letter-spacing:1px}
-/* 弹窗 */
-.overlay{display:none;position:fixed;inset:0;background:rgba(4,10,8,.7);z-index:100;align-items:center;justify-content:center;padding:20px}
-.overlay.show{display:flex}
-.modal{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;width:100%;max-width:380px;animation:pop .3s cubic-bezier(.2,.9,.3,1.3)}
-@keyframes pop{from{transform:scale(.9);opacity:0}}
-.modal h3{font-family:var(--fd);font-weight:400;letter-spacing:2px;margin-bottom:16px}
-.modal label{display:block;font-size:12px;color:var(--dim);margin-bottom:6px}
-.modal-actions{display:flex;gap:10px;margin-top:18px}
-.modal-actions button{flex:1;padding:11px;border-radius:8px;border:none;font:inherit;font-size:14px;cursor:pointer}
-.btn-cancel{background:var(--surface2);color:var(--muted);border:1px solid var(--line)!important}
-.btn-ok{background:var(--amber);color:#231a05;font-weight:700}
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-90px);background:var(--mint);color:#0c1613;padding:10px 26px;border-radius:8px;font-size:14px;font-weight:700;transition:.35s cubic-bezier(.2,.9,.3,1.2);z-index:999}
-.toast.show{transform:translateX(-50%) translateY(0)}
-.reveal{opacity:0;transform:translateY(18px);transition:.6s cubic-bezier(.2,.7,.3,1)}
-.reveal.in{opacity:1;transform:none}
-@media(max-width:640px){
-.meter-body{grid-template-columns:1fr}
-.disc-side{flex-direction:row;justify-content:center;gap:20px}
-.registers{grid-template-columns:repeat(2,1fr)}
-.reg:nth-child(3){border-left:none;border-top:1px solid #1e362f}
-.reg:nth-child(4){border-top:1px solid #1e362f}
-.seg-grid{grid-template-columns:repeat(3,1fr)}
-.form-row{flex-direction:column}
+/* ===== 变量 ===== */
+:root{
+  --bg:#0f172a; --bg2:#0b1120;
+  --card:#1e293b; --card2:#172033;
+  --line:#334155; --line2:#293548;
+  --ink:#f1f5f9; --mut:#94a3b8; --dim:#64748b;
+  --cyan:#38bdf8; --cyan2:#7dd3fc; --cyan-bg:rgba(56,189,248,.1);
+  --amber:#fbbf24; --amber2:#fcd34d; --amber-bg:rgba(251,191,36,.1);
+  --green:#34d399; --red:#f87171; --warn:#fb923c;
+  --r:14px; --rs:10px;
+  --mono:'SF Mono','Cascadia Code','JetBrains Mono','Fira Code',Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
 }
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+::selection{background:rgba(56,189,248,.25)}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh;-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.6}
+
+/* ===== 背景 ===== */
+.bg-deco{position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(600px 400px at 15% -5%,rgba(56,189,248,.07),transparent 60%),radial-gradient(500px 350px at 85% 5%,rgba(251,191,36,.04),transparent 60%)}
+.bg-deco::after{content:"";position:absolute;inset:0;
+  background-image:linear-gradient(rgba(56,189,248,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.02) 1px,transparent 1px);
+  background-size:40px 40px;-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 15%,transparent 70%);mask-image:radial-gradient(ellipse at 50% 0%,#000 15%,transparent 70%)}
+
+/* ===== 布局 ===== */
+.app{max-width:1100px;margin:0 auto;padding:24px 16px 64px;display:flex;flex-direction:column;gap:18px}
+
+/* ===== 头部 ===== */
+.hero{position:relative;background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.hero-brand{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.hero-brand h1{font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.hero-brand p{font-size:.72rem;color:var(--dim);letter-spacing:.03em}
+.hero-main{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:18px 24px}
+.bal-card{background:var(--card2);border:1px solid var(--line2);border-radius:var(--rs);padding:18px 20px;display:flex;flex-direction:column;justify-content:center;min-height:130px}
+.bal-label{font-size:.72rem;color:var(--dim);font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+#odo{font-family:var(--mono);font-size:clamp(2rem,7vw,2.8rem);font-weight:700;color:var(--amber);line-height:1.2;margin:4px 0;text-shadow:0 0 24px rgba(251,191,36,.15)}
+#odo .bal-cur{font-size:.45em;margin-right:3px;opacity:.8}
+.bal-placeholder{color:var(--dim);font-size:.45em;letter-spacing:.1em;font-weight:500}
+.bal-note{font-size:.78rem;color:var(--mut);min-height:1.4em}
+.warn-badge{display:inline-block;padding:3px 10px;background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3);border-radius:999px;color:var(--red);font-size:.72rem;font-weight:600}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:var(--card2);border:1px solid var(--line2);border-radius:var(--rs);padding:12px 14px;transition:border-color .2s,transform .15s}
+.tile:hover{transform:translateY(-1px);border-color:var(--line)}
+.tile-label{font-size:.62rem;color:var(--dim);font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.tile-val{font-family:var(--mono);font-size:1.15rem;font-weight:600;color:var(--cyan2);margin:3px 0 2px}
+.tile-val .u{font-size:.6em;color:var(--dim);font-weight:400;margin-left:2px}
+.tile-sub{font-size:.68rem;color:var(--dim)}
+.tile.warn{border-color:rgba(248,113,113,.2)}
+.tile.warn .tile-val{color:var(--red)}
+.hero-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 24px;border-top:1px solid var(--line2);font-size:.68rem;color:var(--dim);font-family:var(--mono)}
+@media(max-width:640px){.hero-main{grid-template-columns:1fr}}
+
+/* ===== 面板 ===== */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:clamp(18px,3vw,24px);box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.p-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.p-head h2{font-size:1.15rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.p-head h2::before{content:"";width:3px;height:18px;background:var(--cyan);border-radius:2px}
+.p-head .en{display:block;font-size:.62rem;color:var(--dim);letter-spacing:.03em;margin-top:2px;font-weight:500}
+
+/* ===== 控件 ===== */
+.tabs{display:inline-flex;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:3px;gap:2px}
+.tabs button{border:none;background:transparent;color:var(--mut);padding:.35rem .85rem;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:500;transition:.15s}
+.tabs button:hover{color:var(--cyan2)}
+.tabs button.on{background:var(--cyan);color:#0f172a;font-weight:600}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{padding:.35rem .75rem;border:1px solid var(--line);border-radius:999px;background:var(--bg2);color:var(--mut);cursor:pointer;font-size:.75rem;font-weight:500;transition:.15s;font-family:var(--mono)}
+.chip:hover{color:var(--cyan2);border-color:var(--cyan);background:var(--cyan-bg)}
+.chip.on{background:var(--cyan);color:#0f172a;border-color:var(--cyan);font-weight:600}
+.btn-primary{font-size:.95rem;font-weight:600;padding:.7rem 1.4rem;border:none;border-radius:8px;cursor:pointer;background:var(--cyan);color:#0f172a;transition:.15s}
+.btn-primary:hover{background:var(--cyan2);transform:translateY(-1px)}
+.btn-primary:active{transform:translateY(0)}
+.btn-ghost{border:1px solid var(--line);background:transparent;color:var(--mut);border-radius:8px;padding:.5rem 1rem;cursor:pointer;font-size:.78rem;font-weight:500;transition:.15s}
+.btn-ghost:hover{color:var(--cyan2);border-color:var(--cyan);background:var(--cyan-bg)}
+.btn-ghost.danger:hover{color:var(--red);border-color:var(--red);background:rgba(248,113,113,.08)}
+input[type=number],input[type=text],input[type=date],input[type=datetime-local]{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:.6rem .75rem;font-family:var(--mono);font-size:.9rem;outline:none;color-scheme:dark;transition:border-color .15s,box-shadow .15s}
+input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(56,189,248,.1)}
+input::placeholder{color:var(--dim)}
+
+/* ===== 记一笔 ===== */
+.entry{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fld{display:flex;flex-direction:column;gap:5px}
+.fld>span{font-size:.72rem;color:var(--mut);font-weight:500}
+.fld.full,.chips-row,.entry .btn-primary{grid-column:1/-1}
+.chips-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.chips-row .lbl{font-size:.72rem;color:var(--mut);font-weight:500}
+@media(max-width:560px){.entry{grid-template-columns:1fr}}
+
+/* ===== 用电统计 ===== */
+.range-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:16px}
+.range-row input[type=date]{width:auto;flex:0 1 140px}
+.arrow{color:var(--dim);font-family:var(--mono)}
+.range-info{margin-left:auto;font-size:.66rem;color:var(--dim);font-family:var(--mono)}
+.sums{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.sum{background:var(--bg2);border:1px solid var(--line);border-radius:var(--rs);padding:.6rem .8rem;transition:transform .15s,border-color .15s}
+.sum:hover{transform:translateY(-2px);border-color:var(--line)}
+.sum span{font-size:.6rem;color:var(--dim);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.sum b{display:block;font-family:var(--mono);font-size:1.1rem;margin:.15rem 0 .1rem;font-weight:600}
+.sum b i{font-style:normal;font-size:.6em;color:var(--dim);margin-left:2px}
+.sum b.g{color:var(--green)}
+.sum em{display:block;font-style:normal;font-size:.64rem;color:var(--dim)}
+.sum em.up{color:var(--warn)}.sum em.down{color:var(--green)}
+@media(max-width:780px){.sums{grid-template-columns:repeat(2,1fr)}.sums .sum:last-child{grid-column:1/-1}}
+.chart-wrap{overflow-x:auto;overflow-y:hidden;padding-bottom:4px}
+.chart-wrap::-webkit-scrollbar{height:5px}
+.chart-wrap::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.chart{position:relative;display:flex;align-items:flex-end;gap:5px;height:200px;padding:24px 4px 0;min-width:100%}
+.chart::after{content:"";position:absolute;left:4px;right:4px;bottom:32px;height:1px;background:var(--line)}
+.bcol{flex:1;min-width:16px;display:flex;flex-direction:column;align-items:center;height:100%}
+.bval{font-family:var(--mono);font-size:.62rem;color:var(--amber2);margin-bottom:3px;white-space:nowrap;font-weight:600}
+.btrack{flex:1;width:100%;max-width:40px;display:flex;align-items:flex-end;background:rgba(255,255,255,.02);border-radius:5px 5px 0 0}
+.btrack i{display:block;width:100%;height:0;border-radius:5px 5px 0 0;background:linear-gradient(180deg,var(--cyan2),var(--cyan) 60%,#0e7490);transition:height .7s cubic-bezier(.22,1,.36,1)}
+.bcol:hover .btrack i{filter:brightness(1.2)}
+.bcol.peak .btrack i{background:linear-gradient(180deg,#fde68a,var(--amber) 50%,#b45309)}
+.bmeta{height:28px;display:flex;flex-direction:column;align-items:center;gap:1px;margin-top:4px}
+.tri{color:var(--green);font-size:.56rem;line-height:1;font-style:normal}
+.blab{font-family:var(--mono);font-size:.58rem;color:var(--mut);white-space:nowrap}
+.blab.ghost{opacity:0}
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:12px;font-size:.7rem;color:var(--mut)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.sw.amber{background:var(--amber)}.sw.green{background:var(--green)}.sw.cyan{background:var(--cyan)}
+.legend .fn{margin-left:auto;color:var(--dim);font-size:.64rem}
+
+/* ===== 余额走势 ===== */
+.trend-wrap{position:relative}
+#trendSvg{display:block;width:100%}
+#trendSvg .ax{fill:var(--dim);font-family:var(--mono);font-size:10px}
+
+/* ===== 记录清单 ===== */
+.rows{display:flex;flex-direction:column}
+.row{display:grid;grid-template-columns:auto auto 1fr auto;gap:12px;align-items:center;padding:.7rem .2rem;border-bottom:1px solid var(--line2);transition:background .15s}
+.row:hover{background:rgba(56,189,248,.03)}
+.row:last-child{border-bottom:none}
+.tag{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:.8rem;font-weight:700}
+.tag.b{background:var(--cyan-bg);color:var(--cyan);border:1px solid rgba(56,189,248,.2)}
+.tag.r{background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.2)}
+.r-main{min-width:0}
+.r-main b{font-family:var(--mono);font-size:1rem;font-weight:600}
+.r-main b.g{color:var(--green)}
+.r-main em{font-style:normal;font-size:.76rem;color:var(--green);margin-left:8px;font-family:var(--mono);font-weight:600}
+.r-main span{display:block;font-size:.68rem;color:var(--dim);margin-top:2px}
+.r-info{font-size:.74rem;color:var(--mut);text-align:right;font-family:var(--mono)}
+.r-info b{color:var(--cyan2);font-weight:600}
+.r-info .dim{color:var(--dim)}
+.r-info .warn{color:var(--warn)}
+.r-info .gsm{color:var(--green);font-size:.68rem}
+.r-actions{display:flex;gap:2px}
+.del,.edit-btn{border:none;background:transparent;color:var(--dim);font-size:.9rem;cursor:pointer;opacity:.3;transition:.15s;padding:6px;border-radius:6px}
+.row:hover .del,.row:hover .edit-btn{opacity:.7}
+.del:hover{opacity:1!important;color:var(--red);background:rgba(248,113,113,.1)}
+.edit-btn:hover{opacity:1!important;color:var(--cyan2);background:var(--cyan-bg)}
+.row.editing{background:rgba(56,189,248,.06);border-left:3px solid var(--cyan);padding-left:8px}
+@media(max-width:640px){.row{grid-template-columns:auto 1fr auto}.r-info{grid-column:1/-1;text-align:left;padding-left:42px}}
+.list-empty{padding:28px 10px;text-align:center;color:var(--dim);font-size:.82rem}
+
+/* ===== 编辑模式提示 ===== */
+.edit-banner{display:flex;align-items:center;gap:10px;padding:.5rem .8rem;background:var(--cyan-bg);border:1px solid rgba(56,189,248,.3);border-radius:8px;margin-bottom:12px;font-size:.78rem;color:var(--cyan2)}
+.edit-banner .eb-tag{padding:2px 8px;background:var(--cyan);color:#0f172a;border-radius:4px;font-weight:600;font-size:.72rem}
+.edit-banner .eb-cancel{margin-left:auto;border:1px solid var(--line);background:transparent;color:var(--mut);border-radius:6px;padding:.3rem .7rem;cursor:pointer;font-size:.75rem;transition:.15s}
+.edit-banner .eb-cancel:hover{color:var(--red);border-color:var(--red)}
+
+/* ===== 账单汇总 ===== */
+.bills-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px}
+.bills-nav .bn-btn{border:1px solid var(--line);background:var(--bg2);color:var(--mut);border-radius:8px;padding:.4rem .8rem;cursor:pointer;font-size:.82rem;font-weight:500;transition:.15s;font-family:var(--mono)}
+.bills-nav .bn-btn:hover{color:var(--cyan2);border-color:var(--cyan)}
+.bills-nav .bn-period{font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--ink);min-width:140px;text-align:center}
+.bills-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.bill-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--rs);padding:14px 16px;transition:transform .15s,border-color .15s;cursor:pointer}
+.bill-card:hover{transform:translateY(-2px);border-color:var(--line2)}
+.bill-card.current{border-color:var(--cyan);box-shadow:0 0 0 1px rgba(56,189,248,.2)}
+.bill-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.bill-month{font-size:.95rem;font-weight:700;color:var(--ink)}
+.bill-month .bm-sub{font-size:.66rem;color:var(--dim);font-weight:400;margin-left:4px}
+.bill-kwh{font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--cyan2)}
+.bill-kwh .u{font-size:.55em;color:var(--dim);font-weight:400}
+.bill-rows{display:flex;flex-direction:column;gap:4px}
+.bill-row{display:flex;justify-content:space-between;font-size:.72rem}
+.bill-row span{color:var(--dim)}
+.bill-row b{font-family:var(--mono);font-weight:600}
+.bill-row b.cost{color:var(--amber2)}
+.bill-row b.rch{color:var(--green)}
+.bill-row b.avg{color:var(--cyan2)}
+@media(max-width:640px){.bills-cards{grid-template-columns:1fr}}
+
+/* ===== 记录清单：筛选 + 分页 ===== */
+.list-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px}
+.list-search{position:relative;flex:1;min-width:180px}
+.list-search input{padding-left:32px}
+.list-search::before{content:"🔍";position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.8rem;opacity:.5;pointer-events:none}
+.list-filter-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:6px}
+.list-filter-row .fl-label{font-size:.7rem;color:var(--mut);font-weight:500;margin-right:2px}
+.list-filter-row input[type=date]{width:auto;flex:0 1 130px}
+.list-summary{font-size:.7rem;color:var(--dim);font-family:var(--mono);margin-left:auto}
+.pager{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--line2)}
+.pg-btn{min-width:32px;height:32px;border:1px solid var(--line);background:var(--bg2);color:var(--mut);border-radius:7px;cursor:pointer;font-size:.8rem;font-weight:500;font-family:var(--mono);transition:.15s;padding:0 8px}
+.pg-btn:hover:not(:disabled){color:var(--cyan2);border-color:var(--cyan);background:var(--cyan-bg)}
+.pg-btn.on{background:var(--cyan);color:#0f172a;border-color:var(--cyan);font-weight:600}
+.pg-btn:disabled{opacity:.3;cursor:not-allowed}
+.pg-ellipsis{color:var(--dim);padding:0 4px;font-family:var(--mono)}
+.pg-info{font-size:.7rem;color:var(--dim);font-family:var(--mono);text-align:center;margin-top:8px}
+@media(max-width:640px){.list-toolbar{flex-direction:column;align-items:stretch}.list-search{min-width:0}.list-summary{margin-left:0;text-align:center}}
+
+/* ===== 页脚 / 弹层 / 提示 ===== */
+.foot{text-align:center}
+.foot-btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.foot p{margin-top:14px;font-size:.7rem;color:var(--dim)}
+.foot p b{color:var(--cyan2);font-family:var(--mono)}
+.tip{position:fixed;z-index:70;pointer-events:none;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:.5rem .72rem;font-family:var(--mono);font-size:.72rem;color:var(--ink);white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.5);opacity:0;transform:translateX(-50%) translateY(5px);transition:opacity .15s,transform .15s}
+.tip.show{opacity:1;transform:translateX(-50%)}
+.tip b{display:block;color:var(--cyan2);margin-bottom:2px}
+.tip .g{color:var(--green)}
+.mask{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:grid;place-items:center;opacity:0;transition:opacity .2s}
+.mask.show{opacity:1}
+.mask[hidden]{display:none}
+.modal{width:min(92vw,420px);background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.5);transform:translateY(10px);transition:transform .25s}
+.mask.show .modal{transform:none}
+.modal h3{font-weight:700;font-size:1.1rem;margin-bottom:12px}
+.modal .m-body{font-size:.84rem;color:var(--mut);line-height:1.7}
+.modal .m-body b{color:var(--cyan2)}
+.modal input{margin-top:10px}
+.m-note{margin-top:8px;font-size:.7rem;color:var(--dim)}
+.m-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.m-btns .btn-primary{padding:.55rem 1.2rem;font-size:.9rem}
+.m-btns .btn-primary.danger{background:var(--red);color:#fff}
+.toasts{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:var(--card);border:1px solid var(--line);color:var(--ink);padding:.55rem 1.1rem;border-radius:999px;font-size:.8rem;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transform:translateY(10px);transition:.25s}
+.toast.show{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+
+/* ===== 云端登录遮罩 ===== */
+.cloud-login{position:fixed;inset:0;z-index:1000;background:rgba(6,10,16,.86);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:18px;animation:clFade .25s ease}
+.cloud-login[hidden]{display:none!important}
+@keyframes clFade{from{opacity:0}to{opacity:1}}
+.cl-card{width:100%;max-width:380px;background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:24px 22px;display:flex;flex-direction:column;gap:12px;box-shadow:0 24px 64px rgba(0,0,0,.55)}
+.cl-card h3{font-size:1.12rem;font-weight:700;display:flex;align-items:center;gap:8px;color:var(--ink)}
+.cl-tip{font-size:.74rem;color:var(--dim);line-height:1.5;margin-top:-4px}
+.cl-card label{display:flex;flex-direction:column;gap:5px;font-size:.7rem;color:var(--mut);letter-spacing:.02em}
+.cl-card input{padding:.62rem .7rem;border-radius:8px;border:1px solid var(--line);background:var(--bg2);color:var(--ink);font-size:16px;font-family:var(--mono)}
+.cl-card input:focus{outline:none;border-color:var(--cyan)}
+.cl-help{font-size:.66rem;color:var(--dim);line-height:1.5}
+.cl-help a{color:var(--cyan)}
+.cl-skip{background:none;border:none;color:var(--dim);font-size:.72rem;cursor:pointer;padding:6px;margin-top:2px}
+.cl-skip:hover{color:var(--ink)}
+.cl-err{color:var(--red);font-size:.72rem;min-height:1em}
+/* 云端状态指示器 */
+.cloud-status{display:inline-flex;align-items:center;gap:5px;font-size:.64rem;font-family:var(--mono);color:var(--dim)}
+.cloud-status .dot{width:7px;height:7px;border-radius:50%;background:var(--dim);flex:none}
+.cloud-status.ok{color:var(--green)}.cloud-status.ok .dot{background:var(--green)}
+.cloud-status.busy{color:var(--amber)}.cloud-status.busy .dot{background:var(--amber);animation:clPulse 1s infinite}
+.cloud-status.err{color:var(--red)}.cloud-status.err .dot{background:var(--red)}
+@keyframes clPulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ===== 移动端优化 ===== */
+@media(max-width:480px){
+  :root{--r:12px;--rs:8px}
+  .app{padding:14px 10px 48px;gap:14px}
+  .hero-brand{padding:14px 14px 0}
+  .hero-brand h1{font-size:1.1rem}
+  .hero-brand p{font-size:.66rem}
+  .hero-main{padding:14px;gap:14px}
+  .bal-card{padding:14px 16px;min-height:auto}
+  #odo{font-size:clamp(1.8rem,12vw,2.4rem)}
+  .tiles{gap:8px}
+  .tile{padding:10px 12px}
+  .tile-val{font-size:1rem}
+  .tile-sub{font-size:.62rem}
+  .hero-foot{padding:8px 14px;font-size:.62rem;gap:8px}
+  .panel{padding:16px}
+  .p-head{margin-bottom:14px;gap:10px}
+  .p-head h2{font-size:1rem}
+  .p-head .en{font-size:.56rem}
+  .tabs button{padding:.3rem .6rem;font-size:.78rem}
+  .chip{padding:.3rem .6rem;font-size:.7rem}
+  .btn-primary{padding:.6rem 1rem;font-size:.88rem}
+  .btn-ghost{padding:.45rem .8rem;font-size:.72rem}
+  input[type=number],input[type=text],input[type=date],input[type=datetime-local]{padding:.55rem .65rem;font-size:.85rem}
+  .range-row{gap:6px}
+  .range-row input[type=date]{flex:0 1 110px}
+  .sums{gap:8px}
+  .sum{padding:.5rem .6rem}
+  .sum span{font-size:.56rem}
+  .sum b{font-size:.95rem}
+  .sum em{font-size:.6rem}
+  .chart{height:160px;padding:20px 2px 0}
+  .bval{font-size:.56rem}
+  .blab{font-size:.54rem}
+  .bills-nav{gap:8px}
+  .bills-nav .bn-period{font-size:.95rem;min-width:110px}
+  .bill-card{padding:12px 14px}
+  .bill-kwh{font-size:1.1rem}
+  .r-actions{gap:0}
+  .del,.edit-btn{padding:8px;font-size:.95rem}
+  .list-search input{padding-left:30px}
+  .list-search::before{left:8px;font-size:.72rem}
+  .list-filter-row{gap:6px}
+  .list-filter-row input[type=date]{flex:0 1 100px}
+  .pg-btn{min-width:30px;height:30px;font-size:.75rem;padding:0 6px}
+  .modal{width:94vw;padding:18px}
+  .modal h3{font-size:1rem}
+  .modal .m-body{font-size:.8rem}
+  .foot-btns{gap:8px}
+  .foot-btns .btn-ghost{flex:1;text-align:center}
+  .foot p{font-size:.66rem}
+  .toast{font-size:.74rem;padding:.5rem .9rem}
+  .edit-banner{font-size:.72rem;padding:.4rem .6rem}
+  .edit-banner .eb-cancel{padding:.25rem .55rem;font-size:.7rem}
+  .cl-card{padding:20px 18px;gap:10px}
+  .cl-card h3{font-size:1.02rem}
+  .cl-card input{padding:.58rem .66rem}
+  .cl-tip{font-size:.7rem}
+}
+/* 触摸优化 */
+button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.chart-wrap{-webkit-overflow-scrolling:touch}
+/* 安全区域 */
+@supports(padding:max(env(safe-area-inset-bottom),0px)){.app{padding-bottom:max(48px,env(safe-area-inset-bottom)+48px)}.toasts{bottom:max(24px,env(safe-area-inset-bottom)+24px)}}
 </style>
-</head>
-<body>
-<div class="bg-glow"></div><div class="bg-grid"></div><div class="sparks"></div>
-<div class="page">
-  <header>
-    <div class="brand">
-      <div class="bolt"><svg width="20" height="20" viewBox="0 0 24 24" fill="#231a05"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></div>
-      <div><h1>电费小账本</h1><p>ELECTRICITY · LEDGER</p></div>
+<script>document.documentElement.setAttribute('data-trae-theme', "light");window.__TRAE_DISABLE_LEGACY_ADD_TO_CHAT__=true;</script><style data-trae-edit-ui="true" id="trae-previewer-tools-styles">:root,
+[data-trae-theme='dark'] {
+  --trae-bg-base-default: #171717;
+  --trae-bg-menu: #222427;
+  --trae-bg-overlay-l1: rgba(255, 255, 255, 0.04);
+  --trae-bg-overlay-l2: rgba(255, 255, 255, 0.08);
+  --trae-bg-overlay-l3: rgba(255, 255, 255, 0.12);
+  --trae-bg-overlay-l4: rgba(255, 255, 255, 0.16);
+  --trae-bg-invert: #f5f9fe;
+  --trae-bg-invert-hover: #e8ecf0;
+  --trae-bg-invert-active: #dce0e4;
+  --trae-bg-invert-disabled: rgba(224, 226, 242, 0.12);
+  --trae-border-l1: #e0e2f217;
+  --trae-border-l2: rgba(255, 255, 255, 0.12);
+  --trae-border-l3: rgba(255, 255, 255, 0.08);
+  --trae-border-neutral-l3: rgba(229, 229, 229, 0.20);
+  --trae-border-brand: #6a6fff;
+  --trae-text-default: #f5f9fe;
+  --trae-text-default-hover: #f5f9fe;
+  --trae-text-default-active: #f5f9fe;
+  --trae-text-secondary: rgba(245, 249, 254, 0.5);
+  --trae-text-tertiary: rgba(245, 249, 254, 0.4);
+  --trae-text-disabled: #666b75;
+  --trae-text-onaccent: #222427;
+  --trae-icon-default: #f5f9fe;
+  --trae-icon-secondary: rgba(245, 249, 254, 0.5);
+  --trae-icon-brand: #6a6fff;
+  --trae-icon-onaccent: #222427;
+  --trae-status-success: #22c55e;
+  --trae-status-primary: #3b82f6;
+  --trae-status-primary-default: #387bff;
+  --trae-status-primary-surface-l1: rgba(53, 121, 255, 0.18);
+  --trae-status-success-default: #33c192;
+  --trae-status-success-surface-l1: rgba(0, 165, 110, 0.18);
+  --trae-status-error-default: #f65a5a;
+  --trae-status-error-surface-l1: rgba(246, 70, 70, 0.18);
+  --trae-annotation-marker-bg: #4b3fe3;
+  --trae-annotation-marker-text: #ffffff;
+  --trae-annotation-region-border: var(--trae-status-primary-default);
+  --trae-annotation-rect-border: var(--trae-status-error-default);
+  --trae-annotation-arrow-anchor-bg: var(--trae-status-primary-default);
+  --trae-panel-shadow: 0px 6px 24px -1px rgba(0, 0, 0, 0.16);
+  --trae-floating-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.2);
+  --trae-shadow-elevation-50: 0 1px 2px -1px rgba(0, 0, 0, 0.45);
+  --trae-tab-active-shadow: 0px 1px 2px -1px rgba(0, 0, 0, 0.16);
+}
+
+[data-trae-theme='light'] {
+  --trae-bg-base-default: #fafafa;
+  --trae-bg-menu: #ffffff;
+  --trae-bg-overlay-l1: rgba(0, 0, 0, 0.04);
+  --trae-bg-overlay-l2: rgba(0, 0, 0, 0.06);
+  --trae-bg-overlay-l3: rgba(0, 0, 0, 0.08);
+  --trae-bg-overlay-l4: rgba(0, 0, 0, 0.12);
+  --trae-bg-invert: #1f2328;
+  --trae-bg-invert-hover: #32383f;
+  --trae-bg-invert-active: #444d56;
+  --trae-bg-invert-disabled: rgba(115, 115, 115, 0.20);
+  --trae-border-l1: rgba(0, 0, 0, 0.1);
+  --trae-border-l2: rgba(0, 0, 0, 0.12);
+  --trae-border-l3: rgba(0, 0, 0, 0.08);
+  --trae-border-neutral-l3: rgba(115, 115, 115, 0.36);
+  --trae-border-brand: #4b3fe3;
+  --trae-text-default: #1f2328;
+  --trae-text-default-hover: #111214;
+  --trae-text-default-active: #111214;
+  --trae-text-secondary: rgba(31, 35, 40, 0.5);
+  --trae-text-tertiary: rgba(31, 35, 40, 0.4);
+  --trae-text-disabled: #a1a1a1;
+  --trae-text-onaccent: #ffffff;
+  --trae-icon-default: #1f2328;
+  --trae-icon-secondary: rgba(31, 35, 40, 0.5);
+  --trae-icon-brand: #4b3fe3;
+  --trae-icon-onaccent: #ffffff;
+  --trae-status-success: #22c55e;
+  --trae-status-primary: #3b82f6;
+  --trae-status-primary-default: #2f74ff;
+  --trae-status-primary-surface-l1: rgba(47, 116, 255, 0.12);
+  --trae-status-success-default: #15a877;
+  --trae-status-success-surface-l1: rgba(64, 176, 139, 0.12);
+  --trae-status-error-default: #e8463a;
+  --trae-status-error-surface-l1: rgba(232, 70, 58, 0.12);
+  --trae-annotation-marker-bg: #4b3fe3;
+  --trae-annotation-marker-text: #ffffff;
+  --trae-annotation-region-border: var(--trae-status-primary-default);
+  --trae-annotation-rect-border: var(--trae-status-error-default);
+  --trae-annotation-arrow-anchor-bg: var(--trae-status-primary-default);
+  --trae-panel-shadow: 0px 6px 24px -1px rgba(24, 24, 24, 0.06);
+  --trae-floating-shadow: 0px 2px 8px 0px rgba(24, 24, 24, 0.2);
+  --trae-shadow-elevation-50: 0 1px 2px -1px rgba(24, 24, 24, 0.08);
+  --trae-tab-active-shadow: 0px 1px 2px -1px rgba(24, 24, 24, 0.08);
+}
+
+@keyframes trae-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.trae-edit-mode-active body *:not([data-trae-edit-ui]):not([data-trae-edit-ui] *) {
+  transition: none !important;
+  animation-play-state: paused !important;
+}
+
+.trae-browser-inspect-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* stylelint-disable-next-line scale-unlimited/declaration-strict-value -- 独立注入 CSS，无法访问 :root 变量 */
+  z-index: 1400; /* z-layer: fullscreen (1400) */
+  pointer-events: auto;
+  background: transparent;
+}
+
+.trae-browser-inspect-highlight-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* stylelint-disable-next-line scale-unlimited/declaration-strict-value -- 独立注入 CSS，无法访问 :root 变量 */
+  z-index: 1401; /* above overlay */
+  display: none;
+}
+
+.trae-browser-inspect-highlight-tag {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  height: 18px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  background-color: var(--trae-status-success-default);
+  color: var(--trae-text-onaccent);
+  font-size: 12px;
+  font-weight: 400;
+  display: none;
+  align-items: center;
+  /* stylelint-disable-next-line scale-unlimited/declaration-strict-value -- 独立注入 CSS，无法访问 :root 变量 */
+  z-index: 1402; /* above highlight-box */
+}
+
+.trae-browser-inspect-highlight-box-show {
+  display: flex;
+}
+
+.trae-browser-inspect-highlight-tag.trae-browser-inspect-highlight-box-show {
+  display: none;
+}
+
+.trae-browser-inspect-select-button.trae-browser-inspect-highlight-box-show {
+  display: block !important;
+}
+
+.trae-browser-inspect-select-button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+  /* stylelint-disable-next-line scale-unlimited/declaration-strict-value -- 独立注入 CSS，无法访问 :root 变量 */
+  z-index: 1402; /* above overlay, must receive pointer events */
+}
+
+.trae-browser-inspect-select-highlight-box {
+  background: transparent !important;
+}
+
+.trae-browser-inspect-select-highlight-box .trae-browser-inspect-highlight-tag {
+  background-color: var(--trae-status-success-default);
+}
+
+.trae-add-to-chat-card {
+  display: block;
+  overflow: hidden;
+  background: var(--trae-bg-menu);
+  border: 1px solid var(--trae-border-l1);
+  border-radius: 8px;
+  box-shadow: var(--trae-floating-shadow);
+  transition:
+    width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.trae-add-to-chat-content {
+  position: relative;
+  width: max-content;
+}
+
+.trae-fade-exit {
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+}
+
+.trae-fade-enter {
+  opacity: 1;
+  transition: opacity 0.2s ease-in;
+}
+
+.trae-buttons-view {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 4px;
+  background: transparent;
+}
+
+.trae-action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+.trae-action-button:hover {
+  background: var(--trae-bg-overlay-l2);
+}
+
+.trae-action-button:active {
+  background: var(--trae-bg-overlay-l3);
+}
+
+.trae-action-button:focus-visible {
+  outline: 2px solid var(--trae-status-primary);
+  outline-offset: 1px;
+}
+
+.trae-action-button-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--trae-icon-default);
+  flex-shrink: 0;
+}
+
+.trae-action-button-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--trae-text-default);
+  white-space: nowrap;
+}
+
+.trae-edit-toolbar-button-active {
+  background: var(--trae-status-primary-surface-l1) !important;
+  color: var(--trae-status-primary-default) !important;
+}
+
+.trae-edit-toolbar button[data-action='alignment-dropdown']:hover,
+.trae-edit-toolbar button[data-action='text-align-dropdown']:hover,
+.trae-edit-toolbar button[data-action='font-decrease']:hover,
+.trae-edit-toolbar button[data-action='font-increase']:hover,
+.trae-edit-toolbar button[data-action^='align-']:hover {
+  border-radius: 8px;
+  background: var(--bg-bg-overlay-l1, rgba(115, 115, 115, 0.08)) !important;
+}
+
+.trae-edit-toolbar button[data-action='alignment-dropdown']:active,
+.trae-edit-toolbar button[data-action='text-align-dropdown']:active,
+.trae-edit-toolbar button[data-action='font-decrease']:active,
+.trae-edit-toolbar button[data-action='font-increase']:active,
+.trae-edit-toolbar button[data-action^='align-']:active {
+  border-radius: 8px;
+  background: var(--bg-bg-overlay-l2, rgba(115, 115, 115, 0.12)) !important;
+}
+
+.trae-comment-input {
+  background: transparent;
+  color: var(--trae-text-default);
+  caret-color: var(--trae-text-default);
+}
+
+.trae-comment-input::placeholder {
+  color: var(--trae-text-tertiary);
+}
+
+.trae-edit-panel [data-trae-tooltip] {
+  position: relative;
+}
+
+.trae-edit-panel [data-trae-tooltip]::after {
+  content: attr(data-trae-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  z-index: var(--z-max, 9999);
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--bg-bg-invert, var(--trae-bg-invert));
+  color: var(--text-text-onaccent, var(--trae-text-onaccent));
+  box-shadow: var(--trae-floating-shadow);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.039px;
+  white-space: nowrap;
+  pointer-events: none;
+  box-sizing: border-box;
+  opacity: 0;
+  transform: translateX(-50%);
+  visibility: hidden;
+}
+
+.trae-edit-panel [data-trae-tooltip]::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 5px);
+  z-index: var(--z-max, 9999);
+  width: 8px;
+  height: 4px;
+  background: var(--bg-bg-invert, var(--trae-bg-invert));
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform: translateX(-50%);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.trae-edit-panel [data-trae-tooltip]:hover::after,
+.trae-edit-panel [data-trae-tooltip]:focus-visible::after,
+.trae-edit-panel [data-trae-tooltip]:hover::before,
+.trae-edit-panel [data-trae-tooltip]:focus-visible::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+.trae-comment-btn {
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.trae-comment-btn:disabled {
+  cursor: not-allowed;
+}
+
+.trae-comment-btn:focus-visible {
+  outline: 2px solid var(--trae-status-primary);
+  outline-offset: 1px;
+}
+
+.trae-comment-btn-primary {
+  background: var(--trae-bg-invert);
+  color: var(--trae-text-onaccent);
+}
+
+.trae-comment-btn-primary:hover:not(:disabled) {
+  background: var(--trae-bg-invert-hover);
+}
+
+.trae-comment-btn-primary:active:not(:disabled) {
+  background: var(--trae-bg-invert-active);
+}
+
+.trae-comment-btn-primary:disabled {
+  background: var(--trae-bg-invert-disabled);
+  color: var(--trae-text-disabled);
+}
+
+.trae-comment-btn-secondary {
+  background: var(--trae-bg-overlay-l2);
+  color: var(--trae-text-default);
+}
+
+.trae-comment-btn-secondary:hover:not(:disabled) {
+  background: var(--trae-bg-overlay-l3);
+}
+
+.trae-comment-btn-secondary:active:not(:disabled) {
+  background: var(--trae-bg-overlay-l4);
+}
+
+.trae-comment-btn-secondary:disabled {
+  background: var(--trae-bg-overlay-l2);
+  color: var(--trae-text-disabled);
+}
+
+.trae-comment-btn-text {
+  background: transparent;
+  color: var(--trae-text-default);
+}
+
+.trae-comment-btn-text:hover:not(:disabled) {
+  border-radius: 8px;
+  background: var(--bg-bg-overlay-l1, var(--trae-bg-overlay-l1));
+  color: var(--trae-text-default-hover);
+}
+
+.trae-comment-btn-text:active:not(:disabled) {
+  border-radius: 8px;
+  background: var(--trae-bg-overlay-l2);
+  color: var(--trae-text-default-active);
+}
+
+.trae-comment-btn-text:disabled {
+  background: transparent;
+  color: var(--trae-text-disabled);
+}
+
+.trae-marking-btn {
+  justify-content: center;
+}
+
+.trae-marking-btn:hover:not(:disabled) {
+  background: var(--trae-bg-overlay-l1) !important;
+}
+
+.trae-marking-btn:active:not(:disabled) {
+  background: var(--trae-bg-overlay-l2) !important;
+}
+
+.trae-marking-btn-active {
+  background: var(--trae-status-primary-surface-l1) !important;
+  color: var(--trae-status-primary-default) !important;
+}
+
+.trae-marking-btn:disabled {
+  color: var(--trae-text-disabled) !important;
+  cursor: not-allowed !important;
+}
+
+.trae-action-button-shortcut {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--trae-icon-secondary);
+  flex-shrink: 0;
+}
+
+.trae-shortcut-container {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.trae-shortcut-key {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 12px;
+  color: var(--trae-icon-secondary);
+}
+
+.trae-add-to-chat-divider {
+  width: 2px;
+  height: 12px;
+  padding: 0 6px;
+  box-sizing: content-box;
+  background-clip: content-box;
+  background-color: var(--trae-border-l2);
+  flex-shrink: 0;
+}
+
+.trae-editor-view {
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  padding: 8px;
+  background: transparent;
+}
+
+.trae-editor-text-container {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  background: var(--trae-bg-overlay-l1);
+  border: 1px solid var(--trae-border-l3);
+  border-radius: 4px;
+  gap: 8px;
+}
+
+.trae-editor-textarea {
+  flex: 1;
+  padding: 0 2px;
+  border: none;
+  background: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--trae-text-default);
+  resize: none;
+  outline: none;
+  overflow-y: auto;
+  max-height: 140px;
+}
+
+.trae-editor-textarea::placeholder {
+  color: var(--trae-text-tertiary);
+}
+
+.trae-editor-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.2s ease-out,
+    opacity 0.2s ease-out,
+    margin-top 0.2s ease-out;
+}
+
+.trae-editor-action-bar-visible {
+  max-height: 32px;
+  opacity: 1;
+  margin-top: 8px;
+}
+
+.trae-editor-cancel-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 4px;
+  background: var(--trae-bg-overlay-l2);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.trae-editor-cancel-button:hover {
+  background: var(--trae-bg-overlay-l3);
+}
+
+.trae-editor-cancel-button:active {
+  background: var(--trae-bg-overlay-l3);
+}
+
+.trae-editor-cancel-button:focus-visible {
+  outline: 2px solid var(--trae-status-primary);
+  outline-offset: 1px;
+}
+
+.trae-editor-cancel-text {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--trae-text-default);
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+.trae-editor-submit-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 8px;
+  background: var(--trae-bg-invert);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.trae-editor-submit-button:hover {
+  background: var(--trae-bg-invert-hover);
+}
+
+.trae-editor-submit-button:active {
+  background: var(--trae-bg-invert-active);
+}
+
+.trae-editor-submit-button:focus-visible {
+  outline: 2px solid var(--trae-status-primary);
+  outline-offset: 1px;
+}
+
+.trae-editor-submit-text {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--trae-text-onaccent);
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+.trae-editor-submit-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  color: var(--trae-icon-onaccent);
+  flex-shrink: 0;
+}
+
+.trae-success-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px;
+  height: 32px;
+  white-space: nowrap;
+}
+
+.trae-success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--trae-status-success);
+  flex-shrink: 0;
+}
+
+.trae-success-text {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--trae-text-default);
+  user-select: none;
+}
+</style><style data-id="immersive-translate-input-injected-css"></style></head>
+<body data-new-gr-c-s-check-loaded="14.1139.0" data-gr-ext-installed="">
+<div class="bg-deco"></div>
+
+<!-- ☁️ 云端登录遮罩 -->
+<div class="cloud-login" id="cloudLogin" hidden="">
+  <div class="cl-card">
+    <h3>☁️ 云端同步登录</h3>
+    <p class="cl-tip">数据将存到 GitHub 仓库的 <code>data.json</code>，访问令牌即你的「密码」。登录后自动同步，多设备可共用。</p>
+    <label>GitHub 用户名<input id="clOwner" type="text" placeholder="your-username" autocomplete="off"></label>
+    <label>仓库名<input id="clRepo" type="text" placeholder="your-repo" autocomplete="off"></label>
+    <label>分支（默认 main）<input id="clBranch" type="text" placeholder="main" autocomplete="off"></label>
+    <label>数据文件路径（默认 data.json）<input id="clPath" type="text" placeholder="data.json" autocomplete="off"></label>
+    <label>访问令牌（密码）<input id="clToken" type="password" placeholder="github_pat_..." autocomplete="off"></label>
+    <button type="button" class="btn-primary" id="clBtn">连接云端</button>
+    <div class="cl-err" id="clErr"></div>
+    <p class="cl-help">令牌需为<b>细粒度</b>（Fine-grained），仅勾选该仓库的 <b>Contents: Read and write</b>，不勾其他权限，并设过期时间。<a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">去生成 →</a></p>
+    <button type="button" class="cl-skip" id="clSkip">暂不启用，仅本地使用</button>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- ⚡ 头部 -->
+  <header class="hero">
+    <div class="hero-brand">
+      <h1>⚡ 电费小账本</h1>
+      <p>Electricity Ledger · 记录余额，自动结算用电</p>
     </div>
-    <button class="gear-btn" onclick="openSettings()" title="设置电价"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <div class="hero-main">
+      <div class="bal-card">
+        <div class="bal-label">当前余额</div>
+        <div id="odo"><span class="bal-cur">¥</span>435.41</div>
+        <div class="bal-note" id="balTag">余额正常 · 继续保持</div>
+      </div>
+      <div class="tiles" id="tiles"><div class="tile"><div class="tile-label">日均用电</div><div class="tile-val">8.7 <span class="u">度/天</span></div><div class="tile-sub">近14天</div></div><div class="tile"><div class="tile-label">日均电费</div><div class="tile-val">¥5.64</div><div class="tile-sub">元 / 天</div></div><div class="tile"><div class="tile-label">月均电费</div><div class="tile-val">¥169.12</div><div class="tile-sub">元 / 30天</div></div><div class="tile"><div class="tile-label">余额可用</div><div class="tile-val">77.2 <span class="u">天</span></div><div class="tile-sub">约 2026/10/12 需充值</div></div></div>
+    </div>
+    <div class="hero-foot">
+      <span id="lastRec">最近抄表 7/26 21:36</span>
+      <span>NO. <span id="serial">EL-20260726</span></span>
+    </div>
   </header>
-  <div class="powerline"></div>
 
-  <!-- 电表 -->
-  <div class="meter">
-    <div class="meter-top">
-      <span class="meter-tag"><span class="led"></span>实时监测 · ONLINE</span>
-      <span id="meterTime">--</span>
+  <!-- 📋 记一笔 -->
+  <section class="panel">
+    <div class="p-head">
+      <div><h2>记一笔</h2><span class="en">Quick Entry · 余额与充值一次记清</span></div>
     </div>
-    <div class="meter-body">
-      <div class="lcd" id="lcd">
-        <div class="lcd-label"><span>当前余额 BALANCE</span><span>CNY</span></div>
-        <div class="lcd-value"><span class="lcd-cur">¥</span><span id="lcdVal">--</span><span class="lcd-cursor"></span></div>
-        <div class="lcd-sub dim" id="lcdSub">记录第一笔余额，开始追踪用电</div>
-      </div>
-      <div class="disc-side">
-        <div class="disc-ring"><div class="disc" id="disc"></div></div>
-        <div class="disc-cap"><b id="discRate">--</b> 度/天<span>转盘速度随用电量变化</span></div>
-      </div>
+    <div class="edit-banner" id="editBanner" hidden="">
+      <span class="eb-tag">编辑中</span>
+      <span id="editInfo">正在修改记录</span>
+      <button type="button" class="eb-cancel" id="editCancel">✕ 取消编辑</button>
     </div>
-    <div class="registers">
-      <div class="reg"><label>日均电费</label><b class="c-amber" id="rDaily">--</b><i>元 / 天</i></div>
-      <div class="reg"><label>日均用电</label><b class="c-mint" id="rKwh">--</b><i>度 / 天</i></div>
-      <div class="reg"><label>月均电费</label><b class="c-blue" id="rMonthly">--</b><i>元 / 30天</i></div>
-      <div class="reg"><label>余额可用</label><b id="rDays">--</b><i id="rDaysSub">天</i></div>
-    </div>
-  </div>
-
-  <!-- 记一笔 -->
-  <section class="block reveal">
-    <div class="block-head"><h2>记一笔</h2><span class="block-sub">时间精确到分钟 · 随时记录</span></div>
-    <div class="panel">
-      <div class="seg" id="seg">
-        <div class="seg-thumb"></div>
-        <button id="btnB" class="on" onclick="setType('balance')">📋 记录余额</button>
-        <button id="btnR" onclick="setType('recharge')">💰 记录充值</button>
+    <form id="formEntry" class="entry">
+      <label class="fld"><span>抄表时间</span><input type="datetime-local" id="eTime"></label>
+      <label class="fld"><span>备注（可选）</span><input type="text" id="eNote" maxlength="30" placeholder="如：网上国网充值 / 换了新热水器"></label>
+      <label class="fld"><span>电表余额（元）</span><input type="number" id="eBalance" step="0.01" min="0" placeholder="如 128.45" inputmode="decimal"></label>
+      <label class="fld"><span>本次充值（元，无则填0）</span><input type="number" id="eRecharge" step="0.01" min="0" value="0" placeholder="0" inputmode="decimal"></label>
+      <div class="chips-row"><span class="lbl">快捷充值</span>
+        <div class="chips" id="eChips">
+          <button type="button" class="chip on" data-v="0">不充值</button>
+          <button type="button" class="chip" data-v="50">¥+50</button>
+          <button type="button" class="chip" data-v="100">¥+100</button>
+          <button type="button" class="chip" data-v="200">¥+200</button>
+          <button type="button" class="chip" data-v="500">¥+500</button>
+        </div>
       </div>
-      <div class="form-row">
-        <div class="amount-box"><span>¥</span><input type="number" id="inAmt" placeholder="金额" step="0.01" inputmode="decimal"></div>
-        <input type="datetime-local" class="field" id="inTime">
-      </div>
-      <div class="chips" id="chips" style="display:none">
-        <button onclick="fillAmt(50)">+50</button><button onclick="fillAmt(100)">+100</button>
-        <button onclick="fillAmt(200)">+200</button><button onclick="fillAmt(500)">+500</button>
-      </div>
-      <div class="form-row"><input type="text" class="field" id="inNote" placeholder="备注（可选，如：微信充值 / 看了电表）"></div>
-      <button class="btn-save" onclick="saveRecord()">✅ 保 存</button>
-    </div>
+      <button type="submit" class="btn-primary">✅ 保存记录</button>
+    </form>
   </section>
 
-  <!-- 分析 -->
-  <section class="block reveal">
-    <div class="block-head"><h2>用电分析</h2><span class="block-sub">两次余额之间自动结算</span></div>
-    <div id="analysisList"><div class="empty">至少记录两笔余额后，这里会自动算出每段用了多少电</div></div>
+  <!-- 📊 用电统计 -->
+  <section class="panel">
+    <div class="p-head">
+      <div><h2>用电统计</h2><span class="en">Usage Analytics · 自由选择区间</span></div>
+      <div class="tabs" id="granTabs">
+        <button type="button" data-g="day" class="on">日</button>
+        <button type="button" data-g="week">周</button>
+        <button type="button" data-g="month">月</button>
+        <button type="button" data-g="year">年</button>
+      </div>
+    </div>
+    <div class="range-row">
+      <input type="date" id="dStart" aria-label="开始日期"><span class="arrow">→</span><input type="date" id="dEnd" aria-label="结束日期">
+      <div class="chips" id="presetChips">
+        <button type="button" class="chip" data-p="7d">近7天</button>
+        <button type="button" class="chip on" data-p="30d">近30天</button>
+        <button type="button" class="chip" data-p="month">本月</button>
+        <button type="button" class="chip" data-p="lastMonth">上月</button>
+        <button type="button" class="chip" data-p="year">今年</button>
+        <button type="button" class="chip" data-p="all">全部</button>
+      </div>
+      <span class="range-info" id="rangeInfo">2026/6/27 → 2026/7/26 · 30 天</span>
+    </div>
+    <div id="statsBody">
+      <div class="sums" id="sums"><div class="sum"><span>总用电</span><b>258.2<i>度</i></b><em class="down">▼ 10% 较上一同长区间</em></div><div class="sum"><span>总电费</span><b>¥167.85</b><em>电价 0.65 元/度</em></div><div class="sum"><span>日均用电</span><b>8.6<i>度</i></b><em>区间 30 天</em></div><div class="sum"><span>峰值单日</span><b>14.7<i>度</i></b><em>2026年7月26日 · 周日</em></div><div class="sum"><span>充值合计</span><b class="g">¥500.00</b><em>▲ 已在结算中抵扣</em></div></div>
+      <div class="chart-wrap"><div class="chart" id="statChart" style="min-width: 900px;"><div class="bcol" data-i="0"><div class="btrack"><i data-h="65.21" style="height: 65.21%;"></i></div><div class="bmeta"><span class="blab">6/27</span></div></div><div class="bcol" data-i="1"><div class="btrack"><i data-h="65.21" style="height: 65.21%;"></i></div><div class="bmeta"><span class="blab ghost">6/28</span></div></div><div class="bcol" data-i="2"><div class="btrack"><i data-h="54.33" style="height: 54.33%;"></i></div><div class="bmeta"><span class="blab ghost">6/29</span></div></div><div class="bcol" data-i="3"><div class="btrack"><i data-h="40.34" style="height: 40.34%;"></i></div><div class="bmeta"><span class="blab">6/30</span></div></div><div class="bcol" data-i="4"><div class="btrack"><i data-h="41.27" style="height: 41.27%;"></i></div><div class="bmeta"><span class="blab ghost">7/1</span></div></div><div class="bcol" data-i="5"><div class="btrack"><i data-h="43.67" style="height: 43.67%;"></i></div><div class="bmeta"><span class="blab ghost">7/2</span></div></div><div class="bcol" data-i="6"><div class="btrack"><i data-h="58.11" style="height: 58.11%;"></i></div><div class="bmeta"><span class="blab">7/3</span></div></div><div class="bcol" data-i="7"><div class="btrack"><i data-h="74.99" style="height: 74.99%;"></i></div><div class="bmeta"><span class="blab ghost">7/4</span></div></div><div class="bcol" data-i="8"><div class="btrack"><i data-h="67.00" style="height: 67%;"></i></div><div class="bmeta"><span class="blab ghost">7/5</span></div></div><div class="bcol" data-i="9"><div class="btrack"><i data-h="40.23" style="height: 40.23%;"></i></div><div class="bmeta"><span class="blab">7/6</span></div></div><div class="bcol" data-i="10"><div class="btrack"><i data-h="32.89" style="height: 32.89%;"></i></div><div class="bmeta"><span class="blab ghost">7/7</span></div></div><div class="bcol" data-i="11"><div class="btrack"><i data-h="59.96" style="height: 59.96%;"></i></div><div class="bmeta"><span class="blab ghost">7/8</span></div></div><div class="bcol" data-i="12"><div class="btrack"><i data-h="68.47" style="height: 68.47%;"></i></div><div class="bmeta"><span class="blab">7/9</span></div></div><div class="bcol" data-i="13"><div class="btrack"><i data-h="72.23" style="height: 72.23%;"></i></div><div class="bmeta"><span class="blab ghost">7/10</span></div></div><div class="bcol" data-i="14"><div class="btrack"><i data-h="78.02" style="height: 78.02%;"></i></div><div class="bmeta"><span class="blab ghost">7/11</span></div></div><div class="bcol" data-i="15"><div class="btrack"><i data-h="78.02" style="height: 78.02%;"></i></div><div class="bmeta"><span class="blab">7/12</span></div></div><div class="bcol" data-i="16"><div class="btrack"><i data-h="68.97" style="height: 68.97%;"></i></div><div class="bmeta"><em class="tri">▲</em><span class="blab ghost">7/13</span></div></div><div class="bcol" data-i="17"><div class="btrack"><i data-h="53.20" style="height: 53.2%;"></i></div><div class="bmeta"><span class="blab ghost">7/14</span></div></div><div class="bcol" data-i="18"><div class="btrack"><i data-h="53.20" style="height: 53.2%;"></i></div><div class="bmeta"><span class="blab">7/15</span></div></div><div class="bcol" data-i="19"><div class="btrack"><i data-h="57.06" style="height: 57.06%;"></i></div><div class="bmeta"><span class="blab ghost">7/16</span></div></div><div class="bcol" data-i="20"><div class="btrack"><i data-h="59.56" style="height: 59.56%;"></i></div><div class="bmeta"><span class="blab ghost">7/17</span></div></div><div class="bcol" data-i="21"><div class="btrack"><i data-h="54.58" style="height: 54.58%;"></i></div><div class="bmeta"><span class="blab">7/18</span></div></div><div class="bcol" data-i="22"><div class="btrack"><i data-h="56.19" style="height: 56.19%;"></i></div><div class="bmeta"><span class="blab ghost">7/19</span></div></div><div class="bcol" data-i="23"><div class="btrack"><i data-h="52.39" style="height: 52.39%;"></i></div><div class="bmeta"><span class="blab ghost">7/20</span></div></div><div class="bcol" data-i="24"><div class="btrack"><i data-h="44.91" style="height: 44.91%;"></i></div><div class="bmeta"><span class="blab">7/21</span></div></div><div class="bcol" data-i="25"><div class="btrack"><i data-h="41.43" style="height: 41.43%;"></i></div><div class="bmeta"><span class="blab ghost">7/22</span></div></div><div class="bcol" data-i="26"><div class="btrack"><i data-h="44.81" style="height: 44.81%;"></i></div><div class="bmeta"><span class="blab ghost">7/23</span></div></div><div class="bcol" data-i="27"><div class="btrack"><i data-h="55.43" style="height: 55.43%;"></i></div><div class="bmeta"><span class="blab">7/24</span></div></div><div class="bcol" data-i="28"><div class="btrack"><i data-h="79.94" style="height: 79.94%;"></i></div><div class="bmeta"><span class="blab ghost">7/25</span></div></div><div class="bcol peak" data-i="29"><span class="bval">14.7</span><div class="btrack"><i data-h="100.00" style="height: 100%;"></i></div><div class="bmeta"><span class="blab">7/26</span></div></div></div></div>
+      <div class="legend">
+        <span><i class="sw cyan"></i>用电量（度）</span>
+        <span><i class="sw green"></i>▲ 该区间有充值</span>
+        <span class="fn" id="statNote">结算口径：上期余额 + 期间充值 − 本期余额，跨区间按时间比例分摊</span>
+      </div>
+    </div>
+    <div class="list-empty" id="statEmpty" hidden=""></div>
   </section>
 
-  <!-- 图表 -->
-  <section class="block reveal" id="chartBlock" style="display:none">
-    <div class="block-head"><h2>余额走势</h2><span class="block-sub">▲ 绿色标记为充值</span></div>
-    <div class="panel"><canvas id="chart"></canvas></div>
+  <!-- 📈 余额走势 -->
+  <section class="panel">
+    <div class="p-head"><div><h2>余额走势</h2><span class="en">Balance Trend · ▲ 绿色标记为充值</span></div></div>
+    <div class="trend-wrap" id="trendWrap">
+      <svg id="trendSvg" height="250" viewBox="0 0 984 250" width="984"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(56,189,248,.25)"></stop><stop offset="1" stop-color="rgba(56,189,248,0)"></stop></linearGradient></defs><line x1="48" x2="968" y1="220" y2="220" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="224" text-anchor="end" class="ax">0.0</text><line x1="48" x2="968" y1="169.5" y2="169.5" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="173.5" text-anchor="end" class="ax">142</text><line x1="48" x2="968" y1="119" y2="119" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="123" text-anchor="end" class="ax">283</text><line x1="48" x2="968" y1="68.5" y2="68.5" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="72.5" text-anchor="end" class="ax">425</text><line x1="48" x2="968" y1="18" y2="18" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="22" text-anchor="end" class="ax">567</text><text x="48" y="242" text-anchor="middle" class="ax">26/2/26</text><text x="278" y="242" text-anchor="middle" class="ax">26/4/5</text><text x="508" y="242" text-anchor="middle" class="ax">26/5/12</text><text x="738" y="242" text-anchor="middle" class="ax">26/6/19</text><text x="968" y="242" text-anchor="middle" class="ax">26/7/26</text><path d="M48.0,117.9L60.3,122.5L72.5,124.6L84.9,128.8L91.1,131.1L97.3,132.3L103.6,134.1L109.6,137.6L122.1,141.3L134.4,144.7L140.7,146.8L152.9,151.1L164.9,156.8L171.3,157.9L177.6,159.5L196.1,167.3L202.2,168.8L220.3,174.6L226.3,176.8L238.4,178.9L244.5,180.8L250.5,182.6L262.7,186.6L275.0,190.0L281.0,193.2L287.0,195.0L305.2,198.2L311.5,202.4L317.6,203.5L329.8,197.1L342.1,200.9L348.2,202.1L354.5,204.1L366.7,209.9L385.2,146.5L397.5,150.1L415.6,156.4L428.0,159.5L434.3,162.4L440.2,164.3L446.6,166.8L458.7,171.5L464.9,171.9L470.9,174.0L477.0,176.1L482.9,177.5L501.4,185.4L507.6,187.4L513.6,189.4L519.4,190.7L531.8,194.3L538.0,197.3L544.1,204.2L550.4,206.1L562.7,209.4L574.7,176.6L587.1,181.3L599.1,187.0L605.0,188.6L617.4,192.5L629.8,200.4L636.1,201.8L654.6,208.3L660.7,210.3L672.7,179.1L678.8,181.2L691.2,184.8L697.5,186.6L709.8,195.7L715.7,197.6L727.8,201.3L733.8,203.8L752.1,209.4L758.3,175.7L770.4,179.9L782.7,182.3L801.0,188.9L807.2,190.3L819.6,193.1L825.7,194.7L837.7,199.7L843.8,201.6L850.0,202.3L856.1,204.1L868.4,208.8L886.9,38.6L905.1,44.0L911.0,46.0L923.2,49.7L929.2,51.7L941.6,54.8L947.6,56.0L959.8,59.8L968.0,64.8L968.0,220.0L48.0,220.0Z" fill="url(#ga)"></path><path d="M48.0,117.9L60.3,122.5L72.5,124.6L84.9,128.8L91.1,131.1L97.3,132.3L103.6,134.1L109.6,137.6L122.1,141.3L134.4,144.7L140.7,146.8L152.9,151.1L164.9,156.8L171.3,157.9L177.6,159.5L196.1,167.3L202.2,168.8L220.3,174.6L226.3,176.8L238.4,178.9L244.5,180.8L250.5,182.6L262.7,186.6L275.0,190.0L281.0,193.2L287.0,195.0L305.2,198.2L311.5,202.4L317.6,203.5L329.8,197.1L342.1,200.9L348.2,202.1L354.5,204.1L366.7,209.9L385.2,146.5L397.5,150.1L415.6,156.4L428.0,159.5L434.3,162.4L440.2,164.3L446.6,166.8L458.7,171.5L464.9,171.9L470.9,174.0L477.0,176.1L482.9,177.5L501.4,185.4L507.6,187.4L513.6,189.4L519.4,190.7L531.8,194.3L538.0,197.3L544.1,204.2L550.4,206.1L562.7,209.4L574.7,176.6L587.1,181.3L599.1,187.0L605.0,188.6L617.4,192.5L629.8,200.4L636.1,201.8L654.6,208.3L660.7,210.3L672.7,179.1L678.8,181.2L691.2,184.8L697.5,186.6L709.8,195.7L715.7,197.6L727.8,201.3L733.8,203.8L752.1,209.4L758.3,175.7L770.4,179.9L782.7,182.3L801.0,188.9L807.2,190.3L819.6,193.1L825.7,194.7L837.7,199.7L843.8,201.6L850.0,202.3L856.1,204.1L868.4,208.8L886.9,38.6L905.1,44.0L911.0,46.0L923.2,49.7L929.2,51.7L941.6,54.8L947.6,56.0L959.8,59.8L968.0,64.8" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="48" cy="117.92817455360515" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="60.34697205200474" cy="122.53281137192715" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="72.50353745243989" cy="124.62842007871765" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="84.8873028642708" cy="128.7661780865132" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="91.08799479380892" cy="131.09700817875978" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="97.26419526696455" cy="132.34439431375415" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="103.57949271136815" cy="134.1192465858318" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="109.58593667380023" cy="137.5513404372591" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="122.0640128669685" cy="141.30062676301358" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="134.4422548184009" cy="144.66500536711263" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="140.73779299725132" cy="146.76417803428882" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="152.87681264113945" cy="151.07657010098362" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="164.9463053892659" cy="156.8323661238861" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="171.27877172585357" cy="157.90868216036694" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="177.59725053349257" cy="159.49108057161692" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="196.13178381406382" cy="167.29258985591014" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="202.18227742781792" cy="168.81440094060326" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="220.26447869507047" cy="174.57376092389146" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="226.33350505579688" cy="176.84756764996686" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="238.35713511726556" cy="178.9431763567574" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="244.53131561990457" cy="180.8356393215631" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="250.51814298568422" cy="182.61405555402646" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="262.65712774246765" cy="186.5700515821514" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="274.98395694995816" cy="189.97006979010743" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="280.9522919412086" cy="193.16694225607867" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="286.994304394947" cy="195.02020165664172" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="305.2375459767753" cy="198.18143451875596" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="311.50447201341024" cy="202.44036717966526" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="317.64022785290103" cy="203.54519489923166" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="324.25406873908355,207.1193743238179 335.25406873908355,207.1193743238179 329.75406873908355,198.1193743238179" fill="#34d399" opacity=".9"></polygon><circle cx="342.1350266152404" cy="200.9363758969006" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="348.1718042423758" cy="202.1196107449524" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="354.5146963621228" cy="204.07266103631497" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="366.6539658904983" cy="209.88548042538866" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="379.70995171124855,156.52895664883278 390.70995171124855,156.52895664883278 385.20995171124855,147.52895664883278" fill="#34d399" opacity=".9"></polygon><circle cx="397.46398071668" cy="150.07866119298808" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="415.5971687160918" cy="156.44033048145928" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="427.9658031764914" cy="159.53741205663098" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="434.31296418024897" cy="162.42778392943217" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="440.2275835976557" cy="164.30599105269508" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="446.5651405325251" cy="166.7936354019124" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="458.68539095131695" cy="171.47667934871976" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="464.9183565539994" cy="171.90079063461783" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="470.87014537254225" cy="174.03560290565102" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="476.96706287296485" cy="176.05993240472756" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="482.9267707478195" cy="177.47838863823543" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="501.39495613430677" cy="185.37968881332822" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="507.55275459432914" cy="187.40045435201907" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="513.5544494914645" cy="189.37845236608155" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="519.4256752332755" cy="190.72919335226112" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="531.7926342822195" cy="194.2575141341023" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="537.9729160881943" cy="197.27262462040295" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="544.0771193316382" cy="204.22591133290004" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="550.4011171497079" cy="206.1468859807913" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="562.6789343188545" cy="209.432857456405" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="569.1908685092321,186.598090422968 580.1908685092321,186.598090422968 574.6908685092321,177.598090422968" fill="#34d399" opacity=".9"></polygon><circle cx="587.0603198852249" cy="181.25975060746117" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="599.1005104664013" cy="187.03693039267787" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="604.9663586909464" cy="188.57299731891376" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="617.3947298050639" cy="192.50404562433883" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="629.7697792920985" cy="200.35188639364614" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="636.0947087812791" cy="201.77390658753967" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="654.5783179921802" cy="208.3209018160672" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="660.7316891175705" cy="210.28108002820116" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="667.2151924439047,189.05722308909972 678.2151924439047,189.05722308909972 672.7151924439047,180.05722308909972" fill="#34d399" opacity=".9"></polygon><circle cx="678.8080890257404" cy="181.15283179589022" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="691.2413563040053" cy="184.82727495354501" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="697.5215562368595" cy="186.5557957406086" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="709.83716565688" cy="195.73655769416703" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="715.7322130519755" cy="197.55774145125878" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="727.7968130126925" cy="201.29277193547045" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="733.8342228219949" cy="203.76616044314497" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="752.1458739249981" cy="209.38652597139094" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="752.7614928551993,185.67858864345786 763.7614928551993,185.67858864345786 758.2614928551993,176.67858864345786" fill="#34d399" opacity=".9"></polygon><circle cx="770.3535916716415" cy="179.8769339778103" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="782.6571895008838" cy="182.26122347584234" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="800.9742180867134" cy="188.8973177140123" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="807.1660935979627" cy="190.2623145417347" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="819.631570957213" cy="193.12061077106458" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="825.696374782927" cy="194.72795690501445" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="837.7240322510312" cy="199.73888520730605" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="843.8323953131458" cy="201.62778421172607" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="850.0058354661851" cy="202.25860519999463" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="856.1407380114861" cy="204.10830064017196" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="868.4041416882096" cy="208.77352478505085" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="881.4196608103474,48.60154428873585 892.4196608103474,48.60154428873585 886.9196608103474,39.60154428873585" fill="#34d399" opacity=".9"></polygon><circle cx="905.1383641974796" cy="43.986688431525735" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="911.0013895485229" cy="46.046657534459285" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="923.16470832908" cy="49.73535653365685" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="929.2401067201222" cy="51.702662666562226" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="941.6388086749673" cy="54.796180281348214" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="947.5840668436582" cy="56.00079889171419" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="959.8040314889641" cy="59.76434105901143" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="968" cy="64.8216008463171" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><line id="tCross" y1="18" y2="220" stroke="rgba(226,232,240,.2)" stroke-dasharray="3 3" opacity="0"></line><circle id="tFocus" r="5" fill="none" stroke="#7dd3fc" stroke-width="2" opacity="0"></circle><rect id="tHit" x="48" y="18" width="920" height="202" fill="transparent"></rect></svg>
+    </div>
+    <div class="list-empty" id="trendEmpty" hidden="">至少记录两笔后，这里会画出余额走势</div>
   </section>
 
-  <!-- 记录 -->
-  <section class="block reveal">
-    <div class="block-head"><h2>记录清单</h2><span class="block-sub" id="recCount"></span></div>
-    <div id="recList"></div>
+  <!-- 💰 账单汇总 -->
+  <section class="panel">
+    <div class="p-head">
+      <div><h2>账单汇总</h2><span class="en">Bills Summary · 按月/年回顾电费开销</span></div>
+      <div class="tabs" id="billTabs">
+        <button type="button" data-bg="month" class="on">月度</button>
+        <button type="button" data-bg="year">年度</button>
+      </div>
+    </div>
+    <div class="bills-nav">
+      <button type="button" class="bn-btn" id="billPrev">‹ 上</button>
+      <span class="bn-period" id="billPeriod">2026年 2–7月</span>
+      <button type="button" class="bn-btn" id="billNext">下 ›</button>
+    </div>
+    <div class="bills-cards" id="billsCards"><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年2月<span class="bm-sub"></span></span><span class="bill-kwh">22.6<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥14.68</b></div><div class="bill-row"><span>充值</span><b class="rch">—</b></div><div class="bill-row"><span>日均用电</span><b class="avg">0.8 度</b></div><div class="bill-row"><span>28天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年3月<span class="bm-sub"></span></span><span class="bill-kwh">260.8<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥169.52</b></div><div class="bill-row"><span>充值</span><b class="rch">—</b></div><div class="bill-row"><span>日均用电</span><b class="avg">8.4 度</b></div><div class="bill-row"><span>31天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年4月<span class="bm-sub"></span></span><span class="bill-kwh">296.8<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥192.91</b></div><div class="bill-row"><span>充值</span><b class="rch">¥250.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">9.9 度</b></div><div class="bill-row"><span>30天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年5月<span class="bm-sub"></span></span><span class="bill-kwh">304.6<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥198.02</b></div><div class="bill-row"><span>充值</span><b class="rch">¥100.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">9.8 度</b></div><div class="bill-row"><span>31天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年6月<span class="bm-sub"></span></span><span class="bill-kwh">276.1<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥179.45</b></div><div class="bill-row"><span>充值</span><b class="rch">¥200.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">9.2 度</b></div><div class="bill-row"><span>30天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card current"><div class="bill-head"><span class="bill-month">2026年7月<span class="bm-sub">(本月)</span></span><span class="bill-kwh">225.2<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥146.41</b></div><div class="bill-row"><span>充值</span><b class="rch">¥500.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">7.3 度</b></div><div class="bill-row"><span>31天 · 0.65元/度</span><b></b></div></div></div></div>
+    <div class="list-empty" id="billsEmpty" hidden="">至少记录两笔后，这里会生成账单汇总</div>
   </section>
 
-  <div class="toolbar reveal">
-    <button onclick="openSettings()">⚙️ 设置电价</button>
-    <button onclick="exportData()">📤 导出备份</button>
-    <button onclick="document.getElementById('impFile').click()">📥 导入数据</button>
-    <button onclick="clearAll()">🗑️ 清空数据</button>
-  </div>
-  <input type="file" id="impFile" accept=".json" style="display:none" onchange="importData(event)">
-  <p class="foot">数据仅保存在本机浏览器 · 定期导出备份 · 电价当前 <span id="footPrice">0.65</span> 元/度</p>
+  <!-- 📒 记录清单 -->
+  <section class="panel">
+    <div class="p-head">
+      <div><h2>记录清单</h2><span class="en">Ledger Entries · <span id="recCount">94</span> 条 · 自动与上一笔结算用电</span></div>
+      <button type="button" class="btn-ghost" id="demoBtn">⚡ 载入演示数据</button>
+    </div>
+    <div class="list-toolbar" id="listToolbar">
+      <div class="list-search"><input type="text" id="listSearch" placeholder="搜索备注或日期（如 7月、充值）" maxlength="30"></div>
+      <div class="chips" id="listTypeChips">
+        <button type="button" class="chip on" data-t="all">全部</button>
+        <button type="button" class="chip" data-t="recharge">仅充值</button>
+        <button type="button" class="chip" data-t="balance">仅余额</button>
+      </div>
+    </div>
+    <div class="list-filter-row" id="listFilterRow">
+      <span class="fl-label">区间</span>
+      <input type="date" id="listStart" aria-label="记录开始日期">
+      <span class="arrow">→</span>
+      <input type="date" id="listEnd" aria-label="记录结束日期">
+      <div class="chips" id="listPresetChips">
+        <button type="button" class="chip on" data-lp="all">全部</button>
+        <button type="button" class="chip" data-lp="7d">近7天</button>
+        <button type="button" class="chip" data-lp="30d">近30天</button>
+        <button type="button" class="chip" data-lp="month">本月</button>
+        <button type="button" class="chip" data-lp="lastMonth">上月</button>
+        <button type="button" class="chip" data-lp="year">今年</button>
+      </div>
+      <span class="list-summary" id="listSummary">94 条记录</span>
+    </div>
+    <div class="rows" id="recList"><div class="row" data-id="83fdb41b-290e-4d02-af33-5810c84f3223"><span class="tag b">余</span><div class="r-main"><b>¥435.41</b><span>7/26 21:36 · 演示·周末</span></div><div class="r-info">≈ <b>21.8</b> 度 · ¥14.19 <span class="dim">/ 1.3天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="83fdb41b-290e-4d02-af33-5810c84f3223" title="编辑">✎</button><button type="button" class="del" data-id="83fdb41b-290e-4d02-af33-5810c84f3223" title="删除">✕</button></div></div><div class="row" data-id="499371fc-5fbf-4592-afd5-4dd38a45a9a2"><span class="tag b">余</span><div class="r-main"><b>¥449.60</b><span>7/25 13:25</span></div><div class="r-info">≈ <b>16.2</b> 度 · ¥10.56 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="499371fc-5fbf-4592-afd5-4dd38a45a9a2" title="编辑">✎</button><button type="button" class="del" data-id="499371fc-5fbf-4592-afd5-4dd38a45a9a2" title="删除">✕</button></div></div><div class="row" data-id="a60e41b8-64ee-4f85-a14c-050f95a423a7"><span class="tag b">余</span><div class="r-main"><b>¥460.16</b><span>7/23 13:26</span></div><div class="r-info">≈ <b>5.2</b> 度 · ¥3.38 <span class="dim">/ 23小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="a60e41b8-64ee-4f85-a14c-050f95a423a7" title="编辑">✎</button><button type="button" class="del" data-id="a60e41b8-64ee-4f85-a14c-050f95a423a7" title="删除">✕</button></div></div><div class="row" data-id="f6d3cbb2-8a59-4588-8090-4aef240442d8"><span class="tag b">余</span><div class="r-main"><b>¥463.54</b><span>7/22 14:06</span></div><div class="r-info">≈ <b>13.4</b> 度 · ¥8.68 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="f6d3cbb2-8a59-4588-8090-4aef240442d8" title="编辑">✎</button><button type="button" class="del" data-id="f6d3cbb2-8a59-4588-8090-4aef240442d8" title="删除">✕</button></div></div><div class="row" data-id="37809c00-a8d5-420c-9419-8aa64bb159ed"><span class="tag b">余</span><div class="r-main"><b>¥472.22</b><span>7/20 13:25</span></div><div class="r-info">≈ <b>8.5</b> 度 · ¥5.52 <span class="dim">/ 24小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="37809c00-a8d5-420c-9419-8aa64bb159ed" title="编辑">✎</button><button type="button" class="del" data-id="37809c00-a8d5-420c-9419-8aa64bb159ed" title="删除">✕</button></div></div><div class="row" data-id="cc9ac7d2-92f6-478f-85ed-83118cc9141f"><span class="tag b">余</span><div class="r-main"><b>¥477.74</b><span>7/19 13:33 · 演示·周末</span></div><div class="r-info">≈ <b>15.9</b> 度 · ¥10.35 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="cc9ac7d2-92f6-478f-85ed-83118cc9141f" title="编辑">✎</button><button type="button" class="del" data-id="cc9ac7d2-92f6-478f-85ed-83118cc9141f" title="删除">✕</button></div></div><div class="row" data-id="60edbbd9-4733-45b5-ad35-aaac7508b6f0"><span class="tag b">余</span><div class="r-main"><b>¥488.09</b><span>7/17 13:48</span></div><div class="r-info">≈ <b>8.9</b> 度 · ¥5.78 <span class="dim">/ 23小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="60edbbd9-4733-45b5-ad35-aaac7508b6f0" title="编辑">✎</button><button type="button" class="del" data-id="60edbbd9-4733-45b5-ad35-aaac7508b6f0" title="删除">✕</button></div></div><div class="row" data-id="fd6a844e-f042-43b4-be30-d3e2161b96e1"><span class="tag b">余</span><div class="r-main"><b>¥493.87</b><span>7/16 14:46</span></div><div class="r-info">≈ <b>23.2</b> 度 · ¥15.11 <span class="dim">/ 3.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="fd6a844e-f042-43b4-be30-d3e2161b96e1" title="编辑">✎</button><button type="button" class="del" data-id="fd6a844e-f042-43b4-be30-d3e2161b96e1" title="删除">✕</button></div></div><div class="row" data-id="c0ece709-2f05-4a87-9243-67ebab33dd4b"><span class="tag r">充</span><div class="r-main"><b>¥508.98</b><em>+¥500.00</em><span>7/13 15:14 · 演示·线上充值</span></div><div class="r-info">≈ <b>34.6</b> 度 · ¥22.52 <span class="dim">/ 3.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="c0ece709-2f05-4a87-9243-67ebab33dd4b" title="编辑">✎</button><button type="button" class="del" data-id="c0ece709-2f05-4a87-9243-67ebab33dd4b" title="删除">✕</button></div></div><div class="row" data-id="3a9843f8-3674-4511-9ff7-b097962d2a09"><span class="tag b">余</span><div class="r-main"><b>¥31.50</b><span>7/10 14:32 · 演示·周末</span></div><div class="r-info">≈ <b>20.1</b> 度 · ¥13.09 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="3a9843f8-3674-4511-9ff7-b097962d2a09" title="编辑">✎</button><button type="button" class="del" data-id="3a9843f8-3674-4511-9ff7-b097962d2a09" title="删除">✕</button></div></div><div class="row" data-id="4763c05a-eac4-458e-953d-c48582f12301"><span class="tag b">余</span><div class="r-main"><b>¥44.59</b><span>7/8 14:23</span></div><div class="r-info">≈ <b>8.0</b> 度 · ¥5.19 <span class="dim">/ 1.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="4763c05a-eac4-458e-953d-c48582f12301" title="编辑">✎</button><button type="button" class="del" data-id="4763c05a-eac4-458e-953d-c48582f12301" title="删除">✕</button></div></div><div class="row" data-id="df6ffbfa-2859-4d36-806e-d668a53262eb"><span class="tag b">余</span><div class="r-main"><b>¥49.78</b><span>7/7 14:18</span></div><div class="r-info">≈ <b>2.7</b> 度 · ¥1.77 <span class="dim">/ 1.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="df6ffbfa-2859-4d36-806e-d668a53262eb" title="编辑">✎</button><button type="button" class="del" data-id="df6ffbfa-2859-4d36-806e-d668a53262eb" title="删除">✕</button></div></div><div class="row" data-id="335fb241-e141-47ef-a6c8-5877008b54f4"><span class="tag b">余</span><div class="r-main"><b>¥51.55</b><span>7/6 14:03 · 演示·周末</span></div><div class="r-info">≈ <b>8.2</b> 度 · ¥5.30 <span class="dim">/ 24小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="335fb241-e141-47ef-a6c8-5877008b54f4" title="编辑">✎</button><button type="button" class="del" data-id="335fb241-e141-47ef-a6c8-5877008b54f4" title="删除">✕</button></div></div><div class="row" data-id="1447eac9-1662-4727-98e5-a73302d94673"><span class="tag b">余</span><div class="r-main"><b>¥56.85</b><span>7/5 14:04</span></div><div class="r-info">≈ <b>21.6</b> 度 · ¥14.06 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="1447eac9-1662-4727-98e5-a73302d94673" title="编辑">✎</button><button type="button" class="del" data-id="1447eac9-1662-4727-98e5-a73302d94673" title="删除">✕</button></div></div><div class="row" data-id="569d2432-e2d4-4b42-86bc-b06bc78e204f"><span class="tag b">余</span><div class="r-main"><b>¥70.91</b><span>7/3 14:50</span></div><div class="r-info">≈ <b>6.9</b> 度 · ¥4.51 <span class="dim">/ 24小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="569d2432-e2d4-4b42-86bc-b06bc78e204f" title="编辑">✎</button><button type="button" class="del" data-id="569d2432-e2d4-4b42-86bc-b06bc78e204f" title="删除">✕</button></div></div><div class="row" data-id="efc7faef-2ac6-465e-9436-6cd117a2068f"><span class="tag b">余</span><div class="r-main"><b>¥75.42</b><span>7/2 15:02 · 演示·周末</span></div><div class="r-info">≈ <b>12.3</b> 度 · ¥8.02 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="efc7faef-2ac6-465e-9436-6cd117a2068f" title="编辑">✎</button><button type="button" class="del" data-id="efc7faef-2ac6-465e-9436-6cd117a2068f" title="删除">✕</button></div></div><div class="row" data-id="b142eb46-b82d-42b4-91e0-fa440c22cf18"><span class="tag b">余</span><div class="r-main"><b>¥83.44</b><span>6/30 14:05</span></div><div class="r-info">≈ <b>5.9</b> 度 · ¥3.83 <span class="dim">/ 1.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="b142eb46-b82d-42b4-91e0-fa440c22cf18" title="编辑">✎</button><button type="button" class="del" data-id="b142eb46-b82d-42b4-91e0-fa440c22cf18" title="删除">✕</button></div></div><div class="row" data-id="f6c0cc71-d658-4ce4-a6bb-951c08c8fa17"><span class="tag b">余</span><div class="r-main"><b>¥87.27</b><span>6/29 13:46</span></div><div class="r-info">≈ <b>28.6</b> 度 · ¥18.62 <span class="dim">/ 3.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="f6c0cc71-d658-4ce4-a6bb-951c08c8fa17" title="编辑">✎</button><button type="button" class="del" data-id="f6c0cc71-d658-4ce4-a6bb-951c08c8fa17" title="删除">✕</button></div></div><div class="row" data-id="ca3410e9-9ac2-4171-8188-6daf70ba7441"><span class="tag b">余</span><div class="r-main"><b>¥105.89</b><span>6/26 13:51</span></div><div class="r-info">≈ <b>10.3</b> 度 · ¥6.69 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="ca3410e9-9ac2-4171-8188-6daf70ba7441" title="编辑">✎</button><button type="button" class="del" data-id="ca3410e9-9ac2-4171-8188-6daf70ba7441" title="删除">✕</button></div></div><div class="row" data-id="47a1a7fc-3f81-4016-bddc-41119fc16b15"><span class="tag b">余</span><div class="r-main"><b>¥112.58</b><span>6/24 13:32</span></div><div class="r-info">≈ <b>18.1</b> 度 · ¥11.78 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="47a1a7fc-3f81-4016-bddc-41119fc16b15" title="编辑">✎</button><button type="button" class="del" data-id="47a1a7fc-3f81-4016-bddc-41119fc16b15" title="删除">✕</button></div></div></div>
+    <div class="pager" id="pager"><button class="pg-btn" data-pg="prev" disabled="">‹</button><button class="pg-btn on" data-pg="1">1</button><button class="pg-btn" data-pg="2">2</button><button class="pg-btn" data-pg="3">3</button><button class="pg-btn" data-pg="4">4</button><button class="pg-btn" data-pg="5">5</button><button class="pg-btn" data-pg="next">›</button><div class="pg-info" style="width:100%">第 1–20 条 / 共 94 条 · 每页 20 条</div></div>
+  </section>
+
+  <footer class="foot">
+    <div class="foot-btns">
+      <button type="button" class="btn-ghost" id="cloudBtn">☁️ 云端</button>
+      <button type="button" class="btn-ghost" id="priceBtn">⚙️ 设置电价</button>
+      <button type="button" class="btn-ghost" id="exportBtn">📤 导出备份</button>
+      <button type="button" class="btn-ghost" id="importBtn">📥 导入数据</button>
+      <button type="button" class="btn-ghost danger" id="clearBtn">🗑️ 清空数据</button>
+      <input type="file" id="importFile" accept="application/json,.json" hidden="">
+    </div>
+    <p><span class="cloud-status " id="cloudStatus"><span class="dot"></span><span class="ctxt">未连接</span></span> · 修改电价后历史用电按新电价重新折算 · 当前电价 <b id="footPrice">0.65</b> 元/度</p>
+  </footer>
 </div>
 
-<!-- 设置弹窗 -->
-<div class="overlay" id="modal">
+<div class="tip" id="tip"></div>
+<div class="mask" id="mask" hidden="">
   <div class="modal">
-    <h3>⚙️ 电价设置</h3>
-    <label>电价（元 / 度）</label>
-    <input type="number" class="field" id="inPrice" step="0.01" style="width:100%">
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeSettings()">取消</button>
-      <button class="btn-ok" onclick="saveSettings()">保存</button>
+    <h3 id="mTitle"></h3>
+    <div class="m-body" id="mBody"></div>
+    <div class="m-btns">
+      <button type="button" class="btn-ghost" id="mCancel">取消</button>
+      <button type="button" class="btn-primary" id="mOk">确定</button>
     </div>
   </div>
 </div>
-<div class="toast" id="toast"></div>
+<div class="toasts" id="toasts"></div>
 
 <script>
-const K_REC='elec_records_v2', K_PRICE='elec_price';
-const $=id=>document.getElementById(id);
+'use strict';
+/* ================= 工具 ================= */
+const $=s=>document.querySelector(s);
+const DAY=86400000;
+const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+''+Math.random().toString(16).slice(2);
+const r2=n=>Math.round(n*100)/100;
 const pad=n=>String(n).padStart(2,'0');
-const load=()=>JSON.parse(localStorage.getItem(K_REC)||'[]');
-const saveAll=r=>localStorage.setItem(K_REC,JSON.stringify(r));
-const getPrice=()=>parseFloat(localStorage.getItem(K_PRICE))||0.65;
+const fmt1=n=>n==null||!isFinite(n)?'--':(Math.round(n*10)/10).toFixed(1);
+const fmt2=n=>n==null||!isFinite(n)?'--':n.toFixed(2);
+const fmtY=n=>n==null||!isFinite(n)?'--':'¥'+n.toFixed(2);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const WK=['日','一','二','三','四','五','六'];
+function sod(ts){const d=new Date(ts);d.setHours(0,0,0,0);return d.getTime();}
+function dKey(ts){const d=new Date(ts);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function fmtDT(ts){const d=new Date(ts);return (d.getMonth()+1)+'/'+d.getDate()+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
+function fmtD(ts){const d=new Date(ts);return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
+function nowInputVal(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16);}
+function parseLocal(v){return v?new Date(v).getTime():NaN;}
+function parseDateVal(v){return new Date(v+'T00:00:00').getTime();}
+function isoWeek(ts){const d=new Date(ts);d.setHours(0,0,0,0);d.setDate(d.getDate()+3-((d.getDay()+6)%7));const y=d.getFullYear();const j=new Date(y,0,4);j.setDate(j.getDate()+3-((j.getDay()+6)%7));return{year:y,week:1+Math.round((d-j)/(7*DAY))};}
+function weekStart(ts){const d=new Date(ts);d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime();}
 
-/* ---- 工具 ---- */
-function nowLocal(){const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;}
-function fmtList(t){const[d,hm]=t.split('T');const y=new Date().getFullYear();return(d.startsWith(y)?d.slice(5):d)+' '+(hm||'').slice(0,5);}
-function fmtFull(d){return `${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;}
-function fmtDur(ms){const m=Math.round(ms/60000),d=Math.floor(m/1440),h=Math.floor(m%1440/60),mm=m%60;
-  if(d>0)return h>0?`${d}天${h}小时`:`${d}天`;
-  if(h>0)return mm>0?`${h}小时${mm}分`:`${h}小时`;
-  return `${mm}分钟`;}
-function showToast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000);}
-function countUp(el,to){const from=parseFloat(el.dataset.v||0);el.dataset.v=to;const t0=performance.now(),dur=650;
-  (function f(t){const k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3);el.textContent=(from+(to-from)*e).toFixed(2);if(k<1)requestAnimationFrame(f);})(t0);}
-
-/* ---- 数据迁移（旧版 date → 分钟时间） ---- */
-(function migrate(){const rs=load();let ch=false;rs.forEach(r=>{if(!r.time){r.time=(r.date||'').includes('T')?r.date:r.date+'T12:00';ch=true;}});if(ch)saveAll(rs);})();
-
-/* ---- 类型切换 ---- */
-let curType='balance';
-function setType(t){curType=t;$('seg').classList.toggle('recharge',t==='recharge');
-  $('btnB').className=t==='balance'?'on':'';$('btnR').className=t==='recharge'?'on':'';
-  $('inAmt').placeholder=t==='balance'?'当前余额':'充值金额';
-  $('chips').style.display=t==='recharge'?'flex':'none';}
-function fillAmt(v){$('inAmt').value=v;$('inAmt').focus();}
-
-/* ---- 保存 ---- */
-function saveRecord(){
-  const amount=parseFloat($('inAmt').value),time=$('inTime').value,note=$('inNote').value.trim();
-  if(!amount||amount<=0)return showToast('请输入有效金额');
-  if(!time)return showToast('请选择时间');
-  const rs=load();
-  if(curType==='balance'){
-    const bs=rs.filter(r=>r.type==='balance').sort((a,b)=>a.time.localeCompare(b.time));
-    const last=bs[bs.length-1];
-    if(last&&time>last.time){
-      const rech=rs.filter(r=>r.type==='recharge'&&r.time>last.time&&r.time<=time).reduce((s,r)=>s+r.amount,0);
-      if(amount>last.amount+rech&&!confirm(`本次余额 ¥${amount} 高于上次 ¥${last.amount}${rech?`（期间已记充值 ¥${rech}）`:''}。\n是否忘记记录中间的充值？仍要保存吗？`))return;
+/* ================= 状态 ================= */
+const KEY='elec.ledger.v2';
+let state={v:3,price:0.65,records:[]};
+let _dm=null,_segsCache=null,_segsDirty=true;
+const valid=r=>r&&typeof r.ts==='number'&&isFinite(r.balance);
+function migrateRecords(arr){
+  if(!Array.isArray(arr))return[];
+  const sorted=[...arr].sort((a,b)=>(a.ts||0)-(b.ts||0));
+  const result=[];let pendingRch=[];
+  for(const r of sorted){
+    if(!r||typeof r.ts!=='number')continue;
+    if(r.balance!==undefined){
+      if(!isFinite(r.balance))continue;
+      const rchSum=pendingRch.reduce((s,x)=>s+x.amount,0);
+      result.push({id:r.id||uid(),ts:r.ts,balance:r2(+r.balance),recharge:r2(+r.recharge+rchSum||0),note:r.note||''});
+      pendingRch=[];
+    }else if(r.type==='balance'&&isFinite(r.amount)){
+      const rchSum=pendingRch.reduce((s,x)=>s+x.amount,0);
+      result.push({id:r.id||uid(),ts:r.ts,balance:r2(+r.amount),recharge:r2(rchSum),note:r.note||''});
+      pendingRch=[];
+    }else if(r.type==='recharge'&&isFinite(r.amount)){
+      pendingRch.push(r);
     }
   }
-  rs.push({id:Date.now()+''+Math.floor(Math.random()*999),type:curType,amount,time,note});
-  rs.sort((a,b)=>a.time.localeCompare(b.time));
-  saveAll(rs);
-  $('inAmt').value='';$('inNote').value='';$('inTime').value=nowLocal();
-  const lcd=$('lcd');lcd.classList.remove('flash');void lcd.offsetWidth;lcd.classList.add('flash');
-  showToast(curType==='balance'?'余额已记录 ✅':'充值已记录 ✅');
-  render();
-}
-function delRecord(id){if(!confirm('删除这条记录？'))return;saveAll(load().filter(r=>r.id!==id));render();}
-
-/* ---- 核心计算（分钟级） ---- */
-function calcSegments(rs){
-  const bs=rs.filter(r=>r.type==='balance');
-  if(bs.length<2)return[];
-  const price=getPrice(),segs=[];
-  for(let i=1;i<bs.length;i++){
-    const p=bs[i-1],c=bs[i];
-    const ms=new Date(c.time)-new Date(p.time);
-    if(ms<=0)continue;
-    const days=ms/86400000;
-    const rech=rs.filter(r=>r.type==='recharge'&&r.time>p.time&&r.time<=c.time).reduce((s,r)=>s+r.amount,0);
-    const used=p.amount+rech-c.amount;
-    const daily=used/days,kwh=price>0?daily/price:0;
-    segs.push({from:p.time,to:c.time,ms,days,used,rech,daily,kwh,monthly:daily*30,short:days<0.5});
+  if(pendingRch.length&&result.length){
+    const last=result[result.length-1];
+    last.recharge=r2(last.recharge+pendingRch.reduce((s,x)=>s+x.amount,0));
   }
-  return segs;
+  return result;
+}
+function load(){try{const raw=localStorage.getItem(KEY);if(!raw)return;const d=JSON.parse(raw);
+  if(d&&+d.price>0)state.price=+d.price;
+  const arr=Array.isArray(d)?d:(d&&Array.isArray(d.records)?d.records:[]);
+  state.records=migrateRecords(arr);
+}catch(e){}}
+function save(){_dm=null;_segsDirty=true;try{localStorage.setItem(KEY,JSON.stringify({v:3,price:state.price,records:state.records}));}catch(e){}scheduleCloudPush();}
+function sorted(){return[...state.records].sort((a,b)=>a.ts-b.ts);}
+
+/* ================= 结算核心 =================
+   每笔记录同时包含余额和充值：用电 = (上期余额 + 本期充值 − 本期余额) ÷ 电价
+   余额反升且充值不足以解释 → 标记异常，不参与分摊 */
+function segments(){
+  if(!_segsDirty&&_segsCache)return _segsCache;
+  const rs=sorted(),out=[];
+  for(let i=0;i<rs.length-1;i++){
+    const a=rs[i],b=rs[i+1];
+    const rSum=b.recharge||0;
+    const cost=r2(a.balance+rSum-b.balance);
+    out.push({a,b,rSum,cost,kwh:cost/state.price,days:(b.ts-a.ts)/DAY,anomaly:cost<-0.3});
+  }
+  _segsCache=out;_segsDirty=false;return out;
+}
+function dayMaps(){
+  const use=new Map(),rch=new Map();
+  for(const s of segments()){
+    if(s.anomaly||s.kwh<=0)continue;
+    const total=s.b.ts-s.a.ts;if(total<=0)continue;
+    let d=new Date(sod(s.a.ts));
+    while(d.getTime()<s.b.ts){
+      const t=d.getTime(),next=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1).getTime();
+      const lo=Math.max(t,s.a.ts),hi=Math.min(next,s.b.ts);
+      if(hi>lo){const k=dKey(t);use.set(k,(use.get(k)||0)+s.kwh*(hi-lo)/total);}
+      d=new Date(next);
+    }
+  }
+  for(const r of state.records){if(r.recharge>0){const k=dKey(r.ts);rch.set(k,(rch.get(k)||0)+r.recharge);}}
+  return{use,rch};
+}
+function getDM(){if(!_dm)_dm=dayMaps();return _dm;}
+function recentRate(){
+  const win=14*DAY,now=Date.now();let kwh=0,ms=0;
+  for(const s of segments()){
+    if(s.anomaly||s.kwh<=0)continue;
+    const lo=Math.max(s.a.ts,now-win),hi=Math.min(s.b.ts,now);
+    if(hi>lo){kwh+=s.kwh*(hi-lo)/(s.b.ts-s.a.ts);ms+=hi-lo;}
+  }
+  return ms<DAY*0.5?null:kwh/(ms/DAY);
 }
 
-/* ---- 渲染 ---- */
-function render(){
-  const rs=load(),price=getPrice();
-  $('footPrice').textContent=price;
-  $('meterTime').textContent=nowLocal().replace('T',' ');
-  const bs=rs.filter(r=>r.type==='balance');
-  const last=bs[bs.length-1];
-  const segs=calcSegments(rs);
-  const lastSeg=segs[segs.length-1];
-
-  // LCD 余额
-  if(last){countUp($('lcdVal'),last.amount);}else{$('lcdVal').textContent='--';$('lcdVal').dataset.v=0;}
-
-  // 预估
-  const sub=$('lcdSub');
-  if(!last){sub.textContent='记录第一笔余额，开始追踪用电';sub.className='lcd-sub dim';}
-  else if(lastSeg&&lastSeg.daily>0){
-    const msLeft=last.amount/lastSeg.daily*86400000;
-    const dead=new Date(Date.now()+msLeft);
-    sub.innerHTML=`按日均 ¥${lastSeg.daily.toFixed(2)} · 还可用 <b>${fmtDur(msLeft)}</b> · 预计 ${fmtFull(dead)} 耗尽`;
-    sub.className='lcd-sub'+(msLeft<7*86400000?' warn':'');
-  }else{sub.textContent='再记一笔余额，即可开始分析用电';sub.className='lcd-sub dim';}
-
-  // 寄存器 & 转盘
-  if(lastSeg){
-    $('rDaily').textContent=lastSeg.daily.toFixed(2);
-    $('rKwh').textContent=lastSeg.kwh.toFixed(1);
-    $('rMonthly').textContent=lastSeg.monthly.toFixed(0);
-    const dl=last&&lastSeg.daily>0?last.amount/lastSeg.daily:null;
-    $('rDays').textContent=dl!=null?dl.toFixed(1):'--';
-    $('rDays').className=dl!=null&&dl<7?'c-coral':'c-mint';
-    $('rDaysSub').textContent=dl!=null?`≈ ${fmtDur(dl*86400000)}`:'天';
-    $('discRate').textContent=lastSeg.kwh.toFixed(1);
-    $('disc').style.animationDuration=Math.max(3,Math.min(45,400/Math.max(lastSeg.kwh,.5)))+'s';
+/* ================= 区间分桶 ================= */
+function bucketsFor(g,start,end){
+  const out=[];
+  if(g==='day'){
+    let d=new Date(start);d.setHours(0,0,0,0);
+    while(d.getTime()<=end){const t0=d.getTime();out.push({key:dKey(t0),t0,t1:t0+DAY,y:d.getFullYear(),m:d.getMonth()+1,dd:d.getDate()});d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);}
+  }else if(g==='week'){
+    let d=new Date(weekStart(start));
+    while(d.getTime()<=end){const t0=d.getTime();const d2=new Date(d.getFullYear(),d.getMonth(),d.getDate()+7);const iw=isoWeek(t0+3*DAY);
+      out.push({key:iw.year+'-W'+pad(iw.week),t0,t1:d2.getTime(),iw});d=d2;}
+  }else if(g==='month'){
+    let d=new Date(start);d=new Date(d.getFullYear(),d.getMonth(),1);
+    while(d.getTime()<=end){const t0=d.getTime();const d2=new Date(d.getFullYear(),d.getMonth()+1,1);
+      out.push({key:d.getFullYear()+'-'+pad(d.getMonth()+1),t0,t1:d2.getTime(),y:d.getFullYear(),m:d.getMonth()+1});d=d2;}
   }else{
-    ['rDaily','rKwh','rMonthly','rDays'].forEach(id=>$(id).textContent='--');
-    $('rDays').className='';$('rDaysSub').textContent='天';$('discRate').textContent='--';
-    $('disc').style.animationDuration='30s';
+    let y=new Date(start).getFullYear();
+    while(new Date(y,0,1).getTime()<=end){out.push({key:String(y),t0:new Date(y,0,1).getTime(),t1:new Date(y+1,0,1).getTime(),y});y++;}
   }
-
-  // 分析列表
-  const al=$('analysisList');
-  if(segs.length){
-    const maxUsed=Math.max(...segs.map(s=>Math.max(s.used,0)),1);
-    al.innerHTML=segs.slice(-6).reverse().map(s=>`
-      <div class="seg-card">
-        <div class="seg-head">
-          <span>${fmtList(s.from)} → ${fmtList(s.to)} ${s.short?'<span class="tag-short">间隔较短·仅供参考</span>':''}</span>
-          <span class="dur">历时 ${fmtDur(s.ms)}</span>
-        </div>
-        <div class="seg-grid">
-          <div><label>用电金额</label><b class="c-coral">¥${s.used.toFixed(2)}</b></div>
-          <div><label>期间充值</label><b class="c-mint">¥${s.rech.toFixed(2)}</b></div>
-          <div><label>日均电费</label><b class="c-amber">¥${s.daily.toFixed(2)}</b></div>
-          <div><label>日均用电</label><b class="c-blue">${s.kwh.toFixed(2)}度</b></div>
-          <div><label>月均电费</label><b>¥${s.monthly.toFixed(0)}</b></div>
-        </div>
-        <div class="bar"><i data-w="${Math.max(s.used,0)/maxUsed*100}"></i></div>
-      </div>`).join('');
-    requestAnimationFrame(()=>al.querySelectorAll('.bar i').forEach(i=>i.style.width=i.dataset.w+'%'));
-  }else{al.innerHTML='<div class="empty">至少记录两笔余额后，这里会自动算出每段用了多少电</div>';}
-
-  // 图表
-  $('chartBlock').style.display=bs.length>=2?'':'none';
-  if(bs.length>=2)drawChart(rs,bs);
-
-  // 记录列表
-  $('recCount').textContent=`共 ${rs.length} 条`;
-  const rl=$('recList');
-  rl.innerHTML=rs.length?[...rs].reverse().map(r=>`
-    <div class="rec">
-      <div class="rec-ico ${r.type}">${r.type==='balance'?'📋':'💰'}</div>
-      <div class="rec-info">
-        <div class="t">${r.type==='balance'?'余额':'充值'}${r.note?' · '+r.note:''}</div>
-        <div class="d">${fmtList(r.time)}</div>
-      </div>
-      <div class="rec-amt ${r.type}">${r.type==='recharge'?'+':'¥'}${r.type==='recharge'?'¥':''}${r.amount.toFixed(2)}</div>
-      <button class="rec-del" onclick="delRecord('${r.id}')">✕</button>
-    </div>`).join(''):'<div class="empty">还没有记录，先记一笔吧 👆</div>';
+  return out;
+}
+function computeStats(g,start,end){
+  const{use}=getDM();
+  const buckets=bucketsFor(g,start,end);
+  for(const b of buckets){
+    b.kwh=0;b.rch=0;
+    let d=new Date(Math.max(b.t0,start));d.setHours(0,0,0,0);
+    const stop=Math.min(b.t1,end+DAY);
+    while(d.getTime()<stop){const v=use.get(dKey(d.getTime()));if(v)b.kwh+=v;d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);}
+    b.cost=b.kwh*state.price;
+  }
+  for(const r of state.records){
+    if(r.recharge<=0||r.ts<start||r.ts>=end+DAY)continue;
+    const b=buckets.find(x=>r.ts>=x.t0&&r.ts<x.t1);if(b)b.rch+=r.recharge;
+  }
+  return buckets;
+}
+function bucketLabel(b,g,i,all){
+  if(g==='day')return b.m+'/'+b.dd;
+  if(g==='week'){const d=new Date(b.t0);return (d.getMonth()+1)+'/'+d.getDate();}
+  if(g==='month')return b.m===1||i===0?String(b.y).slice(2)+'·'+b.m+'月':b.m+'月';
+  return String(b.y);
+}
+function bucketFull(b,g){
+  if(g==='day'){const d=new Date(b.t0);return b.y+'年'+b.m+'月'+b.dd+'日 · 周'+WK[d.getDay()];}
+  if(g==='week'){const a=new Date(b.t0),z=new Date(b.t1-1);return b.iw.year+'年第'+b.iw.week+'周 · '+(a.getMonth()+1)+'/'+a.getDate()+' ~ '+(z.getMonth()+1)+'/'+z.getDate();}
+  if(g==='month')return b.y+'年'+b.m+'月';
+  return b.y+'年';
 }
 
-/* ---- 图表 ---- */
-function drawChart(rs,bs){
-  const cv=$('chart'),ctx=cv.getContext('2d'),dpr=window.devicePixelRatio||1;
-  const W=cv.clientWidth,H=230;cv.width=W*dpr;cv.height=H*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
-  const data=bs.slice(-24);
-  const t0=+new Date(data[0].time),t1=+new Date(data[data.length-1].time);
-  const vals=data.map(d=>d.amount);
-  const min=Math.min(...vals)*.9,max=Math.max(...vals)*1.1||1;
-  const pL=46,pR=14,pT=26,pB=32,cw=W-pL-pR,ch=H-pT-pB;
-  ctx.strokeStyle='rgba(42,64,85,.5)';ctx.lineWidth=.5;ctx.font='10px Doto,monospace';ctx.fillStyle='#5f7a72';
-  for(let i=0;i<=4;i++){const y=pT+ch*i/4;ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(W-pR,y);ctx.stroke();
-    ctx.textAlign='right';ctx.fillText((max-(max-min)*i/4).toFixed(0),pL-6,y+3);}
-  const X=t=>pL+cw*((+new Date(t))-t0)/((t1-t0)||1);
-  const Y=v=>pT+ch*(1-(v-min)/((max-min)||1));
-  // 充值标记
-  rs.filter(r=>r.type==='recharge'&&+new Date(r.time)>=t0&&+new Date(r.time)<=t1).forEach(r=>{
-    const x=X(r.time);ctx.fillStyle='#45e0a0';ctx.beginPath();
-    ctx.moveTo(x,pT-10);ctx.lineTo(x-5,pT-2);ctx.lineTo(x+5,pT-2);ctx.closePath();ctx.fill();});
-  // 折线+填充
-  const pts=data.map(d=>({x:X(d.time),y:Y(d.amount)}));
-  ctx.beginPath();ctx.strokeStyle='#ffc247';ctx.lineWidth=2.5;ctx.lineJoin='round';
-  pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();
-  ctx.lineTo(pts[pts.length-1].x,pT+ch);ctx.lineTo(pts[0].x,pT+ch);ctx.closePath();
-  const g=ctx.createLinearGradient(0,pT,0,pT+ch);g.addColorStop(0,'rgba(255,194,71,.25)');g.addColorStop(1,'rgba(255,194,71,0)');
-  ctx.fillStyle=g;ctx.fill();
-  // 点+标签
-  ctx.textAlign='center';
-  pts.forEach((p,i)=>{ctx.beginPath();ctx.arc(p.x,p.y,3.5,0,Math.PI*2);ctx.fillStyle='#ffc247';ctx.fill();
-    ctx.strokeStyle='#0c1613';ctx.lineWidth=1.5;ctx.stroke();
-    if(data.length<=8||i%Math.ceil(data.length/8)===0){ctx.fillStyle='#5f7a72';ctx.font='9px sans-serif';
-      ctx.fillText(fmtList(data[i].time).slice(0,5),p.x,H-8);}});
+/* ================= 视图状态 ================= */
+const view={g:'day',start:sod(Date.now())-29*DAY,end:sod(Date.now())};
+function defaultRange(g){
+  const t=sod(Date.now());
+  if(g==='day')return[t-29*DAY,t];
+  if(g==='week')return[weekStart(t-77*DAY),t];
+  if(g==='month'){const d=new Date();return[new Date(d.getFullYear(),d.getMonth()-11,1).getTime(),t];}
+  const minTs=state.records.length?Math.min(...state.records.map(r=>r.ts)):t-364*DAY;
+  return[new Date(new Date(minTs).getFullYear(),0,1).getTime(),t];
 }
 
-/* ---- 设置 / 导出入 ---- */
-function openSettings(){$('inPrice').value=getPrice();$('modal').classList.add('show');}
-function closeSettings(){$('modal').classList.remove('show');}
-function saveSettings(){const p=parseFloat($('inPrice').value);if(!p||p<=0)return showToast('请输入有效电价');
-  localStorage.setItem(K_PRICE,p);closeSettings();showToast(`电价已更新：${p} 元/度`);render();}
+/* ================= 头部渲染 ================= */
+let _odoVal=null,_odoAnim=null;
+function renderOdo(val){
+  const el=$('#odo');
+  if(val==null){el.innerHTML='<span class="bal-placeholder">— — —</span>';_odoVal=null;return;}
+  const from=_odoVal??0,to=val,dur=700,st=performance.now();
+  cancelAnimationFrame(_odoAnim);
+  function step(now){
+    const t=Math.min(1,(now-st)/dur);
+    const e=1-Math.pow(1-t,3);
+    const v=from+(to-from)*e;
+    el.innerHTML='<span class="bal-cur">¥</span>'+Math.abs(v).toFixed(2);
+    if(t<1)_odoAnim=requestAnimationFrame(step);else _odoVal=to;
+  }
+  _odoAnim=requestAnimationFrame(step);
+}
+function boost(){}
+function renderHead(){
+  const rs=sorted();
+  const latest=rs.length?rs[rs.length-1]:null;
+  const bal=latest?latest.balance:null;
+  const rate=recentRate();
+  const dailyCost=rate!=null?rate*state.price:null;
+  const daysLeft=(bal!=null&&dailyCost)?bal/dailyCost:null;
+  const low=bal!=null&&bal<20;
+  renderOdo(bal);
+  const tag=$('#balTag');
+  if(low)tag.innerHTML='<span class="warn-badge">⚠ 余额偏低，建议尽快充值</span>';
+  else if(bal==null)tag.textContent='在下方记一笔，开始追踪用电';
+  else if(daysLeft!=null&&daysLeft<7)tag.textContent='余额可用约 '+fmt1(daysLeft)+' 天，注意及时充值';
+  else tag.textContent='余额正常 · 继续保持';
+  const warn=low||(daysLeft!=null&&daysLeft<3);
+  $('#tiles').innerHTML=
+    '<div class="tile"><div class="tile-label">日均用电</div><div class="tile-val">'+(rate==null?'--':fmt1(rate))+' <span class="u">度/天</span></div><div class="tile-sub">近14天</div></div>'+
+    '<div class="tile"><div class="tile-label">日均电费</div><div class="tile-val">'+fmtY(dailyCost)+'</div><div class="tile-sub">元 / 天</div></div>'+
+    '<div class="tile"><div class="tile-label">月均电费</div><div class="tile-val">'+fmtY(dailyCost!=null?dailyCost*30:null)+'</div><div class="tile-sub">元 / 30天</div></div>'+
+    '<div class="tile'+(warn?' warn':'')+'"><div class="tile-label">余额可用</div><div class="tile-val">'+(daysLeft==null?'--':fmt1(daysLeft))+' <span class="u">天</span></div><div class="tile-sub">'+(daysLeft!=null?'约 '+fmtD(Date.now()+daysLeft*DAY)+' 需充值':'--')+'</div></div>';
+  $('#lastRec').textContent=latest?'最近抄表 '+fmtDT(latest.ts):'暂无抄表记录';
+  $('#serial').textContent='EL-'+dKey(Date.now()).replace(/-/g,'');
+}
+
+/* ================= 统计面板 ================= */
+function summarize(buckets,start,end){
+  const kwh=buckets.reduce((s,b)=>s+b.kwh,0);
+  const cost=buckets.reduce((s,b)=>s+b.cost,0);
+  const rch=buckets.reduce((s,b)=>s+b.rch,0);
+  const rangeDays=Math.round((end-start)/DAY)+1;
+  let peak=buckets[0]||{kwh:0};for(const b of buckets)if(b.kwh>peak.kwh)peak=b;
+  const len=end-start+DAY;
+  const prevKwh=computeStats(view.g,start-len,start-DAY).reduce((s,b)=>s+b.kwh,0);
+  const delta=prevKwh>0.05?(kwh-prevKwh)/prevKwh*100:null;
+  return{kwh,cost,rch,rangeDays,peak,delta};
+}
+function renderSums(s){
+  const gn={day:'单日',week:'单周',month:'单月',year:'单年'}[view.g];
+  const dHtml=s.delta==null?'<em>较上一同长区间 --</em>':
+    '<em class="'+(s.delta>0?'up':'down')+'">'+(s.delta>0?'▲':'▼')+' '+Math.abs(s.delta).toFixed(0)+'% 较上一同长区间</em>';
+  $('#sums').innerHTML=
+    '<div class="sum"><span>总用电</span><b>'+fmt1(s.kwh)+'<i>度</i></b>'+dHtml+'</div>'+
+    '<div class="sum"><span>总电费</span><b>'+fmtY(s.cost)+'</b><em>电价 '+state.price+' 元/度</em></div>'+
+    '<div class="sum"><span>日均用电</span><b>'+fmt1(s.kwh/s.rangeDays)+'<i>度</i></b><em>区间 '+s.rangeDays+' 天</em></div>'+
+    '<div class="sum"><span>峰值'+gn+'</span><b>'+fmt1(s.peak.kwh)+'<i>度</i></b><em>'+(s.peak.kwh>0?bucketFull(s.peak,view.g):'--')+'</em></div>'+
+    '<div class="sum"><span>充值合计</span><b class="g">'+fmtY(s.rch)+'</b><em>▲ 已在结算中抵扣</em></div>';
+}
+function renderStatChart(buckets,s){
+  const el=$('#statChart'),tip=$('#tip'),n=buckets.length;
+  const max=Math.max(0.001,...buckets.map(b=>b.kwh));
+  el.style.minWidth=n>14?(n*30)+'px':'100%';
+  const step=n>10?Math.ceil(n/10):1;
+  el.innerHTML=buckets.map((b,i)=>{
+    const h=b.kwh>0?Math.max(3,b.kwh/max*100):0;
+    const peak=b===s.peak&&b.kwh>0;
+    const showLab=i%step===0||i===n-1;
+    return '<div class="bcol'+(peak?' peak':'')+'" data-i="'+i+'">'+
+      (peak?'<span class="bval">'+fmt1(b.kwh)+'</span>':'')+
+      '<div class="btrack"><i data-h="'+h.toFixed(2)+'"></i></div>'+
+      '<div class="bmeta">'+(b.rch>0?'<em class="tri">▲</em>':'')+'<span class="blab'+(showLab?'':' ghost')+'">'+bucketLabel(b,view.g,i,buckets)+'</span></div></div>';
+  }).join('');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    el.querySelectorAll('.btrack i').forEach(i=>{i.style.height=i.dataset.h+'%';});
+  }));
+  el.onmousemove=e=>{
+    const col=e.target.closest('.bcol');if(!col){tip.classList.remove('show');return;}
+    const b=buckets[+col.dataset.i];
+    tip.innerHTML='<b>'+bucketFull(b,view.g)+'</b>用电 '+fmt1(b.kwh)+' 度 · '+fmtY(b.cost)+
+      (b.rch>0?'<br><span class="g">▲ 充值 +'+fmtY(b.rch)+'</span>':'');
+    tip.classList.add('show');
+    const r=col.querySelector('.btrack').getBoundingClientRect();
+    const frac=b.kwh>0?Math.max(0.03,b.kwh/max):0;
+    tip.style.left=Math.max(85,Math.min(innerWidth-85,r.left+r.width/2))+'px';
+    tip.style.top=Math.max(8,r.top+r.height*(1-frac)-tip.offsetHeight-10)+'px';
+  };
+  el.onmouseleave=()=>tip.classList.remove('show');
+}
+function renderStats(){
+  const hasBal=state.records.length>=2;
+  $('#statsBody').style.display=hasBal?'':'none';
+  const empty=$('#statEmpty');empty.hidden=hasBal;
+  if(!hasBal){
+    empty.innerHTML=state.records.length
+      ?'需要至少两笔记录才能结算用电区间'
+      :'还没有任何记录 · 先记一笔，或点上方「载入演示数据」看看效果';
+    $('#rangeInfo').textContent='';return;
+  }
+  const buckets=computeStats(view.g,view.start,view.end);
+  const s=summarize(buckets,view.start,view.end);
+  renderSums(s);renderStatChart(buckets,s);
+  $('#rangeInfo').textContent=fmtD(view.start)+' → '+fmtD(view.end)+' · '+s.rangeDays+' 天';
+  $('#statNote').textContent='结算口径：上期余额 + 期间充值 − 本期余额，跨区间按时间比例分摊';
+}
+function syncDates(){$('#dStart').value=dKey(view.start);$('#dEnd').value=dKey(view.end);}
+
+/* ================= 余额走势 ================= */
+function renderTrend(){
+  const wrap=$('#trendWrap'),svg=$('#trendSvg'),tip=$('#tip');
+  const rs=sorted(),pts=[];
+  for(const r of rs){
+    pts.push({ts:r.ts,v:r.balance,kind:r.recharge>0?'r':'b',r});
+  }
+  if(pts.length<2){svg.innerHTML='';$('#trendEmpty').hidden=false;wrap.style.display='none';return;}
+  $('#trendEmpty').hidden=true;wrap.style.display='';
+  const W=Math.max(wrap.clientWidth,320),H=250,Pl=48,Pr=16,Pt=18,Pb=30;
+  svg.setAttribute('viewBox','0 0 '+W+' '+H);svg.setAttribute('width',W);svg.setAttribute('height',H);
+  const t0=pts[0].ts,t1=pts[pts.length-1].ts;
+  let mn=Math.min(...pts.map(p=>p.v)),mx=Math.max(...pts.map(p=>p.v));
+  if(mx-mn<1)mx+=1;const py=(mx-mn)*.12;mn=Math.max(0,mn-py);mx+=py;
+  const X=ts=>t1===t0?Pl+(W-Pl-Pr)/2:Pl+(ts-t0)/(t1-t0)*(W-Pl-Pr);
+  const Y=v=>Pt+(1-(v-mn)/(mx-mn))*(H-Pt-Pb);
+  let g='';
+  for(let i=0;i<=4;i++){const v=mn+(mx-mn)*i/4,y=Y(v);
+    g+='<line x1="'+Pl+'" x2="'+(W-Pr)+'" y1="'+y+'" y2="'+y+'" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"/><text x="'+(Pl-8)+'" y="'+(y+4)+'" text-anchor="end" class="ax">'+(v>=100?Math.round(v):v.toFixed(1))+'</text>';}
+  for(let i=0;i<5;i++){const ts=t0+(t1-t0)*i/4;g+='<text x="'+X(ts)+'" y="'+(H-8)+'" text-anchor="middle" class="ax">'+fmtD(ts).slice(2)+'</text>';}
+  const line=pts.map((p,i)=>(i?'L':'M')+X(p.ts).toFixed(1)+','+Y(p.v).toFixed(1)).join('');
+  const area=line+'L'+X(t1).toFixed(1)+','+Y(mn).toFixed(1)+'L'+X(t0).toFixed(1)+','+Y(mn).toFixed(1)+'Z';
+  let marks='';
+  for(const p of pts){const x=X(p.ts),y=Y(p.v);
+    marks+=p.kind==='r'
+      ?'<polygon points="'+(x-5.5)+','+(y+10)+' '+(x+5.5)+','+(y+10)+' '+x+','+(y+1)+'" fill="#34d399" opacity=".9"/>'
+      :'<circle cx="'+x+'" cy="'+y+'" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"/>';}
+  svg.innerHTML='<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(56,189,248,.25)"/><stop offset="1" stop-color="rgba(56,189,248,0)"/></linearGradient></defs>'+
+    g+'<path d="'+area+'" fill="url(#ga)"/><path d="'+line+'" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+marks+
+    '<line id="tCross" y1="'+Pt+'" y2="'+(H-Pb)+'" stroke="rgba(226,232,240,.2)" stroke-dasharray="3 3" opacity="0"/><circle id="tFocus" r="5" fill="none" stroke="#7dd3fc" stroke-width="2" opacity="0"/>'+
+    '<rect id="tHit" x="'+Pl+'" y="'+Pt+'" width="'+(W-Pl-Pr)+'" height="'+(H-Pt-Pb)+'" fill="transparent"/>';
+  const hit=$('#tHit');
+  hit.addEventListener('mousemove',e=>{
+    const rect=svg.getBoundingClientRect(),sx=(e.clientX-rect.left)*(W/rect.width);
+    let best=pts[0],bd=Infinity;
+    for(const p of pts){const d=Math.abs(X(p.ts)-sx);if(d<bd){bd=d;best=p;}}
+    const x=X(best.ts),y=Y(best.v);
+    const c=$('#tCross');c.setAttribute('x1',x);c.setAttribute('x2',x);c.setAttribute('opacity',1);
+    const f=$('#tFocus');f.setAttribute('cx',x);f.setAttribute('cy',y);f.setAttribute('opacity',1);
+    const dd=new Date(best.ts);
+    tip.innerHTML='<b>'+fmtD(best.ts)+' '+pad(dd.getHours())+':'+pad(dd.getMinutes())+'</b>'+
+      (best.r.recharge>0?'充值 <span class="g">+'+fmtY(best.r.recharge)+'</span> · 余额 '+fmtY(best.v):'余额 '+fmtY(best.v));
+    tip.classList.add('show');
+    tip.style.left=Math.max(85,Math.min(innerWidth-85,rect.left+x*(rect.width/W)))+'px';
+    tip.style.top=Math.max(8,rect.top+y*(rect.height/H)-tip.offsetHeight-12)+'px';
+  });
+  hit.addEventListener('mouseleave',()=>{tip.classList.remove('show');$('#tCross').setAttribute('opacity',0);$('#tFocus').setAttribute('opacity',0);});
+}
+
+/* ================= 账单汇总 ================= */
+const billState={gran:'month',offset:0};
+function billPeriods(){
+  const rs=sorted();if(rs.length<2)return[];
+  const minTs=rs[0].ts,maxTs=rs[rs.length-1].ts;
+  const out=[];
+  if(billState.gran==='month'){
+    let d=new Date(minTs);d=new Date(d.getFullYear(),d.getMonth(),1);
+    while(d.getTime()<=maxTs){
+      const t0=d.getTime(),d2=new Date(d.getFullYear(),d.getMonth()+1,1);
+      out.push({key:d.getFullYear()+'-'+pad(d.getMonth()+1),t0,t1:d2.getTime(),y:d.getFullYear(),m:d.getMonth()+1});
+      d=d2;
+    }
+  }else{
+    let y=new Date(minTs).getFullYear();
+    while(new Date(y,0,1).getTime()<=maxTs){
+      out.push({key:String(y),t0:new Date(y,0,1).getTime(),t1:new Date(y+1,0,1).getTime(),y});
+      y++;
+    }
+  }
+  return out;
+}
+function computeBill(p){
+  const{use,rch}=getDM();
+  const days=Math.round((p.t1-p.t0)/DAY);
+  let kwh=0;
+  let d=new Date(Math.max(p.t0,sod(p.t0)));d.setHours(0,0,0,0);
+  while(d.getTime()<p.t1){const v=use.get(dKey(d.getTime()));if(v)kwh+=v;d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);}
+  let rchSum=0;
+  for(const r of state.records){if(r.recharge>0&&r.ts>=p.t0&&r.ts<p.t1)rchSum+=r.recharge;}
+  const cost=kwh*state.price;
+  const now=Date.now();
+  const isCurrent=p.t0<=now&&now<p.t1;
+  return{kwh,cost,rch:rchSum,days,avg:kwh/Math.max(1,days),isCurrent};
+}
+function renderBills(){
+  const el=$('#billsCards'),empty=$('#billsEmpty'),periodEl=$('#billPeriod');
+  const hasBal=state.records.length>=2;
+  empty.hidden=hasBal;el.style.display=hasBal?'':'none';
+  $('#billPrev').style.visibility=hasBal?'':'hidden';
+  $('#billNext').style.visibility=hasBal?'':'hidden';
+  if(!hasBal){el.innerHTML='';periodEl.textContent='—';return;}
+  const periods=billPeriods();
+  const pageSize=billState.gran==='month'?6:3;
+  const total=Math.max(1,Math.ceil(periods.length/pageSize));
+  billState.offset=Math.max(0,Math.min(billState.offset,total-1));
+  const startIdx=billState.offset*pageSize;
+  const slice=periods.slice(startIdx,startIdx+pageSize);
+  if(billState.gran==='month'){
+    const first=slice[0],last=slice[slice.length-1];
+    periodEl.textContent=first.y===last.y?first.y+'年 '+first.m+'–'+last.m+'月':first.y+'.'+first.m+' – '+last.y+'.'+last.m;
+  }else{
+    periodEl.textContent=slice.length>1?slice[0].y+'–'+slice[slice.length-1].y+'年':slice[0].y+'年';
+  }
+  el.innerHTML=slice.map(p=>{
+    const b=computeBill(p);
+    const label=billState.gran==='month'?p.y+'年'+p.m+'月':p.y+'年';
+    const sub=b.isCurrent?'(本月)':'';
+    return '<div class="bill-card'+(b.isCurrent?' current':'')+'">'+
+      '<div class="bill-head"><span class="bill-month">'+label+'<span class="bm-sub">'+sub+'</span></span>'+
+      '<span class="bill-kwh">'+fmt1(b.kwh)+'<span class="u">度</span></span></div>'+
+      '<div class="bill-rows">'+
+      '<div class="bill-row"><span>电费</span><b class="cost">'+fmtY(b.cost)+'</b></div>'+
+      '<div class="bill-row"><span>充值</span><b class="rch">'+(b.rch>0?fmtY(b.rch):'—')+'</b></div>'+
+      '<div class="bill-row"><span>日均用电</span><b class="avg">'+fmt1(b.avg)+' 度</b></div>'+
+      '<div class="bill-row"><span>'+b.days+'天 · '+state.price+'元/度</span><b></b></div>'+
+      '</div></div>';
+  }).join('');
+}
+$('#billTabs').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  document.querySelectorAll('#billTabs button').forEach(x=>x.classList.toggle('on',x===b));
+  billState.gran=b.dataset.bg;billState.offset=0;renderBills();
+});
+$('#billPrev').addEventListener('click',()=>{billState.offset=Math.max(0,billState.offset-1);renderBills();});
+$('#billNext').addEventListener('click',()=>{billState.offset++;renderBills();});
+
+/* ================= 记录清单 ================= */
+const listState={page:1,size:20,filter:{start:null,end:null,keyword:'',type:'all'}};
+function applyListFilter(records){
+  const f=listState.filter;
+  return records.filter(r=>{
+    if(f.start&&r.ts<f.start)return false;
+    if(f.end&&r.ts>f.end+DAY)return false;
+    if(f.keyword){
+      const kw=f.keyword.toLowerCase();
+      const noteMatch=(r.note||'').toLowerCase().includes(kw);
+      const dt=new Date(r.ts);
+      const dateStr=(dt.getMonth()+1)+'月'+dt.getDate()+'日';
+      const dateMatch=dateStr.includes(kw)||(dt.getFullYear()+'/'+(dt.getMonth()+1)).includes(f.keyword);
+      if(!noteMatch&&!dateMatch)return false;
+    }
+    if(f.type==='recharge'&&r.recharge<=0)return false;
+    if(f.type==='balance'&&r.recharge>0)return false;
+    return true;
+  });
+}
+function renderListRows(rows,segMap){
+  return rows.map(r=>{
+    const dt=fmtDT(r.ts);
+    const s=segMap.get(r.id);
+    const rchHtml=r.recharge>0?'<em>+'+fmtY(r.recharge)+'</em>':'';
+    let info='首笔基准 · 开始追踪';
+    if(s){
+      info=s.anomaly
+        ?'<span class="warn">⚠️ 余额反升 '+fmtY(-s.cost)+'（充值 '+fmtY(s.rSum)+'），请核对</span>'
+        :'≈ <b>'+fmt1(s.kwh)+'</b> 度 · '+fmtY(s.cost)+' <span class="dim">/ '+(s.days<1?Math.max(1,Math.round(s.days*24))+'小时':s.days.toFixed(1)+'天')+'</span>';
+    }
+    const tag=r.recharge>0?'<span class="tag r">充</span>':'<span class="tag b">余</span>';
+    const isEditing=editState.id===r.id;
+    return '<div class="row'+(isEditing?' editing':'')+'" data-id="'+r.id+'">'+tag+
+      '<div class="r-main"><b>'+fmtY(r.balance)+'</b>'+rchHtml+'<span>'+dt+(r.note?' · '+esc(r.note):'')+'</span></div>'+
+      '<div class="r-info">'+info+'</div>'+
+      '<div class="r-actions">'+
+      '<button type="button" class="edit-btn" data-edit="'+r.id+'" title="编辑">✎</button>'+
+      '<button type="button" class="del" data-id="'+r.id+'" title="删除">✕</button>'+
+      '</div></div>';
+  }).join('');
+}
+function renderPager(page,totalPages,total){
+  const el=$('#pager');
+  if(totalPages<=1){el.innerHTML='';return;}
+  let html='';
+  html+='<button class="pg-btn" data-pg="prev"'+(page<=1?' disabled':'')+'>‹</button>';
+  const maxBtns=7;
+  let start=Math.max(1,page-3),end=Math.min(totalPages,start+maxBtns-1);
+  if(end-start<maxBtns-1)start=Math.max(1,end-maxBtns+1);
+  if(start>1){html+='<button class="pg-btn" data-pg="1">1</button>';if(start>2)html+='<span class="pg-ellipsis">…</span>';}
+  for(let i=start;i<=end;i++)html+='<button class="pg-btn'+(i===page?' on':'')+'" data-pg="'+i+'">'+i+'</button>';
+  if(end<totalPages){if(end<totalPages-1)html+='<span class="pg-ellipsis">…</span>';html+='<button class="pg-btn" data-pg="'+totalPages+'">'+totalPages+'</button>';}
+  html+='<button class="pg-btn" data-pg="next"'+(page>=totalPages?' disabled':'')+'>›</button>';
+  const from=(page-1)*listState.size+1,to=Math.min(page*listState.size,total);
+  html+='<div class="pg-info" style="width:100%">第 '+from+'–'+to+' 条 / 共 '+total+' 条 · 每页 '+listState.size+' 条</div>';
+  el.innerHTML=html;
+}
+function renderList(){
+  const el=$('#recList'),all=sorted();
+  $('#recCount').textContent=all.length;
+  const hasData=all.length>0;
+  $('#listToolbar').hidden=!hasData;
+  $('#listFilterRow').hidden=!hasData;
+  if(!hasData){el.innerHTML='<div class="list-empty">还没有记录 · 先记一笔，或载入演示数据看看效果</div>';$('#pager').innerHTML='';$('#listSummary').textContent='';return;}
+  const filtered=applyListFilter([...all].reverse());
+  const segMap=new Map(segments().map(s=>[s.b.id,s]));
+  const totalPages=Math.max(1,Math.ceil(filtered.length/listState.size));
+  const page=Math.min(listState.page,totalPages);
+  listState.page=page;
+  const slice=filtered.slice((page-1)*listState.size,page*listState.size);
+  if(!filtered.length){
+    el.innerHTML='<div class="list-empty">没有匹配的记录 · 试试调整筛选条件或搜索关键词</div>';
+    $('#pager').innerHTML='';$('#listSummary').textContent='筛选结果：0 条';return;
+  }
+  el.innerHTML=renderListRows(slice,segMap);
+  renderPager(page,totalPages,filtered.length);
+  const allCount=all.length;
+  $('#listSummary').textContent=filtered.length<allCount?'筛选结果：'+filtered.length+' / '+allCount+' 条':allCount+' 条记录';
+}
+$('#recList').addEventListener('click',e=>{
+  const d=e.target.closest('.del');
+  if(d){
+    if(editState.id===d.dataset.id)cancelEdit();
+    state.records=state.records.filter(r=>r.id!==d.dataset.id);
+    save();refreshAll();toast('已删除 1 条记录');
+    return;
+  }
+  const ed=e.target.closest('.edit-btn');
+  if(ed){startEdit(ed.dataset.edit);}
+});
+$('#pager').addEventListener('click',e=>{
+  const b=e.target.closest('.pg-btn');if(!b||b.disabled)return;
+  const v=b.dataset.pg;
+  if(v==='prev')listState.page--;
+  else if(v==='next')listState.page++;
+  else listState.page=+v;
+  renderList();$('#recList').scrollIntoView({behavior:'smooth',block:'nearest'});
+});
+/* 筛选交互 */
+$('#listSearch').addEventListener('input',e=>{
+  listState.filter.keyword=e.target.value.trim();
+  listState.page=1;renderList();
+});
+$('#listTypeChips').addEventListener('click',e=>{
+  const c=e.target.closest('.chip');if(!c)return;
+  document.querySelectorAll('#listTypeChips .chip').forEach(x=>x.classList.toggle('on',x===c));
+  listState.filter.type=c.dataset.t;listState.page=1;renderList();
+});
+$('#listStart').addEventListener('change',e=>{
+  listState.filter.start=e.target.value?parseDateVal(e.target.value):null;
+  document.querySelectorAll('#listPresetChips .chip').forEach(x=>x.classList.remove('on'));
+  listState.page=1;renderList();
+});
+$('#listEnd').addEventListener('change',e=>{
+  listState.filter.end=e.target.value?parseDateVal(e.target.value):null;
+  document.querySelectorAll('#listPresetChips .chip').forEach(x=>x.classList.remove('on'));
+  listState.page=1;renderList();
+});
+$('#listPresetChips').addEventListener('click',e=>{
+  const c=e.target.closest('.chip');if(!c)return;
+  document.querySelectorAll('#listPresetChips .chip').forEach(x=>x.classList.toggle('on',x===c));
+  const t=sod(Date.now()),d=new Date();let s=null,en=null;
+  switch(c.dataset.lp){
+    case'7d':s=t-6*DAY;en=t;break;
+    case'30d':s=t-29*DAY;en=t;break;
+    case'month':s=new Date(d.getFullYear(),d.getMonth(),1).getTime();en=t;break;
+    case'lastMonth':s=new Date(d.getFullYear(),d.getMonth()-1,1).getTime();en=new Date(d.getFullYear(),d.getMonth(),0).getTime();break;
+    case'year':s=new Date(d.getFullYear(),0,1).getTime();en=t;break;
+    case'all':default:s=null;en=null;break;
+  }
+  listState.filter.start=s;listState.filter.end=en;
+  $('#listStart').value=s?dKey(s):'';$('#listEnd').value=en?dKey(en):'';
+  listState.page=1;renderList();
+});
+
+/* ================= 弹层 / 提示 ================= */
+let modalOk=null;
+function openModal(title,html,okText,onOk,danger){
+  $('#mTitle').textContent=title;$('#mBody').innerHTML=html;
+  const ok=$('#mOk');ok.textContent=okText||'确定';ok.classList.toggle('danger',!!danger);
+  modalOk=onOk;
+  const m=$('#mask');m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));
+  const inp=m.querySelector('input');if(inp)setTimeout(()=>inp.focus(),80);
+}
+function closeModal(){const m=$('#mask');m.classList.remove('show');setTimeout(()=>{m.hidden=true;},200);modalOk=null;}
+$('#mOk').addEventListener('click',()=>{if(modalOk&&modalOk()===false)return;closeModal();});
+$('#mCancel').addEventListener('click',closeModal);
+$('#mask').addEventListener('click',e=>{if(e.target.id==='mask')closeModal();});
+function toast(msg){
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  $('#toasts').append(t);requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300);},2400);
+}
+
+/* ================= 记一笔 ================= */
+const editState={id:null};
+function startEdit(id){
+  const r=state.records.find(x=>x.id===id);if(!r)return;
+  editState.id=id;
+  const d=new Date(r.ts);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+  $('#eTime').value=d.toISOString().slice(0,16);
+  $('#eBalance').value=r.balance;
+  $('#eRecharge').value=r.recharge||0;
+  $('#eNote').value=r.note||'';
+  document.querySelectorAll('#eChips .chip').forEach(x=>x.classList.toggle('on',x.dataset.v===(r.recharge||0)));
+  $('#editBanner').hidden=false;
+  $('#editInfo').textContent='正在修改 '+fmtDT(r.ts)+' 的记录';
+  $('.btn-primary').textContent='✏️ 更新记录';
+  renderList();
+  $('#formEntry').closest('.panel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function cancelEdit(){
+  editState.id=null;
+  $('#editBanner').hidden=true;
+  $('.btn-primary').textContent='✅ 保存记录';
+  $('#eBalance').value='';$('#eRecharge').value='0';$('#eNote').value='';$('#eTime').value=nowInputVal();
+  document.querySelectorAll('#eChips .chip').forEach(x=>x.classList.toggle('on',x.dataset.v==='0'));
+  renderList();
+}
+$('#editCancel').addEventListener('click',cancelEdit);
+$('#eChips').addEventListener('click',e=>{
+  const c=e.target.closest('.chip');if(!c)return;
+  $('#eRecharge').value=c.dataset.v;
+  document.querySelectorAll('#eChips .chip').forEach(x=>x.classList.toggle('on',x===c));
+});
+function afterSave(msg){save();refreshAll();toast(msg);}
+$('#formEntry').addEventListener('submit',e=>{
+  e.preventDefault();
+  const ts=parseLocal($('#eTime').value);
+  const bal=+$('#eBalance').value;
+  const rch=+$('#eRecharge').value||0;
+  if(!isFinite(ts)){toast('⚠️ 请选择抄表时间');return;}
+  if(!(bal>=0)){toast('⚠️ 请输入有效余额');return;}
+  if(!(rch>=0)){toast('⚠️ 请输入有效充值金额');return;}
+  if(editState.id){
+    const r=state.records.find(x=>x.id===editState.id);
+    if(!r){cancelEdit();return;}
+    const doUpdate=()=>{
+      r.ts=ts;r.balance=r2(bal);r.recharge=r2(rch);r.note=$('#eNote').value.trim();
+      cancelEdit();afterSave('✏️ 已更新记录：余额 '+fmtY(bal)+(rch>0?' · 充值 '+fmtY(rch):''));
+    };
+    const others=[...state.records].filter(x=>x.id!==editState.id).sort((a,b)=>a.ts-b.ts);
+    const prev=others.filter(x=>x.ts<=ts).pop();
+    if(prev){
+      const cost=r2(prev.balance+rch-bal);
+      if(cost<-0.3){
+        openModal('余额比上一笔更高？',
+          '上一笔余额 '+fmtY(prev.balance)+'，本次充值 '+fmtY(rch)+'，本次余额 <b>'+fmtY(bal)+'</b>。<br>'+
+          '若没有充值却余额反升，可能是抄错或换表。确认更新吗？',
+          '仍要更新',doUpdate);
+        return;
+      }
+    }
+    doUpdate();
+    return;
+  }
+  const doSave=()=>{
+    state.records.push({id:uid(),ts,balance:r2(bal),recharge:r2(rch),note:$('#eNote').value.trim()});
+    afterSave('⚡ 已记录：余额 '+fmtY(bal)+(rch>0?' · 充值 '+fmtY(rch):''));
+    $('#eBalance').value='';$('#eRecharge').value='0';$('#eNote').value='';$('#eTime').value=nowInputVal();
+    document.querySelectorAll('#eChips .chip').forEach(x=>x.classList.toggle('on',x.dataset.v==='0'));
+  };
+  const prev=[...state.records].filter(r=>r.ts<=ts).sort((a,b)=>b.ts-a.ts)[0];
+  if(prev){
+    const cost=r2(prev.balance+rch-bal);
+    if(cost<-0.3){
+      openModal('余额比上一笔更高？',
+        '上一笔余额 '+fmtY(prev.balance)+'，本次充值 '+fmtY(rch)+'，本次余额 <b>'+fmtY(bal)+'</b>。<br>'+
+        '若没有充值却余额反升，可能是抄错或换表。确认保存吗？',
+        '仍要保存',doSave);
+      return;
+    }
+  }
+  doSave();
+});
+
+/* ================= 统计交互 ================= */
+$('#granTabs').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  view.g=b.dataset.g;
+  document.querySelectorAll('#granTabs button').forEach(x=>x.classList.toggle('on',x===b));
+  const[s,en]=defaultRange(view.g);view.start=s;view.end=en;
+  syncDates();
+  document.querySelectorAll('#presetChips .chip').forEach(x=>x.classList.remove('on'));
+  renderStats();
+});
+$('#dStart').addEventListener('change',e=>{
+  if(!e.target.value)return;let s=parseDateVal(e.target.value);
+  if(s>view.end)view.end=s;view.start=s;renderStats();
+});
+$('#dEnd').addEventListener('change',e=>{
+  if(!e.target.value)return;let en=parseDateVal(e.target.value);
+  if(en<view.start)view.start=en;view.end=en;renderStats();
+});
+$('#presetChips').addEventListener('click',e=>{
+  const c=e.target.closest('.chip');if(!c)return;
+  document.querySelectorAll('#presetChips .chip').forEach(x=>x.classList.toggle('on',x===c));
+  const t=sod(Date.now()),d=new Date();let s=t;
+  switch(c.dataset.p){
+    case'7d':s=t-6*DAY;break;
+    case'30d':s=t-29*DAY;break;
+    case'month':s=new Date(d.getFullYear(),d.getMonth(),1).getTime();break;
+    case'lastMonth':s=new Date(d.getFullYear(),d.getMonth()-1,1).getTime();view.end=new Date(d.getFullYear(),d.getMonth(),0).getTime();syncDates();view.start=s;renderStats();return;
+    case'year':s=new Date(d.getFullYear(),0,1).getTime();break;
+    case'all':{const minTs=state.records.length?Math.min(...state.records.map(r=>r.ts)):t-364*DAY;s=new Date(new Date(minTs).getFullYear(),0,1).getTime();break;}
+  }
+  view.start=s;view.end=t;syncDates();renderStats();
+});
+
+/* ================= 设置 / 备份 ================= */
+$('#priceBtn').addEventListener('click',()=>{
+  openModal('⚙️ 电价设置','<label class="fld"><span>电价（元 / 度）</span><input type="number" id="mPrice" step="0.01" min="0.01" value="'+state.price+'"></label><p class="m-note">修改后，所有历史用电将按新电价重新折算。</p>','保存',()=>{
+    const v=+$('#mPrice').value;
+    if(!(v>0)){toast('⚠️ 请输入有效电价');return false;}
+    state.price=v;save();refreshAll();toast('电价已更新为 '+v+' 元/度');
+  });
+});
 function exportData(){
-  const blob=new Blob([JSON.stringify({records:load(),price:getPrice(),exported:new Date().toISOString()},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({v:3,price:state.price,records:state.records,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download='电费账本_'+nowLocal().replace(/[:T]/g,'-')+'.json';a.click();showToast('已导出 ✅');}
-function importData(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();
-  rd.onload=ev=>{try{const d=JSON.parse(ev.target.result);
-    if(d.records&&Array.isArray(d.records)){
-      if(!confirm(`将导入 ${d.records.length} 条记录，覆盖现有数据？`))return;
-      saveAll(d.records);if(d.price)localStorage.setItem(K_PRICE,d.price);render();showToast('导入成功 ✅');
-    }else showToast('文件格式不正确');}catch(err){showToast('解析失败：'+err.message);}};
-  rd.readAsText(f);e.target.value='';}
-function clearAll(){if(!confirm('确定清空所有数据？'))return;if(!confirm('真的确定？建议先导出备份！'))return;
-  localStorage.removeItem(K_REC);render();showToast('已清空');}
+  a.download='电费小账本-备份-'+dKey(Date.now())+'.json';a.click();URL.revokeObjectURL(a.href);
+}
+$('#exportBtn').addEventListener('click',()=>{exportData();toast('📤 备份已下载');});
+$('#importBtn').addEventListener('click',()=>$('#importFile').click());
+$('#importFile').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const d=JSON.parse(rd.result);
+      const arr=Array.isArray(d)?d:(d&&d.records)||[];
+      const incoming=migrateRecords(arr);
+      if(!Array.isArray(d)&&+d.price>0)state.price=+d.price;
+      const key=r=>r.ts+'|'+r.balance+'|'+r.recharge;
+      const have=new Set(state.records.map(key));
+      let add=0,dup=0;
+      for(const r of incoming){if(have.has(key(r)))dup++;else{state.records.push(r);have.add(key(r));add++;}}
+      save();refreshAll();toast('📥 导入 '+add+' 条，跳过重复 '+dup+' 条');
+    }catch(err){toast('⚠️ 文件格式无法识别');}
+  };
+  rd.readAsText(f);e.target.value='';
+});
+$('#clearBtn').addEventListener('click',()=>{
+  if(!state.records.length){toast('当前没有数据');return;}
+  openModal('🗑️ 清空全部数据','将先<b>自动下载一份备份</b>，随后删除全部 <b>'+state.records.length+'</b> 条记录，此操作不可撤销。','仍要清空',()=>{
+    exportData();state.records=[];save();refreshAll();toast('已清空，备份已下载');
+  },true);
+});
 
-/* ---- 初始化 ---- */
-(function init(){
-  $('inTime').value=nowLocal();
-  const sp=document.querySelector('.sparks');
-  for(let i=0;i<14;i++){const s=document.createElement('i');
-    s.style.left=Math.random()*100+'%';const sz=(Math.random()*2.5+1.5).toFixed(1);
-    s.style.width=s.style.height=sz+'px';
-    s.style.background=Math.random()>.5?'#ffc247':'#45e0a0';
-    s.style.animationDuration=(Math.random()*12+8)+'s';
-    s.style.animationDelay=(-Math.random()*20)+'s';sp.appendChild(s);}
-  const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}}),{threshold:.08});
-  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
-  setInterval(()=>$('meterTime').textContent=nowLocal().replace('T',' '),30000);
-  render();
+/* ================= 演示数据 ================= */
+function genDemo(){
+  const recs=[];let d=new Date();d.setDate(d.getDate()-150);d.setHours(9,12,0,0);
+  let ts=d.getTime(),bal=286.4;
+  recs.push({id:uid(),ts,balance:r2(bal),recharge:0,note:'演示·初始抄表'});
+  const end=Date.now()-DAY*0.4;
+  while(ts<end){
+    const step=Math.random()<0.55?1:Math.random()<0.8?2:3;
+    let used=0;
+    for(let i=0;i<step;i++){
+      const dow=new Date(ts+i*DAY).getDay();
+      let k=4.5+Math.random()*6.5;
+      if(dow===0||dow===6)k*=1.4;
+      if(Math.random()<0.05)k*=2.1;
+      if(Math.random()<0.08)k*=0.3;
+      used+=k;
+    }
+    const nts=Math.min(ts+step*DAY+(Math.random()*2-1)*3600e3,Date.now()-3600e3);
+    bal-=used*state.price;
+    let rch=0;
+    if(bal<25){rch=[50,100,100,200,200,500][Math.floor(Math.random()*6)];bal+=rch;}
+    bal=Math.max(bal,0);
+    recs.push({id:uid(),ts:nts,balance:r2(bal),recharge:r2(rch),note:rch>0?'演示·线上充值':(Math.random()<0.15?'演示·周末':'')});
+    ts=nts;
+  }
+  return recs;
+}
+$('#demoBtn').addEventListener('click',()=>{
+  const run=()=>{state.records=genDemo();save();
+    const[s,en]=defaultRange('day');view.g='day';view.start=s;view.end=en;
+    document.querySelectorAll('#granTabs button').forEach(x=>x.classList.toggle('on',x.dataset.g==='day'));
+    syncDates();refreshAll();toast('⚡ 已载入约 150 天演示数据');};
+  if(state.records.length)openModal('载入演示数据','将<b>替换</b>当前全部 '+state.records.length+' 条记录（建议先导出备份）。确定载入？','替换并载入',run,true);
+  else run();
+});
+
+/* ================= 云端同步（GitHub 仓库存储） =================
+   数据存为仓库内 data.json，通过 GitHub Contents API 读写。
+   「密码」= 细粒度个人访问令牌（PAT），仅授权该仓库 Contents 读写。
+   本地 localStorage 始终作缓存，云端为同步源；多端按 id 合并不丢数据。 */
+const GH_KEY='elec.gh.config';
+let _ghSha=null,_pushing=false,_pushPending=false,_pushTimer=null;
+function getGH(){try{return JSON.parse(localStorage.getItem(GH_KEY))||null}catch(e){return null}}
+function setGH(c){try{localStorage.setItem(GH_KEY,JSON.stringify(c))}catch(e){}}
+function clearGH(){try{localStorage.removeItem(GH_KEY)}catch(e){}}
+function cloudEnabled(){return !!getGH()}
+function b64enc(s){return btoa(unescape(encodeURIComponent(s)))}
+function b64dec(b){return decodeURIComponent(escape(atob(b.replace(/\n/g,''))))}
+function setCloudStatus(cls,txt){
+  const el=$('#cloudStatus');if(!el)return;
+  el.className='cloud-status '+(cls||'');const t=el.querySelector('.ctxt');if(t)t.textContent=txt||'未连接';
+}
+async function ghGet(token,owner,repo,path,branch){
+  const url=`https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`;
+  const res=await fetch(url,{headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}});
+  if(res.status===404)return{notFound:true};
+  if(res.status===401||res.status===403)throw new Error('auth');
+  if(!res.ok)throw new Error('read:'+res.status);
+  const j=await res.json();return{sha:j.sha,content:j.content?b64dec(j.content):''};
+}
+async function ghPut(token,owner,repo,path,branch,content,sha){
+  const url=`https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
+  const body={message:'chore: 更新电费账本 '+new Date().toISOString(),content:b64enc(content),branch:branch};
+  if(sha)body.sha=sha;
+  const res=await fetch(url,{method:'PUT',headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},body:JSON.stringify(body)});
+  if(res.status===409||res.status===422)throw new Error('conflict');
+  if(res.status===401||res.status===403)throw new Error('auth');
+  if(!res.ok)throw new Error('write:'+res.status);
+  return res.json();
+}
+function mergeById(cloudArr,localArr){
+  const m=new Map();
+  for(const r of localArr)if(r&&r.id)m.set(r.id,r);
+  for(const r of cloudArr)if(r&&r.id)m.set(r.id,r); // 云端优先
+  return[...m.values()];
+}
+function writeLocalCache(){_dm=null;_segsDirty=true;try{localStorage.setItem(KEY,JSON.stringify({v:3,price:state.price,records:state.records}));}catch(e){}}
+async function cloudLogin(cfg){
+  setCloudStatus('busy','连接中…');
+  const path=cfg.path||'data.json',branch=cfg.branch||'main';
+  let r;
+  try{r=await ghGet(cfg.token,cfg.owner,cfg.repo,path,branch);}
+  catch(e){if(e.message==='auth')throw new Error('令牌无效或无权访问该仓库');throw new Error('连接失败：'+e.message);}
+  if(r.notFound){
+    _ghSha=null;setGH(cfg);
+    await cloudPush(true);
+    setCloudStatus('ok','已同步');
+    return{first:true};
+  }
+  _ghSha=r.sha;
+  let cloudRecs=[],cloudPrice=state.price;
+  try{const d=JSON.parse(r.content);cloudRecs=migrateRecords(d&&d.records||[]);if(d&&+d.price>0)cloudPrice=+d.price;}catch(e){}
+  const localOnly=state.records.length;
+  state.records=mergeById(cloudRecs,state.records);
+  state.price=cloudPrice;
+  writeLocalCache();setGH(cfg);
+  if(state.records.length>cloudRecs.length)await cloudPush(true);
+  setCloudStatus('ok','已同步');
+  return{merged:state.records.length-localOnly};
+}
+function scheduleCloudPush(){
+  if(!cloudEnabled())return;
+  clearTimeout(_pushTimer);_pushTimer=setTimeout(()=>cloudPush(),1200);
+}
+async function cloudPush(force){
+  if(!cloudEnabled())return;
+  if(_pushing){_pushPending=true;return;}
+  _pushing=true;
+  const cfg=getGH();const path=cfg.path||'data.json',branch=cfg.branch||'main';
+  const content=JSON.stringify({v:3,price:state.price,records:state.records});
+  if(force!==true)setCloudStatus('busy','同步中…');
+  try{
+    const res=await ghPut(cfg.token,cfg.owner,cfg.repo,path,branch,content,_ghSha);
+    _ghSha=res.content.sha;setCloudStatus('ok','已同步');
+  }catch(e){
+    if(e.message==='conflict'){
+      try{const g=await ghGet(cfg.token,cfg.owner,cfg.repo,path,branch);_ghSha=g.notFound?null:g.sha;
+        const res=await ghPut(cfg.token,cfg.owner,cfg.repo,path,branch,content,_ghSha);
+        _ghSha=res.content.sha;setCloudStatus('ok','已同步');
+      }catch(e2){setCloudStatus('err','同步失败');}
+    }else if(e.message==='auth'){setCloudStatus('err','令牌失效');}
+    else{setCloudStatus('err','同步失败');}
+  }finally{_pushing=false;if(_pushPending){_pushPending=false;cloudPush();}}
+}
+async function cloudLogout(){
+  clearGH();_ghSha=null;clearTimeout(_pushTimer);
+  setCloudStatus('','未连接');
+  toast('已退出云端，数据保留在本机');
+}
+async function initCloud(){
+  const cfg=getGH();
+  if(!cfg){setCloudStatus('','未连接');return;}
+  setCloudStatus('busy','同步中…');
+  try{
+    const path=cfg.path||'data.json',branch=cfg.branch||'main';
+    const r=await ghGet(cfg.token,cfg.owner,cfg.repo,path,branch);
+    if(r.notFound){_ghSha=null;await cloudPush(true);}
+    else{
+      _ghSha=r.sha;
+      let cloudRecs=[],cloudPrice=state.price;
+      try{const d=JSON.parse(r.content);cloudRecs=migrateRecords(d&&d.records||[]);if(d&&+d.price>0)cloudPrice=+d.price;}catch(e){}
+      state.records=mergeById(cloudRecs,state.records);
+      state.price=cloudPrice;writeLocalCache();refreshAll();
+      if(state.records.length>cloudRecs.length)cloudPush(true);
+      setCloudStatus('ok','已同步');
+    }
+  }catch(e){
+    if(e.message==='auth')setCloudStatus('err','令牌失效');
+    else setCloudStatus('err','同步失败');
+  }
+}
+/* 云端登录交互 */
+(function(){
+  const box=$('#cloudLogin');if(!box)return;
+  const prefill=c=>{if(!c)return;$('#clOwner').value=c.owner||'';$('#clRepo').value=c.repo||'';$('#clBranch').value=c.branch||'main';$('#clPath').value=c.path||'data.json';$('#clToken').value='';};
+  $('#clBtn').onclick=async()=>{
+    const cfg={owner:$('#clOwner').value.trim(),repo:$('#clRepo').value.trim(),branch:$('#clBranch').value.trim()||'main',path:$('#clPath').value.trim()||'data.json',token:$('#clToken').value.trim()};
+    const err=$('#clErr');
+    if(!cfg.owner||!cfg.repo||!cfg.token){err.textContent='请填写用户名、仓库名和令牌';return;}
+    err.textContent='';const btn=$('#clBtn');btn.disabled=true;btn.textContent='连接中…';
+    try{
+      const r=await cloudLogin(cfg);
+      box.hidden=true;btn.disabled=false;btn.textContent='连接云端';
+      refreshAll();
+      toast(r.first?'☁️ 已开启云端同步':'☁️ 云端数据已同步');
+    }catch(e){
+      err.textContent=e.message;btn.disabled=false;btn.textContent='连接云端';
+    }
+  };
+  $('#clSkip').onclick=()=>{box.hidden=true;};
+  $('#clToken').addEventListener('keydown',e=>{if(e.key==='Enter'){$('#clBtn').click();}});
+  $('#cloudBtn').onclick=()=>{
+    const cfg=getGH();
+    if(cfg&&$('#cloudStatus').classList.contains('err')){prefill(cfg);box.hidden=false;$('#clErr').textContent='令牌已失效，请重新输入';}
+    else if(cfg){cloudLogout();}
+    else{box.hidden=false;}
+  };
 })();
-window.addEventListener('resize',()=>{const rs=load(),bs=rs.filter(r=>r.type==='balance');if(bs.length>=2)drawChart(rs,bs);});
+
+/* ================= 总渲染 / 初始化 ================= */
+function refreshAll(){renderHead();renderStats();renderTrend();renderBills();renderList();$('#footPrice').textContent=state.price;}
+let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(renderTrend,160);});
+load();
+$('#eTime').value=nowInputVal();
+syncDates();refreshAll();
+initCloud();
 </script>
-</body>
-</html>
+
+
+<div data-trae-edit-ui="true"></div></body><grammarly-desktop-integration data-grammarly-shadow-root="true" style="visibility: visible !important;"></grammarly-desktop-integration></html>
