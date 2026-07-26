@@ -997,7 +997,7 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
         <div id="odo"><span class="bal-cur">¥</span>435.41</div>
         <div class="bal-note" id="balTag">余额正常 · 继续保持</div>
       </div>
-      <div class="tiles" id="tiles"><div class="tile"><div class="tile-label">日均用电</div><div class="tile-val">8.7 <span class="u">度/天</span></div><div class="tile-sub">近14天</div></div><div class="tile"><div class="tile-label">日均电费</div><div class="tile-val">¥5.63</div><div class="tile-sub">元 / 天</div></div><div class="tile"><div class="tile-label">月均电费</div><div class="tile-val">¥168.95</div><div class="tile-sub">元 / 30天</div></div><div class="tile"><div class="tile-label">余额可用</div><div class="tile-val">77.3 <span class="u">天</span></div><div class="tile-sub">约 2026/10/12 需充值</div></div></div>
+      <div class="tiles" id="tiles"><div class="tile"><div class="tile-label">日均用电</div><div class="tile-val">8.7 <span class="u">度/天</span></div><div class="tile-sub">近14天</div></div><div class="tile"><div class="tile-label">日均电费</div><div class="tile-val">¥5.63</div><div class="tile-sub">元 / 天</div></div><div class="tile"><div class="tile-label">月均电费</div><div class="tile-val">¥168.93</div><div class="tile-sub">元 / 30天</div></div><div class="tile"><div class="tile-label">余额可用</div><div class="tile-val">77.3 <span class="u">天</span></div><div class="tile-sub">约 2026/10/12 需充值</div></div></div>
     </div>
     <div class="hero-foot">
       <span id="lastRec">最近抄表 7/26 21:36</span>
@@ -1130,6 +1130,7 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
   <footer class="foot">
     <div class="foot-btns">
       <button type="button" class="btn-ghost" id="cloudBtn">☁️ 云端</button>
+      <button type="button" class="btn-ghost" id="installBtn" hidden="">📱 安装应用</button>
       <button type="button" class="btn-ghost" id="priceBtn">⚙️ 设置电价</button>
       <button type="button" class="btn-ghost" id="exportBtn">📤 导出备份</button>
       <button type="button" class="btn-ghost" id="importBtn">📥 导入数据</button>
@@ -2119,6 +2120,33 @@ initCloud();
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+// PWA 安装提示：捕获浏览器安装事件，显示自定义安装按钮
+let _deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();_deferredPrompt=e;
+  const btn=document.getElementById('installBtn');if(btn)btn.hidden=false;
+});
+window.addEventListener('appinstalled',()=>{
+  _deferredPrompt=null;
+  const btn=document.getElementById('installBtn');if(btn)btn.hidden=true;
+});
+document.getElementById('installBtn')&&document.getElementById('installBtn').addEventListener('click',async()=>{
+  if(!_deferredPrompt){toast('请用浏览器菜单的「添加到主屏幕」');return;}
+  _deferredPrompt.prompt();
+  const {outcome}=_deferredPrompt.userChoice;
+  if(outcome==='accepted'){toast('已添加到主屏幕');}
+  _deferredPrompt=null;
+  document.getElementById('installBtn').hidden=true;
+});
+// iOS 不支持 beforeinstallprompt，检测到 iOS Safari 时显示提示
+if(!window.navigator.standalone && /iphone|ipad|ipod/i.test(navigator.userAgent) && /safari/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent)){
+  window.addEventListener('load',()=>{
+    const btn=document.getElementById('installBtn');if(btn){btn.hidden=false;btn.textContent='📱 添加到主屏幕';}
+    btn&&btn.addEventListener('click',()=>{
+      toast('点击 Safari 底部分享按钮 → 添加到主屏幕');
+    },{once:true});
   });
 }
 </script>
