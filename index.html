@@ -1493,6 +1493,11 @@ navigator.serviceWorker.register('./sw.js').catch(()=>{});
 }
 // PWA 安装提示：捕获浏览器安装事件，显示自定义安装按钮
 let _deferredPrompt=null;
+// 已安装并以 standalone 全屏模式运行时，不再显示安装按钮
+const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+if(_isStandalone){
+const btn=document.getElementById('installBtn');if(btn)btn.hidden=true;
+}else{
 window.addEventListener('beforeinstallprompt',e=>{
 e.preventDefault();_deferredPrompt=e;
 const btn=document.getElementById('installBtn');if(btn)btn.hidden=false;
@@ -1510,13 +1515,14 @@ _deferredPrompt=null;
 document.getElementById('installBtn').hidden=true;
 });
 // iOS 不支持 beforeinstallprompt，检测到 iOS Safari 时显示提示
-if(!window.navigator.standalone && /iphone|ipad|ipod/i.test(navigator.userAgent) && /safari/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent)){
+if(/iphone|ipad|ipod/i.test(navigator.userAgent) && /safari/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent)){
 window.addEventListener('load',()=>{
 const btn=document.getElementById('installBtn');if(btn){btn.hidden=false;btn.textContent='📱 添加到主屏幕';}
 btn&&btn.addEventListener('click',()=>{
 toast('点击 Safari 底部分享按钮 → 添加到主屏幕');
 },{once:true});
 });
+}
 }
 </script>
  
