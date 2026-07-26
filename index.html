@@ -2,7 +2,7 @@
 <html lang="zh-CN"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="transparent">
 <title>⚡ 电费小账本</title>
 <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;⚡&lt;/text&gt;&lt;/svg&gt;">
 <link rel="manifest" href="manifest.json">
@@ -29,11 +29,11 @@
 [hidden]{display:none!important}
 ::selection{background:rgba(56,189,248,.25)}
 html{scroll-behavior:smooth;background-color:#0f172a;color-scheme:dark}
-body{background-color:#0f172a;color:var(--ink);font-family:var(--sans);min-height:100vh;-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.6}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh;-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.6}
  
 /* ===== 背景 ===== */
-.bg-deco{position:fixed;inset:0;z-index:-1;pointer-events:none;background-color:#0f172a;
-background-image:radial-gradient(600px 400px at 15% -5%,rgba(56,189,248,.07),transparent 60%),radial-gradient(500px 350px at 85% 5%,rgba(251,191,36,.04),transparent 60%)}
+.bg-deco{position:fixed;inset:0;z-index:-1;pointer-events:none;
+background:radial-gradient(600px 400px at 15% -5%,rgba(56,189,248,.07),transparent 60%),radial-gradient(500px 350px at 85% 5%,rgba(251,191,36,.04),transparent 60%)}
 .bg-deco::after{content:"";position:absolute;inset:0;
 background-image:linear-gradient(rgba(56,189,248,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.02) 1px,transparent 1px);
 background-size:40px 40px;-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 15%,transparent 70%);mask-image:radial-gradient(ellipse at 50% 0%,#000 15%,transparent 70%)}
@@ -319,8 +319,6 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 @media(display-mode:standalone){.app{padding-top:max(24px,env(safe-area-inset-top))}}
 /* standalone 模式下 html/body 背景兜底，避免安全区外露白 */
 @media(display-mode:standalone){html,body{background-color:#0f172a}}
-/* standalone 模式下强制底部安全区也用深色填充 */
-@media(display-mode:standalone){html{background-color:#0f172a;padding-bottom:env(safe-area-inset-bottom)}}
 </style>
 </head>
 <body>
@@ -489,7 +487,7 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <input type="file" id="importFile" accept="application/json,.json" hidden="">
 </div>
 <p><span class="cloud-status " id="cloudStatus"><span class="dot"></span><span class="ctxt">未连接</span></span> · 修改电价后历史用电按新电价重新折算 · 当前电价 <b id="footPrice">0.65</b> 元/度</p>
-<p style="text-align:center;font-size:.7rem;color:var(--dim);margin-top:8px;font-family:var(--mono)">build 2026.07.27e</p>
+<p style="text-align:center;font-size:.7rem;color:var(--dim);margin-top:8px;font-family:var(--mono)">build 2026.07.27f</p>
 </footer>
 </div>
 <div class="tip" id="tip"></div>
@@ -1533,3 +1531,53 @@ toast('点击 Safari 底部分享按钮 → 添加到主屏幕');
 </script>
 </body>
 </html>
+manifest.json
+/workspace/elec-bill
++1
+-1
+{
+"name": "电费小账本",
+"short_name": "电费账本",
+"description": "记录电表余额和充值，自动结算用电量和电费开销",
+"start_url": "./index.html",
+"display": "standalone",
+"background_color": "#0f172a",
+"theme_color": "#0f172a",
+"icons": [
+{
+"src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E",
+"sizes": "192x192",
+"type": "image/svg+xml",
+"purpose": "any"
+},
+{
+"src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E",
+"sizes": "512x512",
+"type": "image/svg+xml",
+"purpose": "any"
+}
+]
+}
+{
+"name": "电费小账本",
+"short_name": "电费账本",
+"description": "记录电表余额和充值，自动结算用电量和电费开销",
+"start_url": "./index.html",
+"display": "standalone",
+"background_color": "#0f172a",
+"theme_color": "transparent",
+"icons": [
+{
+"src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E",
+"sizes": "192x192",
+"type": "image/svg+xml",
+"purpose": "any"
+},
+{
+"src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E",
+"sizes": "512x512",
+"type": "image/svg+xml",
+"purpose": "any"
+}
+]
+}
