@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;rect width='100' height='100' rx='20' fill='%230f172a'/&gt;&lt;text x='50' y='52' font-size='55' text-anchor='middle' dominant-baseline='central'&gt;⚡&lt;/text&gt;&lt;/svg&gt;">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="电费账本">
 <style>
 /* ===== 变量 ===== */
@@ -327,7 +327,9 @@ input::placeholder{color:var(--dim)}
 button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .chart-wrap{-webkit-overflow-scrolling:touch}
 /* 安全区域 */
-@supports(padding:max(env(safe-area-inset-bottom),0px)){.app{padding-bottom:max(48px,env(safe-area-inset-bottom)+48px)}.toasts{bottom:max(24px,env(safe-area-inset-bottom)+24px)}}
+@supports(padding:max(env(safe-area-inset-bottom),0px)){.app{padding-top:max(24px,env(safe-area-inset-top)+12px);padding-bottom:max(48px,env(safe-area-inset-bottom)+48px)}.toasts{bottom:max(24px,env(safe-area-inset-bottom)+24px)}}
+/* PWA 全屏模式顶部适配 */
+@media(display-mode:standalone){.app{padding-top:env(safe-area-inset-top,12px)}}
 </style>
 <script>document.documentElement.setAttribute('data-trae-theme', "light");window.__TRAE_DISABLE_LEGACY_ADD_TO_CHAT__=true;</script><style data-trae-edit-ui="true" id="trae-previewer-tools-styles">:root,
 [data-trae-theme='dark'] {
@@ -997,7 +999,7 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
         <div id="odo"><span class="bal-cur">¥</span>435.41</div>
         <div class="bal-note" id="balTag">余额正常 · 继续保持</div>
       </div>
-      <div class="tiles" id="tiles"><div class="tile"><div class="tile-label">日均用电</div><div class="tile-val">8.7 <span class="u">度/天</span></div><div class="tile-sub">近14天</div></div><div class="tile"><div class="tile-label">日均电费</div><div class="tile-val">¥5.63</div><div class="tile-sub">元 / 天</div></div><div class="tile"><div class="tile-label">月均电费</div><div class="tile-val">¥168.93</div><div class="tile-sub">元 / 30天</div></div><div class="tile"><div class="tile-label">余额可用</div><div class="tile-val">77.3 <span class="u">天</span></div><div class="tile-sub">约 2026/10/12 需充值</div></div></div>
+      <div class="tiles" id="tiles"><div class="tile"><div class="tile-label">日均用电</div><div class="tile-val">8.7 <span class="u">度/天</span></div><div class="tile-sub">近14天</div></div><div class="tile"><div class="tile-label">日均电费</div><div class="tile-val">¥5.63</div><div class="tile-sub">元 / 天</div></div><div class="tile"><div class="tile-label">月均电费</div><div class="tile-val">¥168.90</div><div class="tile-sub">元 / 30天</div></div><div class="tile"><div class="tile-label">余额可用</div><div class="tile-val">77.3 <span class="u">天</span></div><div class="tile-sub">约 2026/10/12 需充值</div></div></div>
     </div>
     <div class="hero-foot">
       <span id="lastRec">最近抄表 7/26 21:36</span>
