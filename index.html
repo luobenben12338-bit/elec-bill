@@ -1490,6 +1490,11 @@ if('serviceWorker' in navigator){
 window.addEventListener('load',()=>{
 navigator.serviceWorker.register('./sw.js').catch(()=>{});
 });
+// 新 SW 接管后自动刷新一次，确保用户立即看到更新
+let _reloaded=false;
+navigator.serviceWorker.addEventListener('controllerchange',()=>{
+if(!_reloaded){_reloaded=true;window.location.reload();}
+});
 }
 // PWA 安装提示：捕获浏览器安装事件，显示自定义安装按钮
 let _deferredPrompt=null;
