@@ -2,7 +2,7 @@
 <html lang="zh-CN"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="transparent">
+<meta name="theme-color" content="#0f172a">
 <title>⚡ 电费小账本</title>
 <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;⚡&lt;/text&gt;&lt;/svg&gt;">
 <link rel="manifest" href="manifest.json">
@@ -487,7 +487,7 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <input type="file" id="importFile" accept="application/json,.json" hidden="">
 </div>
 <p><span class="cloud-status " id="cloudStatus"><span class="dot"></span><span class="ctxt">未连接</span></span> · 修改电价后历史用电按新电价重新折算 · 当前电价 <b id="footPrice">0.65</b> 元/度</p>
-<p style="text-align:center;font-size:.7rem;color:var(--dim);margin-top:8px;font-family:var(--mono)">build 2026.07.27f</p>
+<p style="text-align:center;font-size:.7rem;color:var(--dim);margin-top:8px;font-family:var(--mono)">build 2026.07.27e</p>
 </footer>
 </div>
 <div class="tip" id="tip"></div>
@@ -1531,53 +1531,3 @@ toast('点击 Safari 底部分享按钮 → 添加到主屏幕');
 </script>
 </body>
 </html>
-manifest.json
-/workspace/elec-bill
-+1
--1
-{
-"name": "电费小账本",
-"short_name": "电费账本",
-"description": "记录电表余额和充值，自动结算用电量和电费开销",
-"start_url": "./index.html",
-"display": "standalone",
-"background_color": "#0f172a",
-"theme_color": "#0f172a",
-"icons": [
-{
-"src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E",
-"sizes": "192x192",
-"type": "image/svg+xml",
-"purpose": "any"
-},
-{
-"src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E",
-"sizes": "512x512",
-"type": "image/svg+xml",
-"purpose": "any"
-}
-]
-}
-{
-"name": "电费小账本",
-"short_name": "电费账本",
-"description": "记录电表余额和充值，自动结算用电量和电费开销",
-"start_url": "./index.html",
-"display": "standalone",
-"background_color": "#0f172a",
-"theme_color": "transparent",
-"icons": [
-{
-"src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E",
-"sizes": "192x192",
-"type": "image/svg+xml",
-"purpose": "any"
-},
-{
-"src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E",
-"sizes": "512x512",
-"type": "image/svg+xml",
-"purpose": "any"
-}
-]
-}
