@@ -1502,40 +1502,41 @@ if(!_reloaded){_reloaded=true;window.location.reload();}
 let _deferredPrompt=null;
 // 已安装并以 standalone 全屏模式运行时，不再显示安装按钮
 const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-// 记住是否已安装：appinstalled 触发后写入 localStorage，浏览器里再次打开也不再显示按钮
-let _pwaInstalled = _isStandalone || localStorage.getItem('pwa_installed')==='1';
 function _hideInstallBtn(){const btn=document.getElementById('installBtn');if(btn)btn.hidden=true;}
 function _showInstallBtn(){const btn=document.getElementById('installBtn');if(btn)btn.hidden=false;}
-// 用标准 API 检测是否已安装（Chrome Android 支持，首次安装后尚未触发 appinstalled 时也能识别）
+// 用标准 API 实际查询是否已安装（Chrome Android 支持）
+// 注意：localStorage 标记不可靠（卸载 PWA 不会清浏览器存储），必须实际查询
 async function _checkInstalled(){
-if(_pwaInstalled) return true;
+if(_isStandalone) return true;
 if('getInstalledRelatedApps' in navigator){
 try{
 const apps = await navigator.getInstalledRelatedApps();
 if(apps && apps.length>0){
-_pwaInstalled=true;
 localStorage.setItem('pwa_installed','1');
 return true;
 }
 }catch(e){}
 }
+// 查询不到说明未安装（或已卸载），清掉过期的 localStorage 标记
+localStorage.removeItem('pwa_installed');
 return false;
 }
-if(_isStandalone || _pwaInstalled){
+if(_isStandalone){
+// 已经在 standalone 全屏模式运行，必然已安装
 _hideInstallBtn();
 }else{
+// 浏览器标签页：先查实际安装状态
 _checkInstalled().then(installed=>{
 if(installed){_hideInstallBtn();return;}
-// 未安装，监听 beforeinstallprompt 显示按钮
+// 未安装：监听 beforeinstallprompt，浏览器只在"可安装"时才触发
 window.addEventListener('beforeinstallprompt',e=>{
 e.preventDefault();_deferredPrompt=e;
 _showInstallBtn();
 });
 });
-// 安装成功后标记并隐藏按钮
+// 安装成功后隐藏按钮
 window.addEventListener('appinstalled',()=>{
 _deferredPrompt=null;
-_pwaInstalled=true;
 localStorage.setItem('pwa_installed','1');
 _hideInstallBtn();
 });
