@@ -97,6 +97,16 @@ python3 -m http.server 8000
 - 图表使用纯 CSS/HTML 绘制，无图表库依赖
 - 移动端适配通过 CSS Media Queries 和 touch-action 属性实现
 - 云端同步使用防抖推送（1.2 秒延迟）避免频繁请求，冲突时自动重试
+- PWA 离线支持：通过 manifest.json + Service Worker 实现，可添加到手机主屏幕，离线可查看历史数据
+
+## PWA 安装
+
+部署到 GitHub Pages 后，在手机浏览器（Chrome/Safari）打开应用：
+
+- **Android Chrome**：浏览器菜单 → 添加到主屏幕，桌面生成应用图标，打开为全屏模式
+- **iOS Safari**：分享按钮 → 添加到主屏幕，同样生成图标
+
+安装后离线也能打开应用查看历史数据，本地记账正常使用，云端同步在网络恢复后自动继续。
 
 ## License
 
