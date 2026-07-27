@@ -91,12 +91,6 @@ python3 -m http.server 8000
 
 修改 `index.html` 后刷新浏览器即可看到效果。部署到 GitHub Pages 只需推送代码到 `main` 分支。
 
-回归测试使用 Node.js 内置模块，无需安装依赖：
-
-```bash
-node tests/data-reliability.test.js
-node tests/app-smoke.test.js
-```
 
 ## 技术说明
 
