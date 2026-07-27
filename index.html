@@ -2,7 +2,7 @@
 <html lang="zh-CN"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f172a" id="metaThemeColor">
+<meta name="theme-color" content="#0f172a">
 <title>⚡ 电费小账本</title>
 <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;⚡&lt;/text&gt;&lt;/svg&gt;">
 <link rel="manifest" href="manifest.json">
@@ -11,8 +11,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="电费账本">
-<meta name="color-scheme" content="dark" id="metaColorScheme">
+<meta name="color-scheme" content="dark">
 <script>
+/* 方案A：启动即写入主题纯色，减少系统栏先白后变 */
 try{
 const theme=localStorage.getItem('elec.theme')==='light'?'light':'dark';
 const color=theme==='light'?'#f3f6fa':'#0f172a';
@@ -20,9 +21,9 @@ const root=document.documentElement;
 root.dataset.theme=theme;
 root.style.colorScheme=theme;
 root.style.backgroundColor=color;
-const tc=document.getElementById('metaThemeColor')||document.querySelector('meta[name="theme-color"]');
+const tc=document.querySelector('meta[name="theme-color"]');
 if(tc)tc.setAttribute('content',color);
-const cs=document.getElementById('metaColorScheme')||document.querySelector('meta[name="color-scheme"]');
+const cs=document.querySelector('meta[name="color-scheme"]');
 if(cs)cs.setAttribute('content',theme);
 const apple=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
 if(apple)apple.setAttribute('content',theme==='light'?'default':'black');
@@ -70,12 +71,8 @@ if(apple)apple.setAttribute('content',theme==='light'?'default':'black');
 *{box-sizing:border-box;margin:0;padding:0}
 [hidden]{display:none!important}
 ::selection{background:rgba(56,189,248,.25)}
-html{min-height:100%;scroll-behavior:smooth;background:var(--bg);background-color:var(--bg);color-scheme:var(--scheme)}
-body{background:var(--bg);background-color:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh;min-height:100svh;min-height:100dvh;-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.6;overscroll-behavior-y:none}
-/* 用固定色条把安全区刷成主题色：不依赖系统栏是否透明 */
-.sys-bar{position:fixed;left:0;right:0;background:var(--bg);pointer-events:none;z-index:10000}
-.sys-bar-top{top:0;height:env(safe-area-inset-top,0px)}
-.sys-bar-bottom{bottom:0;height:env(safe-area-inset-bottom,0px)}
+html{min-height:100%;scroll-behavior:smooth;background-color:var(--bg);color-scheme:var(--scheme)}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh;min-height:100svh;min-height:100dvh;-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.6;overscroll-behavior-y:none}
 
 /* ===== 背景 ===== */
 .bg-deco{position:fixed;inset:0;z-index:-1;pointer-events:none;
@@ -363,11 +360,12 @@ input[type=number],input[type=text],input[type=date],input[type=datetime-local]{
 /* 触摸优化 */
 button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .chart-wrap{-webkit-overflow-scrolling:touch}
-/* 安全区：内容避开系统栏；色条把上下安全区刷成主题色 */
+/* 方案A：safe-area 只做内容避让；系统栏颜色靠 theme-color / color-scheme */
 @supports(padding:env(safe-area-inset-top)){
 .app{padding-top:max(24px,calc(env(safe-area-inset-top) + 12px));padding-right:max(16px,env(safe-area-inset-right));padding-bottom:max(64px,calc(env(safe-area-inset-bottom) + 48px));padding-left:max(16px,env(safe-area-inset-left))}
 .toasts{bottom:max(24px,calc(env(safe-area-inset-bottom) + 24px))}
 }
+
 </style>
 </head>
 <body>
@@ -568,6 +566,7 @@ const fmtY=n=>n==null||!isFinite(n)?'--':'¥'+n.toFixed(2);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const WK=['日','一','二','三','四','五','六'];
 const THEME_KEY='elec.theme';
+/* 方案A：主题纯色唯一来源；系统栏只做建议色，不追求透明 */
 const THEME_COLORS={dark:'#0f172a',light:'#f3f6fa'};
 function savedTheme(){try{return localStorage.getItem(THEME_KEY)==='light'?'light':'dark';}catch(e){return'dark';}}
 function applyTheme(theme,persist){
@@ -578,22 +577,22 @@ root.dataset.theme=mode;
 root.style.colorScheme=mode;
 root.style.backgroundColor=color;
 if(document.body)document.body.style.backgroundColor=color;
-/* 系统栏：直接写成主题纯色 */
-let meta=document.getElementById('metaThemeColor')||document.querySelector('meta[name="theme-color"]');
-if(!meta){
-meta=document.createElement('meta');
-meta.id='metaThemeColor';
-meta.name='theme-color';
-document.head.appendChild(meta);
-}
+/* 1) 状态栏/周边 UI 建议色 */
+let meta=document.querySelector('meta[name="theme-color"]');
+if(!meta){meta=document.createElement('meta');meta.setAttribute('name','theme-color');document.head.appendChild(meta);}
 meta.setAttribute('content',color);
-const scheme=document.getElementById('metaColorScheme')||document.querySelector('meta[name="color-scheme"]');
-if(scheme)scheme.setAttribute('content',mode);
+/* 2) 控件与部分系统 UI 的深浅倾向 */
+let scheme=document.querySelector('meta[name="color-scheme"]');
+if(!scheme){scheme=document.createElement('meta');scheme.setAttribute('name','color-scheme');document.head.appendChild(scheme);}
+scheme.setAttribute('content',mode);
+/* 3) iOS 安装版：非透明实色状态栏 */
 const apple=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
 if(apple)apple.setAttribute('content',mode==='light'?'default':'black');
-const btn=$('#themeToggle');if(btn){
+const btn=document.querySelector('#themeToggle');
+if(btn){
 const label=mode==='light'?'切换到深色模式':'切换到浅色模式';
-btn.textContent=mode==='light'?'☾':'☀';btn.title=label;btn.setAttribute('aria-label',label);btn.setAttribute('aria-pressed',String(mode==='light'));
+btn.textContent=mode==='light'?'☾':'☀';
+btn.title=label;btn.setAttribute('aria-label',label);btn.setAttribute('aria-pressed',String(mode==='light'));
 }
 if(persist)try{localStorage.setItem(THEME_KEY,mode);}catch(e){}
 }
