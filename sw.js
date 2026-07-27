@@ -1,5 +1,5 @@
 // Service Worker - 电费小账本 PWA 离线支持
-const CACHE = 'elec-ledger-v10';
+const CACHE = 'elec-ledger-v11';
 const ASSETS = ['./', './index.html', './manifest.json'];
  
 // 安装：预缓存核心文件
