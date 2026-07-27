@@ -10,10 +10,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="电费账本">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="dark light">
+<script>
+try{const theme=localStorage.getItem('elec.theme')==='light'?'light':'dark';document.documentElement.dataset.theme=theme;document.querySelector('meta[name="theme-color"]').content=theme==='light'?'#f3f6fa':'#0f172a';}catch(e){document.documentElement.dataset.theme='dark';}
+</script>
 <style>
 /* ===== 变量 ===== */
 :root{
+--scheme:dark;
 --bg:#0f172a; --bg2:#0b1120;
 --card:#1e293b; --card2:#172033;
 --line:#334155; --line2:#293548;
@@ -21,29 +25,57 @@
 --cyan:#38bdf8; --cyan2:#7dd3fc; --cyan-bg:rgba(56,189,248,.1);
 --amber:#fbbf24; --amber2:#fcd34d; --amber-bg:rgba(251,191,36,.1);
 --green:#34d399; --red:#f87171; --warn:#fb923c;
+--on-accent:#0f172a;
+--hero-bg:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);
+--hero-shadow:0 8px 32px rgba(0,0,0,.3); --panel-shadow:0 4px 20px rgba(0,0,0,.15); --float-shadow:0 8px 24px rgba(0,0,0,.5);
+--deco-cyan:rgba(56,189,248,.07); --deco-amber:rgba(251,191,36,.04); --deco-grid:rgba(56,189,248,.02);
+--bar-track:rgba(255,255,255,.02); --row-hover:rgba(56,189,248,.03);
+--chart-grid:rgba(56,189,248,.08); --chart-point:#0e1626; --chart-cross:rgba(226,232,240,.2);
+--chart-area:rgba(56,189,248,.25); --chart-area-end:rgba(56,189,248,0); --chart-line:#38bdf8; --chart-focus:#7dd3fc; --chart-recharge:#34d399;
 --r:14px; --rs:10px;
 --mono:'SF Mono','Cascadia Code','JetBrains Mono','Fira Code',Consolas,monospace;
 --sans:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
 }
+:root[data-theme=light]{
+--scheme:light;
+--bg:#f3f6fa; --bg2:#f1f5f9;
+--card:#ffffff; --card2:#f8fafc;
+--line:#cbd5e1; --line2:#e2e8f0;
+--ink:#172033; --mut:#475569; --dim:#64748b;
+--cyan:#0369a1; --cyan2:#075985; --cyan-bg:rgba(3,105,161,.09);
+--amber:#d97706; --amber2:#b45309; --amber-bg:rgba(217,119,6,.09);
+--green:#047857; --red:#dc2626; --warn:#c2410c;
+--on-accent:#ffffff;
+--hero-bg:linear-gradient(135deg,#ffffff 0%,#edf4f8 100%);
+--hero-shadow:0 8px 24px rgba(15,23,42,.1); --panel-shadow:0 4px 16px rgba(15,23,42,.07); --float-shadow:0 8px 24px rgba(15,23,42,.18);
+--deco-cyan:rgba(2,132,199,.07); --deco-amber:rgba(217,119,6,.045); --deco-grid:rgba(2,132,199,.035);
+--bar-track:rgba(15,23,42,.035); --row-hover:rgba(2,132,199,.045);
+--chart-grid:rgba(2,132,199,.14); --chart-point:#ffffff; --chart-cross:rgba(51,65,85,.3);
+--chart-area:rgba(2,132,199,.18); --chart-area-end:rgba(2,132,199,0); --chart-line:#0284c7; --chart-focus:#0369a1; --chart-recharge:#047857;
+}
 *{box-sizing:border-box;margin:0;padding:0}
 [hidden]{display:none!important}
 ::selection{background:rgba(56,189,248,.25)}
-html{scroll-behavior:smooth;background-color:#0f172a;color-scheme:dark}
+html{scroll-behavior:smooth;background-color:var(--bg);color-scheme:var(--scheme)}
 body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh;-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.6}
  
 /* ===== 背景 ===== */
 .bg-deco{position:fixed;inset:0;z-index:-1;pointer-events:none;
-background:radial-gradient(600px 400px at 15% -5%,rgba(56,189,248,.07),transparent 60%),radial-gradient(500px 350px at 85% 5%,rgba(251,191,36,.04),transparent 60%)}
+background:radial-gradient(600px 400px at 15% -5%,var(--deco-cyan),transparent 60%),radial-gradient(500px 350px at 85% 5%,var(--deco-amber),transparent 60%)}
 .bg-deco::after{content:"";position:absolute;inset:0;
-background-image:linear-gradient(rgba(56,189,248,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.02) 1px,transparent 1px);
+background-image:linear-gradient(var(--deco-grid) 1px,transparent 1px),linear-gradient(90deg,var(--deco-grid) 1px,transparent 1px);
 background-size:40px 40px;-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 15%,transparent 70%);mask-image:radial-gradient(ellipse at 50% 0%,#000 15%,transparent 70%)}
 /* ===== 布局 ===== */
 .app{max-width:1100px;margin:0 auto;padding:24px 16px 64px;display:flex;flex-direction:column;gap:18px}
 /* ===== 头部 ===== */
-.hero{position:relative;background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.hero{position:relative;background:var(--hero-bg);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--hero-shadow);transition:background .2s,border-color .2s,box-shadow .2s}
 .hero-brand{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.hero-brand-copy{min-width:0;flex:1 1 220px}
 .hero-brand h1{font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:8px}
 .hero-brand p{font-size:.72rem;color:var(--dim);letter-spacing:.03em}
+.theme-toggle{width:36px;height:36px;flex:none;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--mut);cursor:pointer;font-size:1.05rem;line-height:1;transition:background .15s,border-color .15s,color .15s,transform .15s}
+.theme-toggle:hover{color:var(--cyan2);border-color:var(--cyan);background:var(--cyan-bg);transform:translateY(-1px)}
+.theme-toggle:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .hero-main{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:18px 24px}
 .bal-card{background:var(--card2);border:1px solid var(--line2);border-radius:var(--rs);padding:18px 20px;display:flex;flex-direction:column;justify-content:center;min-height:130px}
 .bal-label{font-size:.72rem;color:var(--dim);font-weight:600;letter-spacing:.05em;text-transform:uppercase}
@@ -64,7 +96,7 @@ background-size:40px 40px;-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#
 .hero-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 24px;border-top:1px solid var(--line2);font-size:.68rem;color:var(--dim);font-family:var(--mono)}
 @media(max-width:640px){.hero-main{grid-template-columns:1fr}}
 /* ===== 面板 ===== */
-.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:clamp(18px,3vw,24px);box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:clamp(18px,3vw,24px);box-shadow:var(--panel-shadow);transition:background-color .2s,border-color .2s,box-shadow .2s}
 .p-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
 .p-head h2{font-size:1.15rem;font-weight:700;display:flex;align-items:center;gap:8px}
 .p-head h2::before{content:"";width:3px;height:18px;background:var(--cyan);border-radius:2px}
@@ -73,18 +105,18 @@ background-size:40px 40px;-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#
 .tabs{display:inline-flex;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:3px;gap:2px}
 .tabs button{border:none;background:transparent;color:var(--mut);padding:.35rem .85rem;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:500;transition:.15s}
 .tabs button:hover{color:var(--cyan2)}
-.tabs button.on{background:var(--cyan);color:#0f172a;font-weight:600}
+.tabs button.on{background:var(--cyan);color:var(--on-accent);font-weight:600}
 .chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .chip{padding:.35rem .75rem;border:1px solid var(--line);border-radius:999px;background:var(--bg2);color:var(--mut);cursor:pointer;font-size:.75rem;font-weight:500;transition:.15s;font-family:var(--mono)}
 .chip:hover{color:var(--cyan2);border-color:var(--cyan);background:var(--cyan-bg)}
-.chip.on{background:var(--cyan);color:#0f172a;border-color:var(--cyan);font-weight:600}
-.btn-primary{font-size:.95rem;font-weight:600;padding:.7rem 1.4rem;border:none;border-radius:8px;cursor:pointer;background:var(--cyan);color:#0f172a;transition:.15s}
+.chip.on{background:var(--cyan);color:var(--on-accent);border-color:var(--cyan);font-weight:600}
+.btn-primary{font-size:.95rem;font-weight:600;padding:.7rem 1.4rem;border:none;border-radius:8px;cursor:pointer;background:var(--cyan);color:var(--on-accent);transition:.15s}
 .btn-primary:hover{background:var(--cyan2);transform:translateY(-1px)}
 .btn-primary:active{transform:translateY(0)}
 .btn-ghost{border:1px solid var(--line);background:transparent;color:var(--mut);border-radius:8px;padding:.5rem 1rem;cursor:pointer;font-size:.78rem;font-weight:500;transition:.15s}
 .btn-ghost:hover{color:var(--cyan2);border-color:var(--cyan);background:var(--cyan-bg)}
 .btn-ghost.danger:hover{color:var(--red);border-color:var(--red);background:rgba(248,113,113,.08)}
-input[type=number],input[type=text],input[type=date],input[type=datetime-local]{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:.6rem .75rem;font-family:var(--mono);font-size:.9rem;outline:none;color-scheme:dark;transition:border-color .15s,box-shadow .15s}
+input[type=number],input[type=text],input[type=date],input[type=datetime-local]{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:.6rem .75rem;font-family:var(--mono);font-size:.9rem;outline:none;color-scheme:var(--scheme);transition:border-color .15s,box-shadow .15s}
 input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(56,189,248,.1)}
 input::placeholder{color:var(--dim)}
 /* ===== 记一笔 ===== */
@@ -117,7 +149,7 @@ input::placeholder{color:var(--dim)}
 .chart::after{content:"";position:absolute;left:4px;right:4px;bottom:32px;height:1px;background:var(--line)}
 .bcol{flex:1;min-width:16px;display:flex;flex-direction:column;align-items:center;height:100%}
 .bval{font-family:var(--mono);font-size:.62rem;color:var(--amber2);margin-bottom:3px;white-space:nowrap;font-weight:600}
-.btrack{flex:1;width:100%;max-width:40px;display:flex;align-items:flex-end;background:rgba(255,255,255,.02);border-radius:5px 5px 0 0}
+.btrack{flex:1;width:100%;max-width:40px;display:flex;align-items:flex-end;background:var(--bar-track);border-radius:5px 5px 0 0}
 .btrack i{display:block;width:100%;height:0;border-radius:5px 5px 0 0;background:linear-gradient(180deg,var(--cyan2),var(--cyan) 60%,#0e7490);transition:height .7s cubic-bezier(.22,1,.36,1)}
 .bcol:hover .btrack i{filter:brightness(1.2)}
 .bcol.peak .btrack i{background:linear-gradient(180deg,#fde68a,var(--amber) 50%,#b45309)}
@@ -136,7 +168,7 @@ input::placeholder{color:var(--dim)}
 /* ===== 记录清单 ===== */
 .rows{display:flex;flex-direction:column}
 .row{display:grid;grid-template-columns:auto auto 1fr auto;gap:12px;align-items:center;padding:.7rem .2rem;border-bottom:1px solid var(--line2);transition:background .15s}
-.row:hover{background:rgba(56,189,248,.03)}
+.row:hover{background:var(--row-hover)}
 .row:last-child{border-bottom:none}
 .tag{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:.8rem;font-weight:700}
 .tag.b{background:var(--cyan-bg);color:var(--cyan);border:1px solid rgba(56,189,248,.2)}
@@ -161,7 +193,7 @@ input::placeholder{color:var(--dim)}
 .list-empty{padding:28px 10px;text-align:center;color:var(--dim);font-size:.82rem}
 /* ===== 编辑模式提示 ===== */
 .edit-banner{display:flex;align-items:center;gap:10px;padding:.5rem .8rem;background:var(--cyan-bg);border:1px solid rgba(56,189,248,.3);border-radius:8px;margin-bottom:12px;font-size:.78rem;color:var(--cyan2)}
-.edit-banner .eb-tag{padding:2px 8px;background:var(--cyan);color:#0f172a;border-radius:4px;font-weight:600;font-size:.72rem}
+.edit-banner .eb-tag{padding:2px 8px;background:var(--cyan);color:var(--on-accent);border-radius:4px;font-weight:600;font-size:.72rem}
 .edit-banner .eb-cancel{margin-left:auto;border:1px solid var(--line);background:transparent;color:var(--mut);border-radius:6px;padding:.3rem .7rem;cursor:pointer;font-size:.75rem;transition:.15s}
 .edit-banner .eb-cancel:hover{color:var(--red);border-color:var(--red)}
 /* ===== 账单汇总 ===== */
@@ -198,7 +230,7 @@ input::placeholder{color:var(--dim)}
 .pager{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--line2)}
 .pg-btn{min-width:32px;height:32px;border:1px solid var(--line);background:var(--bg2);color:var(--mut);border-radius:7px;cursor:pointer;font-size:.8rem;font-weight:500;font-family:var(--mono);transition:.15s;padding:0 8px}
 .pg-btn:hover:not(:disabled){color:var(--cyan2);border-color:var(--cyan);background:var(--cyan-bg)}
-.pg-btn.on{background:var(--cyan);color:#0f172a;border-color:var(--cyan);font-weight:600}
+.pg-btn.on{background:var(--cyan);color:var(--on-accent);border-color:var(--cyan);font-weight:600}
 .pg-btn:disabled{opacity:.3;cursor:not-allowed}
 .pg-ellipsis{color:var(--dim);padding:0 4px;font-family:var(--mono)}
 .pg-info{font-size:.7rem;color:var(--dim);font-family:var(--mono);text-align:center;margin-top:8px}
@@ -208,7 +240,7 @@ input::placeholder{color:var(--dim)}
 .foot-btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .foot p{margin-top:14px;font-size:.7rem;color:var(--dim)}
 .foot p b{color:var(--cyan2);font-family:var(--mono)}
-.tip{position:fixed;z-index:70;pointer-events:none;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:.5rem .72rem;font-family:var(--mono);font-size:.72rem;color:var(--ink);white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.5);opacity:0;transform:translateX(-50%) translateY(5px);transition:opacity .15s,transform .15s}
+.tip{position:fixed;z-index:70;pointer-events:none;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:.5rem .72rem;font-family:var(--mono);font-size:.72rem;color:var(--ink);white-space:nowrap;box-shadow:var(--float-shadow);opacity:0;transform:translateX(-50%) translateY(5px);transition:opacity .15s,transform .15s}
 .tip.show{opacity:1;transform:translateX(-50%)}
 .tip b{display:block;color:var(--cyan2);margin-bottom:2px}
 .tip .g{color:var(--green)}
@@ -318,7 +350,7 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 /* PWA 全屏模式顶部适配 */
 @media(display-mode:standalone){.app{padding-top:max(24px,env(safe-area-inset-top))}}
 /* standalone 模式下 html/body 背景兜底，避免安全区外露白 */
-@media(display-mode:standalone){html,body{background-color:#0f172a}}
+@media(display-mode:standalone){html,body{background-color:var(--bg)}}
 </style>
 </head>
 <body>
@@ -343,8 +375,11 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <!-- ⚡ 头部 -->
 <header class="hero">
 <div class="hero-brand">
+<div class="hero-brand-copy">
 <h1>⚡ 电费小账本</h1>
 <p>Electricity Ledger · 记录余额，自动结算用电</p>
+</div>
+<button type="button" class="theme-toggle" id="themeToggle" aria-label="切换到浅色模式" aria-pressed="false" title="切换到浅色模式">☀</button>
 </div>
 <div class="hero-main">
 <div class="bal-card">
@@ -487,7 +522,7 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <input type="file" id="importFile" accept="application/json,.json" hidden="">
 </div>
 <p><span class="cloud-status " id="cloudStatus"><span class="dot"></span><span class="ctxt">未连接</span></span> · 修改电价后历史用电按新电价重新折算 · 当前电价 <b id="footPrice">0.65</b> 元/度</p>
-<p style="text-align:center;font-size:.7rem;color:var(--dim);margin-top:8px;font-family:var(--mono)">build 2026.07.27e</p>
+<p style="text-align:center;font-size:.7rem;color:var(--dim);margin-top:8px;font-family:var(--mono)">build 2026.07.27f</p>
 </footer>
 </div>
 <div class="tip" id="tip"></div>
@@ -515,6 +550,17 @@ const fmt2=n=>n==null||!isFinite(n)?'--':n.toFixed(2);
 const fmtY=n=>n==null||!isFinite(n)?'--':'¥'+n.toFixed(2);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const WK=['日','一','二','三','四','五','六'];
+const THEME_KEY='elec.theme';
+function savedTheme(){try{return localStorage.getItem(THEME_KEY)==='light'?'light':'dark';}catch(e){return'dark';}}
+function applyTheme(theme,persist){
+const mode=theme==='light'?'light':'dark';document.documentElement.dataset.theme=mode;
+const meta=$('meta[name="theme-color"]');if(meta)meta.content=mode==='light'?'#f3f6fa':'#0f172a';
+const btn=$('#themeToggle');if(btn){
+const label=mode==='light'?'切换到深色模式':'切换到浅色模式';
+btn.textContent=mode==='light'?'☾':'☀';btn.title=label;btn.setAttribute('aria-label',label);btn.setAttribute('aria-pressed',String(mode==='light'));
+}
+if(persist)try{localStorage.setItem(THEME_KEY,mode);}catch(e){}
+}
 function sod(ts){const d=new Date(ts);d.setHours(0,0,0,0);return d.getTime();}
 function dKey(ts){const d=new Date(ts);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function fmtDT(ts){const d=new Date(ts);return (d.getMonth()+1)+'/'+d.getDate()+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
@@ -526,23 +572,37 @@ function isoWeek(ts){const d=new Date(ts);d.setHours(0,0,0,0);d.setDate(d.getDat
 function weekStart(ts){const d=new Date(ts);d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime();}
 /* ================= 状态 ================= */
 const KEY='elec.ledger.v2';
-let state={v:3,price:0.65,records:[]};
+const SCHEMA_VERSION=4;
+let state={v:SCHEMA_VERSION,price:0.65,priceUpdatedAt:0,records:[],deleted:[]};
 let _dm=null,_segsCache=null,_segsDirty=true;
 const valid=r=>r&&typeof r.ts==='number'&&isFinite(r.balance);
+function normalizeRecordId(value,fallback){
+const raw=value==null?'':String(value);
+if(/^[A-Za-z0-9._:-]{1,200}$/.test(raw))return raw;
+const seed=raw||String(fallback||uid());let hash=2166136261;
+for(let i=0;i<seed.length;i++){hash^=seed.charCodeAt(i);hash=Math.imul(hash,16777619);}
+return'legacy-'+(hash>>>0).toString(16);
+}
+function normalizedTime(value,fallback){const n=+value;return isFinite(n)&&n>0?n:fallback;}
 function migrateRecords(arr){
 if(!Array.isArray(arr))return[];
 const sorted=[...arr].sort((a,b)=>(a.ts||0)-(b.ts||0));
 const result=[];let pendingRch=[];
-for(const r of sorted){
-if(!r||typeof r.ts!=='number')continue;
+for(let i=0;i<sorted.length;i++){
+const r=sorted[i];
+if(!r||typeof r.ts!=='number'||!isFinite(r.ts))continue;
 if(r.balance!==undefined){
 if(!isFinite(r.balance))continue;
 const rchSum=pendingRch.reduce((s,x)=>s+x.amount,0);
-result.push({id:r.id||uid(),ts:r.ts,balance:r2(+r.balance),recharge:r2(+r.recharge+rchSum||0),note:r.note||''});
+const balance=r2(+r.balance),recharge=r2(+r.recharge+rchSum||0);
+const updatedAt=Math.max(normalizedTime(r.updatedAt,r.ts),...pendingRch.map(x=>normalizedTime(x.updatedAt,x.ts)));
+result.push({id:normalizeRecordId(r.id,r.ts+'|'+balance+'|'+recharge+'|'+i),ts:r.ts,balance,recharge,note:r.note||'',updatedAt});
 pendingRch=[];
 }else if(r.type==='balance'&&isFinite(r.amount)){
 const rchSum=pendingRch.reduce((s,x)=>s+x.amount,0);
-result.push({id:r.id||uid(),ts:r.ts,balance:r2(+r.amount),recharge:r2(rchSum),note:r.note||''});
+const balance=r2(+r.amount),recharge=r2(rchSum);
+const updatedAt=Math.max(normalizedTime(r.updatedAt,r.ts),...pendingRch.map(x=>normalizedTime(x.updatedAt,x.ts)));
+result.push({id:normalizeRecordId(r.id,r.ts+'|'+balance+'|'+recharge+'|'+i),ts:r.ts,balance,recharge,note:r.note||'',updatedAt});
 pendingRch=[];
 }else if(r.type==='recharge'&&isFinite(r.amount)){
 pendingRch.push(r);
@@ -551,15 +611,75 @@ pendingRch.push(r);
 if(pendingRch.length&&result.length){
 const last=result[result.length-1];
 last.recharge=r2(last.recharge+pendingRch.reduce((s,x)=>s+x.amount,0));
+last.updatedAt=Math.max(last.updatedAt,...pendingRch.map(x=>normalizedTime(x.updatedAt,x.ts)));
 }
 return result;
 }
-function load(){try{const raw=localStorage.getItem(KEY);if(!raw)return;const d=JSON.parse(raw);
-if(d&&+d.price>0)state.price=+d.price;
-const arr=Array.isArray(d)?d:(d&&Array.isArray(d.records)?d.records:[]);
-state.records=migrateRecords(arr);
+function migrateDeleted(arr){
+if(!Array.isArray(arr))return[];
+const latest=new Map();
+for(const item of arr){
+if(!item||item.id==null)continue;
+const deletedAt=+item.deletedAt;if(!isFinite(deletedAt)||deletedAt<=0)continue;
+const id=normalizeRecordId(item.id,'deleted|'+deletedAt);
+if(!latest.has(id)||latest.get(id)<deletedAt)latest.set(id,deletedAt);
+}
+return[...latest].map(([id,deletedAt])=>({id,deletedAt}));
+}
+function parseLedger(data,fallbackPrice){
+const wrapped=!Array.isArray(data)&&data&&typeof data==='object';
+const price=wrapped&&+data.price>0?+data.price:fallbackPrice;
+return{
+v:SCHEMA_VERSION,
+price,
+priceUpdatedAt:wrapped?normalizedTime(data.priceUpdatedAt,0):0,
+records:migrateRecords(Array.isArray(data)?data:(wrapped&&Array.isArray(data.records)?data.records:[])),
+deleted:migrateDeleted(wrapped&&Array.isArray(data.deleted)?data.deleted:[])
+};
+}
+function mergeLedger(a,b){
+const records=new Map(),deleted=new Map();
+for(const source of [a,b]){
+for(const r of source.records||[]){const old=records.get(r.id);if(!old||r.updatedAt>=old.updatedAt)records.set(r.id,r);}
+for(const d of source.deleted||[]){if(!deleted.has(d.id)||d.deletedAt>deleted.get(d.id))deleted.set(d.id,d.deletedAt);}
+}
+const active=[...records.values()].filter(r=>r.updatedAt>(deleted.get(r.id)||0)).sort((x,y)=>x.ts-y.ts||x.id.localeCompare(y.id));
+const tombstones=[...deleted].map(([id,deletedAt])=>({id,deletedAt})).sort((x,y)=>x.id.localeCompare(y.id));
+const useB=(b.priceUpdatedAt||0)>=(a.priceUpdatedAt||0);
+return{v:SCHEMA_VERSION,price:useB?b.price:a.price,priceUpdatedAt:useB?(b.priceUpdatedAt||0):(a.priceUpdatedAt||0),records:active,deleted:tombstones};
+}
+function ledgerPayload(data){
+const source=data||state;
+return{v:SCHEMA_VERSION,price:source.price,priceUpdatedAt:source.priceUpdatedAt||0,
+records:[...(source.records||[])].sort((a,b)=>a.id.localeCompare(b.id)),
+deleted:[...(source.deleted||[])].sort((a,b)=>a.id.localeCompare(b.id))};
+}
+function ledgerJSON(data){return JSON.stringify(ledgerPayload(data));}
+function applyLedger(data){state.v=SCHEMA_VERSION;state.price=data.price;state.priceUpdatedAt=data.priceUpdatedAt||0;state.records=data.records;state.deleted=data.deleted;}
+function emptyLedger(price){return{v:SCHEMA_VERSION,price,priceUpdatedAt:0,records:[],deleted:[]};}
+function markRecordDeleted(id,deletedAt){
+const ts=deletedAt||Date.now();
+state.records=state.records.filter(r=>r.id!==id);
+const old=state.deleted.find(d=>d.id===id);
+if(old)old.deletedAt=Math.max(old.deletedAt,ts);else state.deleted.push({id,deletedAt:ts});
+}
+function inspectAdjacent(records,candidate,excludeId){
+const others=records.filter(r=>r.id!==excludeId).sort((a,b)=>a.ts-b.ts);
+const duplicate=others.find(r=>r.ts===candidate.ts)||null;
+if(duplicate)return{duplicate,issues:[]};
+const nextIndex=others.findIndex(r=>r.ts>candidate.ts);
+const prev=nextIndex===0?null:(nextIndex<0?others[others.length-1]:others[nextIndex-1]);
+const next=nextIndex<0?null:others[nextIndex];
+const issues=[];
+if(prev){const cost=r2(prev.balance+(candidate.recharge||0)-candidate.balance);if(cost<-0.3)issues.push({side:'previous',record:prev,cost});}
+if(next){const cost=r2(candidate.balance+(next.recharge||0)-next.balance);if(cost<-0.3)issues.push({side:'next',record:next,cost});}
+return{duplicate:null,issues};
+}
+function estimateDaysLeft(balance,dailyCost){return balance!=null&&dailyCost>0?balance/dailyCost:null;}
+function load(){try{const raw=localStorage.getItem(KEY);if(!raw)return;const parsed=parseLedger(JSON.parse(raw),state.price);
+applyLedger(mergeLedger(emptyLedger(parsed.price),parsed));
 }catch(e){}}
-function save(){_dm=null;_segsDirty=true;try{localStorage.setItem(KEY,JSON.stringify({v:3,price:state.price,records:state.records}));}catch(e){}scheduleCloudPush();}
+function save(){_dm=null;_segsDirty=true;try{localStorage.setItem(KEY,ledgerJSON());}catch(e){}scheduleCloudPush();}
 function sorted(){return[...state.records].sort((a,b)=>a.ts-b.ts);}
 /* ================= 结算核心 =================
 每笔记录同时包含余额和充值：用电 = (上期余额 + 本期充值 − 本期余额) ÷ 电价
@@ -595,7 +715,7 @@ function getDM(){if(!_dm)_dm=dayMaps();return _dm;}
 function recentRate(){
 const win=14*DAY,now=Date.now();let kwh=0,ms=0;
 for(const s of segments()){
-if(s.anomaly||s.kwh<=0)continue;
+if(s.anomaly||s.kwh<0)continue;
 const lo=Math.max(s.a.ts,now-win),hi=Math.min(s.b.ts,now);
 if(hi>lo){kwh+=s.kwh*(hi-lo)/(s.b.ts-s.a.ts);ms+=hi-lo;}
 }
@@ -682,7 +802,7 @@ const latest=rs.length?rs[rs.length-1]:null;
 const bal=latest?latest.balance:null;
 const rate=recentRate();
 const dailyCost=rate!=null?rate*state.price:null;
-const daysLeft=(bal!=null&&dailyCost)?bal/dailyCost:null;
+const daysLeft=estimateDaysLeft(bal,dailyCost);
 const low=bal!=null&&bal<20;
 renderOdo(bal);
 const tag=$('#balTag');
@@ -778,6 +898,9 @@ pts.push({ts:r.ts,v:r.balance,kind:r.recharge>0?'r':'b',r});
 }
 if(pts.length<2){svg.innerHTML='';$('#trendEmpty').hidden=false;wrap.style.display='none';return;}
 $('#trendEmpty').hidden=true;wrap.style.display='';
+const styles=getComputedStyle(document.documentElement);
+const color=(name,fallback)=>styles.getPropertyValue(name).trim()||fallback;
+const chart={grid:color('--chart-grid','rgba(56,189,248,.08)'),point:color('--chart-point','#0e1626'),cross:color('--chart-cross','rgba(226,232,240,.2)'),area:color('--chart-area','rgba(56,189,248,.25)'),areaEnd:color('--chart-area-end','rgba(56,189,248,0)'),line:color('--chart-line','#38bdf8'),focus:color('--chart-focus','#7dd3fc'),recharge:color('--chart-recharge','#34d399')};
 const W=Math.max(wrap.clientWidth,320),H=250,Pl=48,Pr=16,Pt=18,Pb=30;
 svg.setAttribute('viewBox','0 0 '+W+' '+H);svg.setAttribute('width',W);svg.setAttribute('height',H);
 const t0=pts[0].ts,t1=pts[pts.length-1].ts;
@@ -787,18 +910,18 @@ const X=ts=>t1===t0?Pl+(W-Pl-Pr)/2:Pl+(ts-t0)/(t1-t0)*(W-Pl-Pr);
 const Y=v=>Pt+(1-(v-mn)/(mx-mn))*(H-Pt-Pb);
 let g='';
 for(let i=0;i<=4;i++){const v=mn+(mx-mn)*i/4,y=Y(v);
-g+='<line x1="'+Pl+'" x2="'+(W-Pr)+'" y1="'+y+'" y2="'+y+'" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"/><text x="'+(Pl-8)+'" y="'+(y+4)+'" text-anchor="end" class="ax">'+(v>=100?Math.round(v):v.toFixed(1))+'</text>';}
+g+='<line x1="'+Pl+'" x2="'+(W-Pr)+'" y1="'+y+'" y2="'+y+'" stroke="'+chart.grid+'" stroke-dasharray="3 5"/><text x="'+(Pl-8)+'" y="'+(y+4)+'" text-anchor="end" class="ax">'+(v>=100?Math.round(v):v.toFixed(1))+'</text>';}
 for(let i=0;i<5;i++){const ts=t0+(t1-t0)*i/4;g+='<text x="'+X(ts)+'" y="'+(H-8)+'" text-anchor="middle" class="ax">'+fmtD(ts).slice(2)+'</text>';}
 const line=pts.map((p,i)=>(i?'L':'M')+X(p.ts).toFixed(1)+','+Y(p.v).toFixed(1)).join('');
 const area=line+'L'+X(t1).toFixed(1)+','+Y(mn).toFixed(1)+'L'+X(t0).toFixed(1)+','+Y(mn).toFixed(1)+'Z';
 let marks='';
 for(const p of pts){const x=X(p.ts),y=Y(p.v);
 marks+=p.kind==='r'
-?'<polygon points="'+(x-5.5)+','+(y+10)+' '+(x+5.5)+','+(y+10)+' '+x+','+(y+1)+'" fill="#34d399" opacity=".9"/>'
-:'<circle cx="'+x+'" cy="'+y+'" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"/>';}
-svg.innerHTML='<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(56,189,248,.25)"/><stop offset="1" stop-color="rgba(56,189,248,0)"/></linearGradient></defs>'+
-g+'<path d="'+area+'" fill="url(#ga)"/><path d="'+line+'" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+marks+
-'<line id="tCross" y1="'+Pt+'" y2="'+(H-Pb)+'" stroke="rgba(226,232,240,.2)" stroke-dasharray="3 3" opacity="0"/><circle id="tFocus" r="5" fill="none" stroke="#7dd3fc" stroke-width="2" opacity="0"/>'+
+?'<polygon points="'+(x-5.5)+','+(y+10)+' '+(x+5.5)+','+(y+10)+' '+x+','+(y+1)+'" fill="'+chart.recharge+'" opacity=".9"/>'
+:'<circle cx="'+x+'" cy="'+y+'" r="3" fill="'+chart.point+'" stroke="'+chart.line+'" stroke-width="2"/>';}
+svg.innerHTML='<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+chart.area+'"/><stop offset="1" stop-color="'+chart.areaEnd+'"/></linearGradient></defs>'+
+g+'<path d="'+area+'" fill="url(#ga)"/><path d="'+line+'" fill="none" stroke="'+chart.line+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+marks+
+'<line id="tCross" y1="'+Pt+'" y2="'+(H-Pb)+'" stroke="'+chart.cross+'" stroke-dasharray="3 3" opacity="0"/><circle id="tFocus" r="5" fill="none" stroke="'+chart.focus+'" stroke-width="2" opacity="0"/>'+
 '<rect id="tHit" x="'+Pl+'" y="'+Pt+'" width="'+(W-Pl-Pr)+'" height="'+(H-Pt-Pb)+'" fill="transparent"/>';
 const hit=$('#tHit');
 hit.addEventListener('mousemove',e=>{
@@ -926,12 +1049,13 @@ info=s.anomaly
 }
 const tag=r.recharge>0?'<span class="tag r">充</span>':'<span class="tag b">余</span>';
 const isEditing=editState.id===r.id;
-return '<div class="row'+(isEditing?' editing':'')+'" data-id="'+r.id+'">'+tag+
+const safeId=esc(r.id);
+return '<div class="row'+(isEditing?' editing':'')+'" data-id="'+safeId+'">'+tag+
 '<div class="r-main"><b>'+fmtY(r.balance)+'</b>'+rchHtml+'<span>'+dt+(r.note?' · '+esc(r.note):'')+'</span></div>'+
 '<div class="r-info">'+info+'</div>'+
 '<div class="r-actions">'+
-'<button type="button" class="edit-btn" data-edit="'+r.id+'" title="编辑">✎</button>'+
-'<button type="button" class="del" data-id="'+r.id+'" title="删除">✕</button>'+
+'<button type="button" class="edit-btn" data-edit="'+safeId+'" title="编辑">✎</button>'+
+'<button type="button" class="del" data-id="'+safeId+'" title="删除">✕</button>'+
 '</div></div>';
 }).join('');
 }
@@ -976,9 +1100,18 @@ $('#listSummary').textContent=filtered.length<allCount?'筛选结果：'+filtere
 $('#recList').addEventListener('click',e=>{
 const d=e.target.closest('.del');
 if(d){
-if(editState.id===d.dataset.id)cancelEdit();
-state.records=state.records.filter(r=>r.id!==d.dataset.id);
+const id=d.dataset.id;
+const record=state.records.find(r=>r.id===id);if(!record)return;
+const recharge=record.recharge>0?' · 充值 '+fmtY(record.recharge):'';
+openModal('删除这条记录？',
+'<p>时间：<b>'+fmtDT(record.ts)+'</b></p>'+ 
+'<p>余额：<b>'+fmtY(record.balance)+'</b>'+recharge+'</p>'+ 
+'<p class="m-note">删除后会重新计算相邻记录的用电区间，此操作不可撤销。</p>',
+'确认删除',()=>{
+if(editState.id===id)cancelEdit();
+markRecordDeleted(id);
 save();refreshAll();toast('已删除 1 条记录');
+},true);
 return;
 }
 const ed=e.target.closest('.edit-btn');
@@ -1078,6 +1211,18 @@ $('#eRecharge').value=c.dataset.v;
 document.querySelectorAll('#eChips .chip').forEach(x=>x.classList.toggle('on',x===c));
 });
 function afterSave(msg){save();refreshAll();toast(msg);}
+function confirmAdjacent(candidate,excludeId,action,verb){
+const check=inspectAdjacent(state.records,candidate,excludeId);
+if(check.duplicate){toast('⚠️ '+fmtDT(check.duplicate.ts)+' 已有记录，请修改原记录或调整时间');return;}
+if(!check.issues.length){action();return;}
+const rows=check.issues.map(issue=>{
+const side=issue.side==='previous'?'上一笔':'下一笔';
+return'<li>'+side+'（'+fmtDT(issue.record.ts)+'）相邻区间余额反升 '+fmtY(-issue.cost)+'</li>';
+}).join('');
+openModal('相邻区间出现余额反升？','<ul style="margin:0 0 10px 18px">'+rows+'</ul>'+ 
+'<p class="m-note">可能是抄表、充值金额填写有误，也可能发生了换表。请核对后再继续。</p>',
+'仍要'+verb,action);
+}
 $('#formEntry').addEventListener('submit',e=>{
 e.preventDefault();
 const ts=parseLocal($('#eTime').value);
@@ -1086,46 +1231,24 @@ const rch=+$('#eRecharge').value||0;
 if(!isFinite(ts)){toast('⚠️ 请选择抄表时间');return;}
 if(!(bal>=0)){toast('⚠️ 请输入有效余额');return;}
 if(!(rch>=0)){toast('⚠️ 请输入有效充值金额');return;}
+const candidate={ts,balance:r2(bal),recharge:r2(rch),note:$('#eNote').value.trim()};
 if(editState.id){
 const r=state.records.find(x=>x.id===editState.id);
 if(!r){cancelEdit();return;}
 const doUpdate=()=>{
-r.ts=ts;r.balance=r2(bal);r.recharge=r2(rch);r.note=$('#eNote').value.trim();
+r.ts=candidate.ts;r.balance=candidate.balance;r.recharge=candidate.recharge;r.note=candidate.note;r.updatedAt=Date.now();
 cancelEdit();afterSave('✏️ 已更新记录：余额 '+fmtY(bal)+(rch>0?' · 充值 '+fmtY(rch):''));
 };
-const others=[...state.records].filter(x=>x.id!==editState.id).sort((a,b)=>a.ts-b.ts);
-const prev=others.filter(x=>x.ts<=ts).pop();
-if(prev){
-const cost=r2(prev.balance+rch-bal);
-if(cost<-0.3){
-openModal('余额比上一笔更高？',
-'上一笔余额 '+fmtY(prev.balance)+'，本次充值 '+fmtY(rch)+'，本次余额 <b>'+fmtY(bal)+'</b>。<br>'+
-'若没有充值却余额反升，可能是抄错或换表。确认更新吗？',
-'仍要更新',doUpdate);
-return;
-}
-}
-doUpdate();
+confirmAdjacent(candidate,editState.id,doUpdate,'更新');
 return;
 }
 const doSave=()=>{
-state.records.push({id:uid(),ts,balance:r2(bal),recharge:r2(rch),note:$('#eNote').value.trim()});
+state.records.push({id:uid(),...candidate,updatedAt:Date.now()});
 afterSave('⚡ 已记录：余额 '+fmtY(bal)+(rch>0?' · 充值 '+fmtY(rch):''));
 $('#eBalance').value='';$('#eRecharge').value='0';$('#eNote').value='';$('#eTime').value=nowInputVal();
 document.querySelectorAll('#eChips .chip').forEach(x=>x.classList.toggle('on',x.dataset.v==='0'));
 };
-const prev=[...state.records].filter(r=>r.ts<=ts).sort((a,b)=>b.ts-a.ts)[0];
-if(prev){
-const cost=r2(prev.balance+rch-bal);
-if(cost<-0.3){
-openModal('余额比上一笔更高？',
-'上一笔余额 '+fmtY(prev.balance)+'，本次充值 '+fmtY(rch)+'，本次余额 <b>'+fmtY(bal)+'</b>。<br>'+
-'若没有充值却余额反升，可能是抄错或换表。确认保存吗？',
-'仍要保存',doSave);
-return;
-}
-}
-doSave();
+confirmAdjacent(candidate,null,doSave,'保存');
 });
 /* ================= 统计交互 ================= */
 $('#granTabs').addEventListener('click',e=>{
@@ -1164,11 +1287,12 @@ $('#priceBtn').addEventListener('click',()=>{
 openModal('⚙️ 电价设置','<label class="fld"><span>电价（元 / 度）</span><input type="number" id="mPrice" step="0.01" min="0.01" value="'+state.price+'"></label><p class="m-note">修改后，所有历史用电将按新电价重新折算。</p>','保存',()=>{
 const v=+$('#mPrice').value;
 if(!(v>0)){toast('⚠️ 请输入有效电价');return false;}
-state.price=v;save();refreshAll();toast('电价已更新为 '+v+' 元/度');
+state.price=v;state.priceUpdatedAt=Date.now();save();refreshAll();toast('电价已更新为 '+v+' 元/度');
 });
 });
 function exportData(){
-const blob=new Blob([JSON.stringify({v:3,price:state.price,records:state.records,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
+const payload=ledgerPayload();payload.exportedAt=new Date().toISOString();
+const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
 const a=document.createElement('a');a.href=URL.createObjectURL(blob);
 a.download='电费小账本-备份-'+dKey(Date.now())+'.json';a.click();URL.revokeObjectURL(a.href);
 }
@@ -1180,14 +1304,22 @@ const rd=new FileReader();
 rd.onload=()=>{
 try{
 const d=JSON.parse(rd.result);
-const arr=Array.isArray(d)?d:(d&&d.records)||[];
-const incoming=migrateRecords(arr);
-if(!Array.isArray(d)&&+d.price>0)state.price=+d.price;
+const incoming=parseLedger(d,state.price);
+if(!Array.isArray(d)&&+d.price>0)incoming.priceUpdatedAt=Date.now();
 const key=r=>r.ts+'|'+r.balance+'|'+r.recharge;
 const have=new Set(state.records.map(key));
-let add=0,dup=0;
-for(const r of incoming){if(have.has(key(r)))dup++;else{state.records.push(r);have.add(key(r));add++;}}
-save();refreshAll();toast('📥 导入 '+add+' 条，跳过重复 '+dup+' 条');
+const beforeById=new Map(state.records.map(r=>[r.id,r]));
+let add=0,updated=0,dup=0;
+incoming.records=incoming.records.filter(r=>{
+if(beforeById.has(r.id))return true;
+if(have.has(key(r))){dup++;return false;}
+have.add(key(r));return true;
+});
+const merged=mergeLedger(state,incoming);
+add=merged.records.filter(r=>!beforeById.has(r.id)).length;
+updated=merged.records.filter(r=>{const old=beforeById.get(r.id);return old&&r.updatedAt>old.updatedAt;}).length;
+applyLedger(merged);
+save();refreshAll();toast('📥 新增 '+add+' 条'+(updated?'，更新 '+updated+' 条':'')+'，跳过重复 '+dup+' 条');
 }catch(err){toast('⚠️ 文件格式无法识别');}
 };
 rd.readAsText(f);e.target.value='';
@@ -1195,13 +1327,13 @@ rd.readAsText(f);e.target.value='';
 $('#clearBtn').addEventListener('click',()=>{
 if(!state.records.length){toast('当前没有数据');return;}
 openModal('🗑️ 清空全部数据','将先<b>自动下载一份备份</b>，随后删除全部 <b>'+state.records.length+'</b> 条记录，此操作不可撤销。','仍要清空',()=>{
-exportData();state.records=[];save();refreshAll();toast('已清空，备份已下载');
+exportData();for(const r of [...state.records])markRecordDeleted(r.id);save();refreshAll();toast('已清空，备份已下载');
 },true);
 });
 /* ================= 云端同步（GitHub 仓库存储） =================
 数据存为仓库内 data.json，通过 GitHub Contents API 读写。
 「密码」= 细粒度个人访问令牌（PAT），仅授权该仓库 Contents 读写。
-本地 localStorage 始终作缓存，云端为同步源；多端按 id 合并不丢数据。 */
+本地 localStorage 始终作缓存；多端按 id 和修改时间合并，删除通过墓碑同步。 */
 const GH_KEY='elec.gh.config';
 let _ghSha=null,_pushing=false,_pushPending=false,_pushTimer=null;
 function getGH(){try{return JSON.parse(localStorage.getItem(GH_KEY))||null}catch(e){return null}}
@@ -1247,13 +1379,18 @@ throw new Error('write:'+res.status+(m?' '+m:''));
 }
 return res.json();
 }
-function mergeById(cloudArr,localArr){
-const m=new Map();
-for(const r of localArr)if(r&&r.id)m.set(r.id,r);
-for(const r of cloudArr)if(r&&r.id)m.set(r.id,r); // 云端优先
-return[...m.values()];
+function parseCloudLedger(content){
+let data;try{data=JSON.parse(content);}catch(e){throw new Error('云端数据文件不是有效 JSON');}
+if(!Array.isArray(data)&&(!data||!Array.isArray(data.records)))throw new Error('云端数据文件格式不正确');
+return parseLedger(data,state.price);
 }
-function writeLocalCache(){_dm=null;_segsDirty=true;try{localStorage.setItem(KEY,JSON.stringify({v:3,price:state.price,records:state.records}));}catch(e){}}
+function mergeCloudLedger(cloud){
+const beforeIds=new Set(state.records.map(r=>r.id));
+const merged=mergeLedger(state,cloud);
+const result={needsPush:ledgerJSON(merged)!==ledgerJSON(cloud),added:merged.records.filter(r=>!beforeIds.has(r.id)).length};
+applyLedger(merged);return result;
+}
+function writeLocalCache(){_dm=null;_segsDirty=true;try{localStorage.setItem(KEY,ledgerJSON());}catch(e){}}
 async function cloudLogin(cfg){
 setCloudStatus('busy','连接中…');
 const path=cfg.path||'data.json',branch=cfg.branch||'main';
@@ -1292,15 +1429,12 @@ throw new Error('推送失败：'+e.message);
 }
 }
 _ghSha=r.sha;
-let cloudRecs=[],cloudPrice=state.price;
-try{const d=JSON.parse(r.content);cloudRecs=migrateRecords(d&&d.records||[]);if(d&&+d.price>0)cloudPrice=+d.price;}catch(e){}
-const localOnly=state.records.length;
-state.records=mergeById(cloudRecs,state.records);
-state.price=cloudPrice;
+const cloud=parseCloudLedger(r.content);
+const merged=mergeCloudLedger(cloud);
 writeLocalCache();setGH(cfg);
-if(state.records.length>cloudRecs.length)await cloudPush(true);
+if(merged.needsPush)await cloudPush(true);
 setCloudStatus('ok','已同步');
-return{merged:state.records.length-localOnly};
+return{merged:merged.added};
 }
 function scheduleCloudPush(){
 if(!cloudEnabled())return;
@@ -1311,7 +1445,7 @@ if(!cloudEnabled())return false;
 if(_pushing){_pushPending=true;return false;}
 _pushing=true;
 const cfg=getGH();const path=cfg.path||'data.json',branch=cfg.branch||'main';
-const pushOnce=async()=>{const c=JSON.stringify({v:3,price:state.price,records:state.records});const res=await ghPut(cfg.token,cfg.owner,cfg.repo,path,branch,c,_ghSha);_ghSha=res.content.sha;};
+const pushOnce=async()=>{const res=await ghPut(cfg.token,cfg.owner,cfg.repo,path,branch,ledgerJSON(),_ghSha);_ghSha=res.content.sha;};
 if(force!==true)setCloudStatus('busy','同步中…');
 let lastErr=null;
 try{
@@ -1326,15 +1460,14 @@ const g=await ghGet(cfg.token,cfg.owner,cfg.repo,path,branch);
 if(g.notFound){_ghSha=null;}
 else{
 _ghSha=g.sha;
-let cloudRecs=[],cloudPrice=state.price;
-try{const d=JSON.parse(g.content);cloudRecs=migrateRecords(d&&d.records||[]);if(d&&+d.price>0)cloudPrice=+d.price;}catch(e2){}
-state.records=mergeById(cloudRecs,state.records);
-state.price=cloudPrice;writeLocalCache();refreshAll();
+const cloud=parseCloudLedger(g.content);
+mergeCloudLedger(cloud);writeLocalCache();refreshAll();
 }
 await pushOnce();
 setCloudStatus('ok','已同步');
 return true;
 }catch(e2){
+lastErr=e2;
 if(e2.message==='auth')setCloudStatus('err','令牌失效');
 else if(e2.message.startsWith('write404'))setCloudStatus('err','分支或仓库不存在');
 else setCloudStatus('err','同步失败 ('+e2.message+')');
@@ -1364,11 +1497,9 @@ _ghSha=null;await cloudPush(true);
 }
 else{
 _ghSha=r.sha;
-let cloudRecs=[],cloudPrice=state.price;
-try{const d=JSON.parse(r.content);cloudRecs=migrateRecords(d&&d.records||[]);if(d&&+d.price>0)cloudPrice=+d.price;}catch(e){}
-state.records=mergeById(cloudRecs,state.records);
-state.price=cloudPrice;writeLocalCache();refreshAll();
-if(state.records.length>cloudRecs.length)cloudPush(true);
+const cloud=parseCloudLedger(r.content);
+const merged=mergeCloudLedger(cloud);writeLocalCache();refreshAll();
+if(merged.needsPush)await cloudPush(true);
 setCloudStatus('ok','已同步');
 }
 }catch(e){
@@ -1387,14 +1518,10 @@ const r=await ghGet(cfg.token,cfg.owner,cfg.repo,path,branch);
 if(r.notFound){_ghSha=null;await cloudPush(true);toast('☁️ 已上传本地数据');}
 else{
 _ghSha=r.sha;
-let cloudRecs=[],cloudPrice=state.price;
-try{const d=JSON.parse(r.content);cloudRecs=migrateRecords(d&&d.records||[]);if(d&&+d.price>0)cloudPrice=+d.price;}catch(e){}
-const before=state.records.length;
-state.records=mergeById(cloudRecs,state.records);
-state.price=cloudPrice;writeLocalCache();refreshAll();
-await cloudPush(true);
-const added=state.records.length-before;
-toast('☁️ 同步完成'+(added>0?'（拉取 '+added+' 条新记录）':''));
+const cloud=parseCloudLedger(r.content);
+const merged=mergeCloudLedger(cloud);writeLocalCache();refreshAll();
+if(merged.needsPush)await cloudPush(true);
+toast('☁️ 同步完成'+(merged.added>0?'（拉取 '+merged.added+' 条新记录）':''));
 }
 }catch(e){
 setCloudStatus('err',e.message==='auth'?'令牌失效':'同步失败 ('+e.message+')');
@@ -1443,6 +1570,8 @@ if(l)l.onclick=()=>{closeModal();cloudLogout();};
 /* ================= 总渲染 / 初始化 ================= */
 function refreshAll(){renderHead();renderStats();renderTrend();renderBills();renderList();$('#footPrice').textContent=state.price;}
 let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(renderTrend,160);});
+applyTheme(savedTheme(),false);
+$('#themeToggle').addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='light'?'dark':'light';applyTheme(next,true);renderTrend();});
 load();
 $('#eTime').value=nowInputVal();
 syncDates();refreshAll();
