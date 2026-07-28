@@ -1976,7 +1976,7 @@ if(!_reloaded){_reloaded=true;window.location.reload();}
 });
 }
 /* 版本号唯一来源：sw.js 的 VERSION 常量，页脚解析后展示 */
-fetch('sw.js').then(r=>r.text()).then(s=>{const m=s.match(/VERSION=\'([^\']+)\'/);const v=document.getElementById('verInfo');if(m&&v)v.textContent='V'+m[1];}).catch(()=>{});
+fetch('sw.js').then(r=>r.text()).then(s=>{const m=s.match(/VERSION\s*=\s*'([^']+)'/);const v=document.getElementById('verInfo');if(m&&v)v.textContent='V'+m[1];}).catch(()=>{});
 // PWA 安装提示：捕获浏览器安装事件，显示自定义安装按钮
 let _deferredPrompt=null;
 // 已安装并以 standalone 全屏模式运行时，不再显示安装按钮
