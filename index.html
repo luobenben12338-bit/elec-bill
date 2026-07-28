@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-CN"><head>
+<html lang="zh-CN" data-theme="dark" data-trae-theme="light" style="color-scheme: dark; background-color: rgb(15, 23, 42);" data-immersive-translate-page-theme="dark"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
-<title>⚡ 电费小账本</title>
+<title>电费小账本</title>
 <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;⚡&lt;/text&gt;&lt;/svg&gt;">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -38,7 +38,7 @@ document.documentElement.lang=((localStorage.getItem('elec.lang')||(navigator.la
 --bg:#0f172a; --bg2:#0b1120;
 --card:#1e293b; --card2:#172033;
 --line:#334155; --line2:#293548;
---ink:#f1f5f9; --mut:#94a3b8; --dim:#64748b;
+--ink:#f1f5f9; --mut:#94a3b8; --dim:#8595ac;
 --cyan:#38bdf8; --cyan2:#7dd3fc; --cyan-bg:rgba(56,189,248,.1);
 --amber:#fbbf24; --amber2:#fcd34d; --amber-bg:rgba(251,191,36,.1);
 --green:#34d399; --red:#f87171; --warn:#fb923c;
@@ -59,7 +59,7 @@ document.documentElement.lang=((localStorage.getItem('elec.lang')||(navigator.la
 --bg:#f3f6fa; --bg2:#f1f5f9;
 --card:#ffffff; --card2:#f8fafc;
 --line:#cbd5e1; --line2:#e2e8f0;
---ink:#172033; --mut:#475569; --dim:#64748b;
+--ink:#172033; --mut:#475569; --dim:#5b6b80;
 --cyan:#0369a1; --cyan2:#075985; --cyan-bg:rgba(3,105,161,.09);
 --amber:#d97706; --amber2:#b45309; --amber-bg:rgba(217,119,6,.09);
 --green:#047857; --red:#dc2626; --warn:#c2410c;
@@ -92,7 +92,7 @@ background-size:40px 40px;-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#
 .hero-brand-copy{min-width:0;flex:1 1 220px}
 .hero-brand h1{font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:8px}
 .hero-brand p{font-size:.72rem;color:var(--dim);letter-spacing:.03em}
-.theme-toggle{width:36px;height:36px;flex:none;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--mut);cursor:pointer;font-size:1.05rem;line-height:1;transition:background .15s,border-color .15s,color .15s,transform .15s}
+.theme-toggle{width:40px;height:40px;flex:none;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--mut);cursor:pointer;font-size:1.05rem;line-height:1;transition:background .15s,border-color .15s,color .15s,transform .15s}
 .theme-toggle:hover{color:var(--cyan2);border-color:var(--cyan);background:var(--cyan-bg);transform:translateY(-1px)}
 .theme-toggle:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .hero-main{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:18px 24px}
@@ -106,13 +106,13 @@ background-size:40px 40px;-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tile{background:var(--card2);border:1px solid var(--line2);border-radius:var(--rs);padding:12px 14px;transition:border-color .2s,transform .15s}
 .tile:hover{transform:translateY(-1px);border-color:var(--line)}
-.tile-label{font-size:.62rem;color:var(--dim);font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.tile-label{font-size:.8rem;color:var(--dim);font-weight:600;letter-spacing:.05em;text-transform:uppercase}
 .tile-val{font-family:var(--mono);font-size:1.15rem;font-weight:600;color:var(--cyan2);margin:3px 0 2px}
 .tile-val .u{font-size:.6em;color:var(--dim);font-weight:400;margin-left:2px}
-.tile-sub{font-size:.68rem;color:var(--dim)}
+.tile-sub{font-size:.8rem;color:var(--dim)}
 .tile.warn{border-color:rgba(248,113,113,.2)}
 .tile.warn .tile-val{color:var(--red)}
-.hero-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 24px;border-top:1px solid var(--line2);font-size:.68rem;color:var(--dim);font-family:var(--mono)}
+.hero-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 24px;border-top:1px solid var(--line2);font-size:.78rem;color:var(--dim);font-family:var(--mono)}
 @media(max-width:640px){.hero-main{grid-template-columns:1fr}}
 /* ===== 面板 ===== */
 .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:clamp(18px,3vw,24px);box-shadow:var(--panel-shadow);transition:background-color .2s,border-color .2s,box-shadow .2s}
@@ -122,11 +122,11 @@ background-size:40px 40px;-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#
 .p-head .en{display:block;font-size:.62rem;color:var(--dim);letter-spacing:.03em;margin-top:2px;font-weight:500}
 /* ===== 控件 ===== */
 .tabs{display:inline-flex;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:3px;gap:2px}
-.tabs button{border:none;background:transparent;color:var(--mut);padding:.35rem .85rem;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:500;transition:.15s}
+.tabs button{border:none;background:transparent;color:var(--mut);padding:.5rem .85rem;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:500;transition:.15s}
 .tabs button:hover{color:var(--cyan2)}
 .tabs button.on{background:var(--cyan);color:var(--on-accent);font-weight:600}
 .chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.chip{padding:.35rem .75rem;border:1px solid var(--line);border-radius:999px;background:var(--bg2);color:var(--mut);cursor:pointer;font-size:.75rem;font-weight:500;transition:.15s;font-family:var(--mono)}
+.chip{padding:.5rem .85rem;border:1px solid var(--line);border-radius:999px;background:var(--bg2);color:var(--mut);cursor:pointer;font-size:.75rem;font-weight:500;transition:.15s;font-family:var(--mono)}
 .chip:hover{color:var(--cyan2);border-color:var(--cyan);background:var(--cyan-bg)}
 .chip.on{background:var(--cyan);color:var(--on-accent);border-color:var(--cyan);font-weight:600}
 .btn-primary{font-size:.95rem;font-weight:600;padding:.7rem 1.4rem;border:none;border-radius:8px;cursor:pointer;background:var(--cyan);color:var(--on-accent);transition:.15s}
@@ -136,6 +136,7 @@ background-size:40px 40px;-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#
 .btn-ghost:hover{color:var(--cyan2);border-color:var(--cyan);background:var(--cyan-bg)}
 .btn-ghost.danger:hover{color:var(--red);border-color:var(--red);background:rgba(248,113,113,.08)}
 input[type=number],input[type=text],input[type=date],input[type=datetime-local]{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:.6rem .75rem;font-family:var(--mono);font-size:.9rem;outline:none;color-scheme:var(--scheme);transition:border-color .15s,box-shadow .15s}
+.sheet input[type=number],.sheet input[type=text],.sheet input[type=date],.sheet input[type=datetime-local]{font-size:16px}
 input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(56,189,248,.1)}
 input::placeholder{color:var(--dim)}
 /* ===== 记一笔 ===== */
@@ -154,11 +155,11 @@ input::placeholder{color:var(--dim)}
 .sums{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
 .sum{background:var(--bg2);border:1px solid var(--line);border-radius:var(--rs);padding:.6rem .8rem;transition:transform .15s,border-color .15s}
 .sum:hover{transform:translateY(-2px);border-color:var(--line)}
-.sum span{font-size:.6rem;color:var(--dim);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.sum span{font-size:.75rem;color:var(--dim);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .sum b{display:block;font-family:var(--mono);font-size:1.1rem;margin:.15rem 0 .1rem;font-weight:600}
 .sum b i{font-style:normal;font-size:.6em;color:var(--dim);margin-left:2px}
 .sum b.g{color:var(--green)}
-.sum em{display:block;font-style:normal;font-size:.64rem;color:var(--dim)}
+.sum em{display:block;font-style:normal;font-size:.75rem;color:var(--dim)}
 .sum em.up{color:var(--warn)}.sum em.down{color:var(--green)}
 @media(max-width:780px){.sums{grid-template-columns:repeat(2,1fr)}.sums .sum:last-child{grid-column:1/-1}}
 .chart-wrap{overflow-x:auto;overflow-y:hidden;padding-bottom:4px}
@@ -167,14 +168,14 @@ input::placeholder{color:var(--dim)}
 .chart{position:relative;display:flex;align-items:flex-end;gap:5px;height:200px;padding:24px 4px 0;min-width:100%}
 .chart::after{content:"";position:absolute;left:4px;right:4px;bottom:32px;height:1px;background:var(--line)}
 .bcol{flex:1;min-width:16px;display:flex;flex-direction:column;align-items:center;height:100%}
-.bval{font-family:var(--mono);font-size:.62rem;color:var(--amber2);margin-bottom:3px;white-space:nowrap;font-weight:600}
+.bval{font-family:var(--mono);font-size:.75rem;color:var(--amber2);margin-bottom:3px;white-space:nowrap;font-weight:600}
 .btrack{flex:1;width:100%;max-width:40px;display:flex;align-items:flex-end;background:var(--bar-track);border-radius:5px 5px 0 0}
 .btrack i{display:block;width:100%;height:0;border-radius:5px 5px 0 0;background:linear-gradient(180deg,var(--cyan2),var(--cyan) 60%,#0e7490);transition:height .7s cubic-bezier(.22,1,.36,1)}
 .bcol:hover .btrack i{filter:brightness(1.2)}
 .bcol.peak .btrack i{background:linear-gradient(180deg,#fde68a,var(--amber) 50%,#b45309)}
 .bmeta{height:28px;display:flex;flex-direction:column;align-items:center;gap:1px;margin-top:4px}
-.tri{color:var(--green);font-size:.56rem;line-height:1;font-style:normal}
-.blab{font-family:var(--mono);font-size:.58rem;color:var(--mut);white-space:nowrap}
+.tri{color:var(--green);font-size:.7rem;line-height:1;font-style:normal}
+.blab{font-family:var(--mono);font-size:.7rem;color:var(--mut);white-space:nowrap}
 .blab.ghost{opacity:0}
 .legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:12px;font-size:.7rem;color:var(--mut)}
 .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
@@ -183,14 +184,14 @@ input::placeholder{color:var(--dim)}
 /* ===== 余额走势 ===== */
 .trend-wrap{position:relative}
 #trendSvg{display:block;width:100%}
-#trendSvg .ax{fill:var(--dim);font-family:var(--mono);font-size:10px}
+#trendSvg .ax{fill:var(--dim);font-family:var(--mono);font-size:11px}
 /* ===== 记录清单 ===== */
 .rows{display:flex;flex-direction:column}
 .row{position:relative;overflow:hidden;border-bottom:1px solid var(--line2)}
 .row:last-child{border-bottom:none}
 .row-del{position:absolute;right:0;top:0;bottom:0;width:76px;border:none;background:var(--red);color:#fff;font-weight:600;font-size:.82rem;font-family:var(--sans);cursor:pointer;display:grid;place-items:center;touch-action:none}
 .row-del:active{filter:brightness(.92)}
-.row-c{display:grid;grid-template-columns:auto auto 1fr auto;gap:12px;align-items:center;padding:.7rem .2rem;background:var(--card);transition:transform .22s cubic-bezier(.32,.72,0,1),background .15s;touch-action:pan-y;will-change:transform}
+.row-c{display:grid;grid-template-columns:auto auto 1fr auto;gap:12px;align-items:center;padding:.7rem .8rem;background:var(--card);transition:transform .22s cubic-bezier(.32,.72,0,1),background .15s;touch-action:pan-y;will-change:transform}
 .row-c:hover{background:var(--row-hover)}
 .row.del-open .row-c{transform:translateX(-76px)}
 .tag{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:.8rem;font-weight:700}
@@ -207,10 +208,10 @@ input::placeholder{color:var(--dim)}
 .r-info .warn{color:var(--warn)}
 .r-info .gsm{color:var(--green);font-size:.68rem}
 .r-actions{display:flex;gap:2px}
-.del,.edit-btn{border:none;background:transparent;color:var(--dim);font-size:.9rem;cursor:pointer;opacity:.3;transition:.15s;padding:6px;border-radius:6px}
-.row-c:hover .del,.row-c:hover .edit-btn{opacity:.7}
-.del:hover{opacity:1!important;color:var(--red);background:rgba(248,113,113,.1)}
-.edit-btn:hover{opacity:1!important;color:var(--cyan2);background:var(--cyan-bg)}
+.del,.edit-btn{border:none;background:transparent;color:var(--dim);font-size:.9rem;cursor:pointer;opacity:.7;transition:.15s;padding:8px;border-radius:6px}
+.del:hover{color:var(--red);background:rgba(248,113,113,.1)}
+.edit-btn:hover{color:var(--cyan2);background:var(--cyan-bg)}
+@media(hover:hover){.del,.edit-btn{opacity:.3}.row-c:hover .del,.row-c:hover .edit-btn{opacity:.7}.del:hover{opacity:1!important}.edit-btn:hover{opacity:1!important}}
 .row.editing .row-c{background:rgba(56,189,248,.06);border-left:3px solid var(--cyan);padding-left:8px}
 @media(max-width:640px){.row-c{grid-template-columns:auto 1fr auto}.r-info{grid-column:1/-1;text-align:left;padding-left:42px}}
 .list-empty{padding:28px 10px;text-align:center;color:var(--dim);font-size:.82rem}
@@ -221,7 +222,7 @@ input::placeholder{color:var(--dim)}
 .edit-banner .eb-cancel:hover{color:var(--red);border-color:var(--red)}
 /* ===== 账单汇总 ===== */
 .bills-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px}
-.bills-nav .bn-btn{border:1px solid var(--line);background:var(--bg2);color:var(--mut);border-radius:8px;padding:.4rem .8rem;cursor:pointer;font-size:.82rem;font-weight:500;transition:.15s;font-family:var(--mono)}
+.bills-nav .bn-btn{border:1px solid var(--line);background:var(--bg2);color:var(--mut);border-radius:8px;padding:.55rem .9rem;cursor:pointer;font-size:.82rem;font-weight:500;transition:.15s;font-family:var(--mono)}
 .bills-nav .bn-btn:hover{color:var(--cyan2);border-color:var(--cyan)}
 .bills-nav .bn-btn:disabled{opacity:.4;cursor:default;pointer-events:none}
 .bills-nav .bn-period{font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--ink);min-width:140px;text-align:center}
@@ -252,7 +253,7 @@ input::placeholder{color:var(--dim)}
 .list-filter-row input[type=date]{width:auto;flex:0 1 130px}
 .list-summary{font-size:.7rem;color:var(--dim);font-family:var(--mono);margin-left:auto}
 .pager{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--line2)}
-.pg-btn{min-width:32px;height:32px;border:1px solid var(--line);background:var(--bg2);color:var(--mut);border-radius:7px;cursor:pointer;font-size:.8rem;font-weight:500;font-family:var(--mono);transition:.15s;padding:0 8px}
+.pg-btn{min-width:40px;height:40px;border:1px solid var(--line);background:var(--bg2);color:var(--mut);border-radius:7px;cursor:pointer;font-size:.8rem;font-weight:500;font-family:var(--mono);transition:.15s;padding:0 8px}
 .pg-btn:hover:not(:disabled){color:var(--cyan2);border-color:var(--cyan);background:var(--cyan-bg)}
 .pg-btn.on{background:var(--cyan);color:var(--on-accent);border-color:var(--cyan);font-weight:600}
 .pg-btn:disabled{opacity:.3;cursor:not-allowed}
@@ -313,34 +314,34 @@ input::placeholder{color:var(--dim)}
 .app{padding:14px 10px 48px;gap:14px}
 .hero-brand{padding:14px 14px 0}
 .hero-brand h1{font-size:1.1rem}
-.hero-brand p{font-size:.66rem}
+.hero-brand p{font-size:.78rem}
 .hero-main{padding:14px;gap:14px}
 .bal-card{padding:14px 16px;min-height:auto}
 #odo{font-size:clamp(1.8rem,12vw,2.4rem)}
 .tiles{gap:8px}
 .tile{padding:10px 12px}
 .tile-val{font-size:1rem}
-.tile-sub{font-size:.62rem}
-.hero-foot{padding:8px 14px;font-size:.62rem;gap:8px}
+.tile-sub{font-size:.8rem}
+.hero-foot{padding:8px 14px;font-size:.78rem;gap:8px}
 .panel{padding:16px}
 .p-head{margin-bottom:14px;gap:10px}
 .p-head h2{font-size:1rem}
-.p-head .en{font-size:.56rem}
+.p-head .en{font-size:.75rem}
 .tabs button{padding:.3rem .6rem;font-size:.78rem}
 .chip{padding:.3rem .6rem;font-size:.7rem}
 .btn-primary{padding:.6rem 1rem;font-size:.88rem}
 .btn-ghost{padding:.45rem .8rem;font-size:.72rem}
-input[type=number],input[type=text],input[type=date],input[type=datetime-local]{padding:.55rem .65rem;font-size:.85rem}
+input[type=number],input[type=text],input[type=date],input[type=datetime-local]{padding:.55rem .65rem;font-size:16px}
 .range-row{gap:6px}
 .range-row input[type=date]{flex:0 1 110px}
 .sums{gap:8px}
 .sum{padding:.5rem .6rem}
-.sum span{font-size:.56rem}
+.sum span{font-size:.75rem}
 .sum b{font-size:.95rem}
-.sum em{font-size:.6rem}
+.sum em{font-size:.75rem}
 .chart{height:160px;padding:20px 2px 0}
-.bval{font-size:.56rem}
-.blab{font-size:.54rem}
+.bval{font-size:.75rem}
+.blab{font-size:.7rem}
 .bills-nav{gap:8px}
 .bills-nav .bn-period{font-size:.95rem;min-width:110px}
 .bill-card{padding:12px 14px}
@@ -351,7 +352,7 @@ input[type=number],input[type=text],input[type=date],input[type=datetime-local]{
 .list-search::before{left:8px;font-size:.72rem}
 .list-filter-row{gap:6px}
 .list-filter-row input[type=date]{flex:0 1 100px}
-.pg-btn{min-width:30px;height:30px;font-size:.75rem;padding:0 6px}
+.pg-btn{min-width:38px;height:38px;font-size:.75rem;padding:0 6px}
 .modal{width:94vw;padding:18px}
 .modal h3{font-size:1rem}
 .modal .m-body{font-size:.8rem}
@@ -377,12 +378,12 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 
 /* ===== 多页面架构 ===== */
 .appbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px 10px;background:var(--appbar-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-@supports(padding:env(safe-area-inset-top)){.appbar{top:env(safe-area-inset-top);padding-top:8px;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}}
+@supports(padding:env(safe-area-inset-top)){.appbar{top:env(safe-area-inset-top);padding-top:max(10px,env(safe-area-inset-top));padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}}
 .appbar-brand{display:flex;align-items:center;gap:8px;min-width:0}
 .appbar-logo{font-size:1.2rem;line-height:1}
 .appbar-title{font-size:1.02rem;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .appbar-actions{display:flex;align-items:center;gap:8px}
-.appbar-btn{width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--mut);cursor:pointer;font-size:.85rem;line-height:1;font-weight:600;transition:.15s}
+.appbar-btn{width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--mut);cursor:pointer;font-size:.85rem;line-height:1;font-weight:600;transition:.15s}
 .appbar-btn:hover{color:var(--ink);border-color:var(--cyan)}
 .view{display:block}
 .view[hidden]{display:none}
@@ -393,9 +394,11 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 @keyframes skelShimmer{to{transform:translateX(100%)}}
 .tile.skel{min-height:88px;display:flex;flex-direction:column;justify-content:center;gap:7px;padding:14px}
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:45;display:flex;justify-content:space-around;align-items:flex-end;padding:6px 8px max(6px,env(safe-area-inset-bottom));background:var(--tabbar-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
-.tabbar .tab{flex:1;border:none;background:none;color:var(--dim);cursor:pointer;font-size:.62rem;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;font-family:var(--sans);transition:color .15s}
+.tabbar .tab{flex:1;border:none;background:none;color:var(--dim);cursor:pointer;font-size:.68rem;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px;min-height:44px;font-family:var(--sans);transition:color .15s}
 .tabbar .tab.on{color:var(--cyan)}
-.tabbar .fab-center{flex:0 0 auto;width:48px;height:48px;margin-top:-14px;border-radius:50%;background:var(--cyan);color:var(--on-accent);font-size:1.6rem;font-weight:600;line-height:1;box-shadow:var(--float-shadow);display:grid;place-items:center;border:none;cursor:pointer}
+.tab-ico{width:22px;height:22px;flex:none;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;margin-bottom:1px}
+.fab-center .fab-ico{width:24px;height:24px;display:block;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.tabbar .fab-center{flex:0 0 auto;width:48px;height:48px;margin-top:-14px;border-radius:50%;background:var(--cyan);color:var(--on-accent);font-weight:600;line-height:1;box-shadow:var(--float-shadow);display:grid;place-items:center;border:none;cursor:pointer}
 .tabbar .fab-center:active{transform:scale(.94)}
 .app{padding-top:14px;padding-bottom:max(80px,calc(env(safe-area-inset-bottom) + 72px))}
 .me-panel .foot-btns{justify-content:flex-start}
@@ -403,12 +406,16 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 .sheet-mask{position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.45);opacity:0;transition:opacity .25s}
 .sheet-mask.show{opacity:1}
 .sheet-mask[hidden]{display:none}
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:56;background:var(--card);border:1px solid var(--line);border-radius:18px 18px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.28);transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);max-height:88vh;overflow-y:auto;overscroll-behavior:contain;padding:0 18px calc(env(safe-area-inset-bottom) + 16px)}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:56;background:var(--card);border:1px solid var(--line);border-radius:18px 18px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.28);transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);max-height:88vh;max-height:88dvh;overflow-y:auto;overscroll-behavior:contain;padding:0 18px calc(env(safe-area-inset-bottom) + 16px)}
 .sheet.show{transform:translateY(0)}
 .sheet[hidden]{display:none}
 .sheet-handle{width:40px;height:5px;border-radius:3px;background:var(--line);margin:10px auto 4px;cursor:grab;touch-action:none}
 .sheet-handle:active{cursor:grabbing}
-.sheet-head{display:flex;flex-direction:column;gap:1px;padding:6px 2px 10px}
+.sheet-close{position:absolute;top:6px;right:8px;width:44px;height:44px;display:grid;place-items:center;border:none;background:transparent;color:var(--mut);cursor:pointer;transition:.15s;z-index:2}
+.sheet-close svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.sheet-close:hover{color:var(--ink)}
+.sheet-close:active{transform:scale(.92)}
+.sheet-head{display:flex;flex-direction:column;gap:1px;padding:6px 44px 10px 2px}
 .sheet-head h2{font-size:1.1rem;font-weight:700;display:flex;align-items:center;gap:8px}
 .sheet-head h2::before{content:"";width:3px;height:18px;background:var(--cyan);border-radius:2px}
 .sheet-head .en{font-size:.62rem;color:var(--dim);letter-spacing:.03em;font-weight:500}
@@ -454,8 +461,8 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 .bills-cards{grid-template-columns:repeat(2,1fr)}
 }
 </style>
-</head>
-<body>
+<script>document.documentElement.setAttribute('data-trae-theme', "light");window.__TRAE_DISABLE_LEGACY_ADD_TO_CHAT__=true;</script><style data-id="immersive-translate-input-injected-css"></style></head>
+<body style="background-color: rgb(15, 23, 42);" data-new-gr-c-s-check-loaded="14.1139.0" data-gr-ext-installed="">
 <div class="bg-deco"></div>
 <!-- ☁️ 云端登录遮罩 -->
 <div class="cloud-login" id="cloudLogin" hidden="">
@@ -478,28 +485,28 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <div class="appbar-actions">
 <button type="button" id="navRefresh" class="appbar-btn nav-only" data-i18n-aria="refresh_aria" data-i18n-title="refresh_aria" aria-label="刷新云端" title="刷新云端">↻</button>
 <button type="button" id="navAdd" class="appbar-btn nav-only" data-i18n-aria="nav_add" data-i18n-title="nav_add" aria-label="记一笔" title="记一笔">＋<span class="nav-tx" data-i18n="nav_add">记一笔</span></button>
-<button type="button" id="langToggle" class="appbar-btn" aria-label="切换语言 / Language">中</button>
+<button type="button" id="langToggle" class="appbar-btn" aria-label="切换语言">中</button>
 <button type="button" class="appbar-btn" id="themeToggle" aria-label="切换到浅色模式" aria-pressed="false" title="切换到浅色模式">☀</button>
 </div>
 </header>
 <main class="app">
-<section class="view" data-view="home">
+<section class="view view-in" data-view="home">
 <header class="hero">
 <div class="hero-main">
 <div class="bal-card">
 <div class="bal-label" data-i18n="balance">当前余额</div>
-<div id="odo"><span class="bal-placeholder">— — —</span></div>
-<div class="bal-note" id="balTag"></div>
+<div id="odo"><span class="bal-cur">¥</span>435.41</div>
+<div class="bal-note" id="balTag">余额正常 · 继续保持</div>
 </div>
-<div class="tiles" id="tiles"></div>
+<div class="tiles" id="tiles"><div class="tile"><div class="tile-label">日均用电</div><div class="tile-val">8.6 <span class="u">度/天</span></div><div class="tile-sub">近14天</div></div><div class="tile"><div class="tile-label">日均电费</div><div class="tile-val">¥5.60</div><div class="tile-sub">元 / 天</div></div><div class="tile"><div class="tile-label">月均电费</div><div class="tile-val">¥167.92</div><div class="tile-sub">元 / 30天</div></div><div class="tile"><div class="tile-label">余额可用</div><div class="tile-val">77.8 <span class="u">天</span></div><div class="tile-sub">约 2026/10/14 需充值</div></div></div>
 </div>
 <div class="hero-foot">
-<span id="lastRec"></span>
-<span>NO. <span id="serial"></span></span>
+<span id="lastRec">最近抄表 7/26 21:36</span>
+<span>NO. <span id="serial">EL-20260728</span></span>
 </div>
 </header>
 </section>
-<section class="view" data-view="stats" hidden>
+<section class="view" data-view="stats" hidden="">
 <section class="panel">
 <div class="p-head">
 <div><h2 data-i18n="stats_title">用电统计</h2><span class="en" data-i18n="stats_sub">Usage Analytics · 自由选择区间</span></div>
@@ -520,11 +527,11 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <button type="button" class="chip" data-p="year" data-i18n="p_year">今年</button>
 <button type="button" class="chip" data-p="all" data-i18n="p_all">全部</button>
 </div>
-<span class="range-info" id="rangeInfo"></span>
+<span class="range-info" id="rangeInfo">2026/6/29 → 2026/7/28 · 30 天</span>
 </div>
 <div id="statsBody">
-<div class="sums" id="sums"></div>
-<div class="chart-wrap"><div class="chart" id="statChart"></div>
+<div class="sums" id="sums"><div class="sum"><span>总用电</span><b>239.1<i>度</i></b><em class="down">▼ 18% 较上一同长区间</em></div><div class="sum"><span>总电费</span><b>¥155.43</b><em>电价 0.65 元/度</em></div><div class="sum"><span>日均用电</span><b>8.0<i>度</i></b><em>区间 30 天</em></div><div class="sum"><span>峰值日</span><b>14.7<i>度</i></b><em>2026年7月26日 · 周日</em></div><div class="sum"><span>充值合计</span><b class="g">¥500.00</b><em>▲ 已在结算中抵扣</em></div></div>
+<div class="chart-wrap"><div class="chart" id="statChart" style="min-width: 900px;"><div class="bcol" data-i="0"><div class="btrack"><i data-h="54.33" style="height: 54.33%;"></i></div><div class="bmeta"><span class="blab">6/29</span></div></div><div class="bcol" data-i="1"><div class="btrack"><i data-h="40.34" style="height: 40.34%;"></i></div><div class="bmeta"><span class="blab ghost">6/30</span></div></div><div class="bcol" data-i="2"><div class="btrack"><i data-h="41.27" style="height: 41.27%;"></i></div><div class="bmeta"><span class="blab ghost">7/1</span></div></div><div class="bcol" data-i="3"><div class="btrack"><i data-h="43.67" style="height: 43.67%;"></i></div><div class="bmeta"><span class="blab">7/2</span></div></div><div class="bcol" data-i="4"><div class="btrack"><i data-h="58.11" style="height: 58.11%;"></i></div><div class="bmeta"><span class="blab ghost">7/3</span></div></div><div class="bcol" data-i="5"><div class="btrack"><i data-h="74.99" style="height: 74.99%;"></i></div><div class="bmeta"><span class="blab ghost">7/4</span></div></div><div class="bcol" data-i="6"><div class="btrack"><i data-h="67.00" style="height: 67%;"></i></div><div class="bmeta"><span class="blab">7/5</span></div></div><div class="bcol" data-i="7"><div class="btrack"><i data-h="40.23" style="height: 40.23%;"></i></div><div class="bmeta"><span class="blab ghost">7/6</span></div></div><div class="bcol" data-i="8"><div class="btrack"><i data-h="32.89" style="height: 32.89%;"></i></div><div class="bmeta"><span class="blab ghost">7/7</span></div></div><div class="bcol" data-i="9"><div class="btrack"><i data-h="59.96" style="height: 59.96%;"></i></div><div class="bmeta"><span class="blab">7/8</span></div></div><div class="bcol" data-i="10"><div class="btrack"><i data-h="68.47" style="height: 68.47%;"></i></div><div class="bmeta"><span class="blab ghost">7/9</span></div></div><div class="bcol" data-i="11"><div class="btrack"><i data-h="72.23" style="height: 72.23%;"></i></div><div class="bmeta"><span class="blab ghost">7/10</span></div></div><div class="bcol" data-i="12"><div class="btrack"><i data-h="78.02" style="height: 78.02%;"></i></div><div class="bmeta"><span class="blab">7/11</span></div></div><div class="bcol" data-i="13"><div class="btrack"><i data-h="78.02" style="height: 78.02%;"></i></div><div class="bmeta"><span class="blab ghost">7/12</span></div></div><div class="bcol" data-i="14"><div class="btrack"><i data-h="68.97" style="height: 68.97%;"></i></div><div class="bmeta"><em class="tri">▲</em><span class="blab ghost">7/13</span></div></div><div class="bcol" data-i="15"><div class="btrack"><i data-h="53.20" style="height: 53.2%;"></i></div><div class="bmeta"><span class="blab">7/14</span></div></div><div class="bcol" data-i="16"><div class="btrack"><i data-h="53.20" style="height: 53.2%;"></i></div><div class="bmeta"><span class="blab ghost">7/15</span></div></div><div class="bcol" data-i="17"><div class="btrack"><i data-h="57.06" style="height: 57.06%;"></i></div><div class="bmeta"><span class="blab ghost">7/16</span></div></div><div class="bcol" data-i="18"><div class="btrack"><i data-h="59.56" style="height: 59.56%;"></i></div><div class="bmeta"><span class="blab">7/17</span></div></div><div class="bcol" data-i="19"><div class="btrack"><i data-h="54.58" style="height: 54.58%;"></i></div><div class="bmeta"><span class="blab ghost">7/18</span></div></div><div class="bcol" data-i="20"><div class="btrack"><i data-h="56.19" style="height: 56.19%;"></i></div><div class="bmeta"><span class="blab ghost">7/19</span></div></div><div class="bcol" data-i="21"><div class="btrack"><i data-h="52.39" style="height: 52.39%;"></i></div><div class="bmeta"><span class="blab">7/20</span></div></div><div class="bcol" data-i="22"><div class="btrack"><i data-h="44.91" style="height: 44.91%;"></i></div><div class="bmeta"><span class="blab ghost">7/21</span></div></div><div class="bcol" data-i="23"><div class="btrack"><i data-h="41.43" style="height: 41.43%;"></i></div><div class="bmeta"><span class="blab ghost">7/22</span></div></div><div class="bcol" data-i="24"><div class="btrack"><i data-h="44.81" style="height: 44.81%;"></i></div><div class="bmeta"><span class="blab">7/23</span></div></div><div class="bcol" data-i="25"><div class="btrack"><i data-h="55.43" style="height: 55.43%;"></i></div><div class="bmeta"><span class="blab ghost">7/24</span></div></div><div class="bcol" data-i="26"><div class="btrack"><i data-h="79.94" style="height: 79.94%;"></i></div><div class="bmeta"><span class="blab ghost">7/25</span></div></div><div class="bcol peak" data-i="27"><span class="bval">14.7</span><div class="btrack"><i data-h="100.00" style="height: 100%;"></i></div><div class="bmeta"><span class="blab">7/26</span></div></div><div class="bcol" data-i="28"><div class="btrack"><i data-h="0.00" style="height: 0%;"></i></div><div class="bmeta"><span class="blab ghost">7/27</span></div></div><div class="bcol" data-i="29"><div class="btrack"><i data-h="0.00" style="height: 0%;"></i></div><div class="bmeta"><span class="blab">7/28</span></div></div></div>
 <div class="legend">
 <span><i class="sw cyan"></i><span data-i18n="legend_usage">用电量（度）</span></span>
 <span><i class="sw green"></i><span data-i18n="legend_recharge">▲ 该区间有充值</span></span>
@@ -532,11 +539,11 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 </div>
 </div>
 <div class="list-empty" id="statEmpty" hidden=""></div>
-</section>
+</div></section>
 <section class="panel">
 <div class="p-head"><div><h2 data-i18n="trend_title">余额走势</h2><span class="en" data-i18n="trend_sub">Balance Trend · ▲ 绿色标记为充值</span></div></div>
 <div class="trend-wrap" id="trendWrap">
-<svg id="trendSvg"></svg>
+<svg id="trendSvg" viewBox="0 0 320 250" width="320" height="250"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(56,189,248,.25)"></stop><stop offset="1" stop-color="rgba(56,189,248,0)"></stop></linearGradient></defs><line x1="48" x2="304" y1="220" y2="220" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="224" text-anchor="end" class="ax">0.0</text><line x1="48" x2="304" y1="169.5" y2="169.5" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="173.5" text-anchor="end" class="ax">142</text><line x1="48" x2="304" y1="119" y2="119" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="123" text-anchor="end" class="ax">283</text><line x1="48" x2="304" y1="68.5" y2="68.5" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="72.5" text-anchor="end" class="ax">425</text><line x1="48" x2="304" y1="18" y2="18" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="22" text-anchor="end" class="ax">567</text><text x="48" y="242" text-anchor="middle" class="ax">2/26</text><text x="112" y="242" text-anchor="middle" class="ax">4/5</text><text x="176" y="242" text-anchor="middle" class="ax">5/12</text><text x="240" y="242" text-anchor="middle" class="ax">6/19</text><text x="304" y="242" text-anchor="middle" class="ax">7/26</text><path d="M48.0,117.9L51.4,122.5L54.8,124.6L58.3,128.8L60.0,131.1L61.7,132.3L63.5,134.1L65.1,137.6L68.6,141.3L72.1,144.7L73.8,146.8L77.2,151.1L80.5,156.8L82.3,157.9L84.1,159.5L89.2,167.3L90.9,168.8L95.9,174.6L97.6,176.8L101.0,178.9L102.7,180.8L104.4,182.6L107.7,186.6L111.2,190.0L112.8,193.2L114.5,195.0L119.6,198.2L121.3,202.4L123.0,203.5L126.4,197.1L129.8,200.9L131.5,202.1L133.3,204.1L136.7,209.9L141.8,146.5L145.2,150.1L150.3,156.4L153.7,159.5L155.5,162.4L157.1,164.3L158.9,166.8L162.3,171.5L164.0,171.9L165.7,174.0L167.4,176.1L169.0,177.5L174.2,185.4L175.9,187.4L177.5,189.4L179.2,190.7L182.6,194.3L184.3,197.3L186.0,204.2L187.8,206.1L191.2,209.4L194.6,176.6L198.0,181.3L201.3,187.0L203.0,188.6L206.4,192.5L209.9,200.4L211.6,201.8L216.8,208.3L218.5,210.3L221.8,179.1L223.5,181.2L227.0,184.8L228.7,186.6L232.2,195.7L233.8,197.6L237.2,201.3L238.8,203.8L243.9,209.4L245.6,175.7L249.0,179.9L252.4,182.3L257.5,188.9L259.2,190.3L262.7,193.1L264.4,194.7L267.7,199.7L269.4,201.6L271.2,202.3L272.9,204.1L276.3,208.8L281.4,38.6L286.5,44.0L288.1,46.0L291.5,49.7L293.2,51.7L296.7,54.8L298.3,56.0L301.7,59.8L304.0,64.8L304.0,220.0L48.0,220.0Z" fill="url(#ga)"></path><path d="M48.0,117.9L51.4,122.5L54.8,124.6L58.3,128.8L60.0,131.1L61.7,132.3L63.5,134.1L65.1,137.6L68.6,141.3L72.1,144.7L73.8,146.8L77.2,151.1L80.5,156.8L82.3,157.9L84.1,159.5L89.2,167.3L90.9,168.8L95.9,174.6L97.6,176.8L101.0,178.9L102.7,180.8L104.4,182.6L107.7,186.6L111.2,190.0L112.8,193.2L114.5,195.0L119.6,198.2L121.3,202.4L123.0,203.5L126.4,197.1L129.8,200.9L131.5,202.1L133.3,204.1L136.7,209.9L141.8,146.5L145.2,150.1L150.3,156.4L153.7,159.5L155.5,162.4L157.1,164.3L158.9,166.8L162.3,171.5L164.0,171.9L165.7,174.0L167.4,176.1L169.0,177.5L174.2,185.4L175.9,187.4L177.5,189.4L179.2,190.7L182.6,194.3L184.3,197.3L186.0,204.2L187.8,206.1L191.2,209.4L194.6,176.6L198.0,181.3L201.3,187.0L203.0,188.6L206.4,192.5L209.9,200.4L211.6,201.8L216.8,208.3L218.5,210.3L221.8,179.1L223.5,181.2L227.0,184.8L228.7,186.6L232.2,195.7L233.8,197.6L237.2,201.3L238.8,203.8L243.9,209.4L245.6,175.7L249.0,179.9L252.4,182.3L257.5,188.9L259.2,190.3L262.7,193.1L264.4,194.7L267.7,199.7L269.4,201.6L271.2,202.3L272.9,204.1L276.3,208.8L281.4,38.6L286.5,44.0L288.1,46.0L291.5,49.7L293.2,51.7L296.7,54.8L298.3,56.0L301.7,59.8L304.0,64.8" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="48" cy="117.92817455360515" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="51.43567917968828" cy="122.53281137192715" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="54.81837563893979" cy="124.62842007871765" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="58.26429297092753" cy="128.7661780865132" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="59.989702899146835" cy="131.09700817875978" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="61.70829781341622" cy="132.34439431375415" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="63.46559797185896" cy="134.1192465858318" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="65.13695629184006" cy="137.5513404372591" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="68.6091166238521" cy="141.30062676301358" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="72.05349699294634" cy="144.66500536711263" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="73.80529892097428" cy="146.76417803428882" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="77.18311308275185" cy="151.07657010098362" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="80.5415806300566" cy="156.8323661238861" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="82.30365821936795" cy="157.90868216036694" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="84.06184362671098" cy="159.49108057161692" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="89.21927897434819" cy="167.29258985591014" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="90.9028945886102" cy="168.81440094060326" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="95.93446363688918" cy="174.57376092389146" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="97.62323618943913" cy="176.84756764996686" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="100.96894194567389" cy="178.9431763567574" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="102.68697478119084" cy="180.8356393215631" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="104.35287456992953" cy="182.61405555402646" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="107.73067902399099" cy="186.5700515821514" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="111.16075323824923" cy="189.97006979010743" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="112.82150732277108" cy="193.16694225607867" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="114.5027629620722" cy="195.02020165664172" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="119.57914322832009" cy="198.18143451875596" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="121.32298351677503" cy="202.44036717966526" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="123.03032427211159" cy="203.54519489923166" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="120.90113217087543,207.1193743238179 131.90113217087543,207.1193743238179 126.40113217087543,198.1193743238179" fill="#34d399" opacity=".9"></polygon><circle cx="129.84626827554516" cy="200.9363758969006" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="131.5260672674437" cy="202.1196107449524" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="133.29104594424285" cy="204.07266103631497" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="136.66892963909515" cy="209.88548042538866" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="136.33233438921698,156.52895664883278 147.33233438921698,156.52895664883278 141.83233438921698,147.52895664883278" fill="#34d399" opacity=".9"></polygon><circle cx="145.24215115594575" cy="150.07866119298808" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="150.28790781665163" cy="156.44033048145928" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="153.72961479693674" cy="159.53741205663098" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="155.49578133711276" cy="162.42778392943217" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="157.14158847934766" cy="164.30599105269508" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="158.9050825829635" cy="166.7936354019124" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="162.2776740038447" cy="171.47667934871976" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="164.01206443241722" cy="171.90079063461783" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="165.6682143645335" cy="174.03560290565102" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="167.36474792986849" cy="176.05993240472756" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="169.0231014254802" cy="177.47838863823543" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="174.1620747504158" cy="185.37968881332822" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="175.875549104509" cy="187.40045435201907" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="177.54558594545102" cy="189.37845236608155" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="179.179318325781" cy="190.72919335226112" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="182.62055910461763" cy="194.2575141341023" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="184.34028969410625" cy="197.27262462040295" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="186.03885059662974" cy="204.22591133290004" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="187.7985717286144" cy="206.1468859807913" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="191.21500781046387" cy="209.432857456405" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="189.0574590634385,186.598090422968 200.0574590634385,186.598090422968 194.5574590634385,177.598090422968" fill="#34d399" opacity=".9"></polygon><circle cx="197.99939335936693" cy="181.25975060746117" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="201.349707260216" cy="187.03693039267787" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="202.98194328791553" cy="188.57299731891376" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="206.44027264140908" cy="192.50404562433883" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="209.88376467258394" cy="200.35188639364614" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="211.643745052182" cy="201.77390658753967" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="216.78701022391104" cy="208.3209018160672" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="218.4992526240196" cy="210.28108002820116" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="216.33379268004305,189.05722308909972 227.33379268004305,189.05722308909972 221.83379268004305,180.05722308909972" fill="#34d399" opacity=".9"></polygon><circle cx="223.5292073810756" cy="181.15283179589022" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="226.98889914546234" cy="184.82727495354501" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="228.73643303982178" cy="186.5557957406086" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="232.16338522626225" cy="195.73655769416703" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="233.80374624054969" cy="197.55774145125878" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="237.1608523165753" cy="201.29277193547045" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="238.84082722003336" cy="203.76616044314497" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="243.93624317912992" cy="209.38652597139094" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="240.1379806205772,185.67858864345786 251.1379806205772,185.67858864345786 245.6379806205772,176.67858864345786" fill="#34d399" opacity=".9"></polygon><circle cx="249.00273855210895" cy="179.8769339778103" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="252.4263483828546" cy="182.26122347584234" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="257.5232606849985" cy="188.8973177140123" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="259.2462173489983" cy="190.2623145417347" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="262.71487191852884" cy="193.12061077106458" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="264.40246950481446" cy="194.72795690501445" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="267.7492959307217" cy="199.73888520730605" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="269.4490143480058" cy="201.62778421172607" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="271.1668411731994" cy="202.25860519999463" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="272.87394449015267" cy="204.10830064017196" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="276.286369861067" cy="208.77352478505085" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="275.93851431244445,48.60154428873585 286.93851431244445,48.60154428873585 281.43851431244445,39.60154428873585" fill="#34d399" opacity=".9"></polygon><circle cx="286.50806655929864" cy="43.986688431525735" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="288.13951709176285" cy="46.046657534459285" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="291.5240927524396" cy="49.73535653365685" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="293.2146383916862" cy="51.702662666562226" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="296.6647119791213" cy="54.796180281348214" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="298.31904468693097" cy="56.00079889171419" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="301.71938267519" cy="59.76434105901143" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="304" cy="64.8216008463171" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><line id="tCross" y1="18" y2="220" stroke="rgba(226,232,240,.2)" stroke-dasharray="3 3" opacity="0"></line><circle id="tFocus" r="5" fill="none" stroke="#7dd3fc" stroke-width="2" opacity="0"></circle><rect id="tHit" x="48" y="18" width="256" height="202" fill="transparent"></rect></svg>
 </div>
 <div class="list-empty" id="trendEmpty" hidden="">至少记录两笔后，这里会画出余额走势</div>
 </section>
@@ -549,18 +556,18 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 </div>
 </div>
 <div class="bills-nav">
-<button type="button" class="bn-btn" id="billPrev" data-i18n="bill_prev">‹ 上</button>
-<span class="bn-period" id="billPeriod">—</span>
-<button type="button" class="bn-btn" id="billNext" data-i18n="bill_next">下 ›</button>
+<button type="button" class="bn-btn" id="billPrev" data-i18n="bill_prev" disabled="">‹ 上</button>
+<span class="bn-period" id="billPeriod">2026年 2–7月</span>
+<button type="button" class="bn-btn" id="billNext" data-i18n="bill_next" disabled="">下 ›</button>
 </div>
-<div class="bills-cards" id="billsCards"></div>
+<div class="bills-cards" id="billsCards"><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年2月<span class="bm-sub"></span></span><span class="bill-kwh">22.6<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥14.68</b></div><div class="bill-row"><span>充值</span><b class="rch">—</b></div><div class="bill-row"><span>日均用电</span><b class="avg">0.8 度</b></div><div class="bill-row"><span>28天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年3月<span class="bm-sub"></span></span><span class="bill-kwh">260.8<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥169.52</b></div><div class="bill-row"><span>充值</span><b class="rch">—</b></div><div class="bill-row"><span>日均用电</span><b class="avg">8.4 度</b></div><div class="bill-row"><span>31天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年4月<span class="bm-sub"></span></span><span class="bill-kwh">296.8<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥192.91</b></div><div class="bill-row"><span>充值</span><b class="rch">¥250.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">9.9 度</b></div><div class="bill-row"><span>30天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年5月<span class="bm-sub"></span></span><span class="bill-kwh">304.6<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥198.02</b></div><div class="bill-row"><span>充值</span><b class="rch">¥100.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">9.8 度</b></div><div class="bill-row"><span>31天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年6月<span class="bm-sub"></span></span><span class="bill-kwh">276.1<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥179.45</b></div><div class="bill-row"><span>充值</span><b class="rch">¥200.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">9.2 度</b></div><div class="bill-row"><span>30天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card current"><div class="bill-head"><span class="bill-month">2026年7月<span class="bm-sub">(本月)</span></span><span class="bill-kwh">225.2<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥146.41</b></div><div class="bill-row"><span>充值</span><b class="rch">¥500.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">7.3 度</b></div><div class="bill-row"><span>31天 · 0.65元/度</span><b></b></div></div></div></div>
 <div class="list-empty" id="billsEmpty" hidden="">至少记录两笔后，这里会生成账单汇总</div>
 </section>
 </section>
-<section class="view" data-view="ledger" hidden>
+<section class="view" data-view="ledger" hidden="">
 <section class="panel">
 <div class="p-head">
-<div><h2 data-i18n="ledger_title">记录清单</h2><span class="en" id="ledgerSub">Ledger Entries · <span id="recCount">94</span> 条 · 自动与上一笔结算用电</span></div>
+<div><h2 data-i18n="ledger_title">记录清单</h2><span class="en" id="ledgerSub">Ledger Entries · 94 条 · 自动与上一笔结算</span></div>
 </div>
 <div class="list-toolbar" id="listToolbar">
 <div class="list-search"><input type="text" id="listSearch" data-i18n-ph="search_ph" placeholder="搜索备注或日期（如 7月、充值）" maxlength="30"></div>
@@ -583,13 +590,13 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <button type="button" class="chip" data-lp="lastMonth" data-i18n="lp_lastMonth">上月</button>
 <button type="button" class="chip" data-lp="year" data-i18n="lp_year">今年</button>
 </div>
-<span class="list-summary" id="listSummary"></span>
+<span class="list-summary" id="listSummary">94 条记录</span>
 </div>
-<div class="rows" id="recList"></div>
-<div class="pager" id="pager"></div>
+<div class="rows" id="recList"><div class="row" data-id="83fdb41b-290e-4d02-af33-5810c84f3223"><button type="button" class="row-del" data-del="83fdb41b-290e-4d02-af33-5810c84f3223" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥435.41</b><span>7/26 21:36 · 演示·周末</span></div><div class="r-info">≈ <b>21.8</b> 度 · ¥14.19 <span class="dim">/ 1.3天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="83fdb41b-290e-4d02-af33-5810c84f3223" title="编辑">✎</button><button type="button" class="del" data-id="83fdb41b-290e-4d02-af33-5810c84f3223" title="删除">✕</button></div></div></div><div class="row" data-id="499371fc-5fbf-4592-afd5-4dd38a45a9a2"><button type="button" class="row-del" data-del="499371fc-5fbf-4592-afd5-4dd38a45a9a2" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥449.60</b><span>7/25 13:25</span></div><div class="r-info">≈ <b>16.2</b> 度 · ¥10.56 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="499371fc-5fbf-4592-afd5-4dd38a45a9a2" title="编辑">✎</button><button type="button" class="del" data-id="499371fc-5fbf-4592-afd5-4dd38a45a9a2" title="删除">✕</button></div></div></div><div class="row" data-id="a60e41b8-64ee-4f85-a14c-050f95a423a7"><button type="button" class="row-del" data-del="a60e41b8-64ee-4f85-a14c-050f95a423a7" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥460.16</b><span>7/23 13:26</span></div><div class="r-info">≈ <b>5.2</b> 度 · ¥3.38 <span class="dim">/ 23小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="a60e41b8-64ee-4f85-a14c-050f95a423a7" title="编辑">✎</button><button type="button" class="del" data-id="a60e41b8-64ee-4f85-a14c-050f95a423a7" title="删除">✕</button></div></div></div><div class="row" data-id="f6d3cbb2-8a59-4588-8090-4aef240442d8"><button type="button" class="row-del" data-del="f6d3cbb2-8a59-4588-8090-4aef240442d8" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥463.54</b><span>7/22 14:06</span></div><div class="r-info">≈ <b>13.4</b> 度 · ¥8.68 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="f6d3cbb2-8a59-4588-8090-4aef240442d8" title="编辑">✎</button><button type="button" class="del" data-id="f6d3cbb2-8a59-4588-8090-4aef240442d8" title="删除">✕</button></div></div></div><div class="row" data-id="37809c00-a8d5-420c-9419-8aa64bb159ed"><button type="button" class="row-del" data-del="37809c00-a8d5-420c-9419-8aa64bb159ed" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥472.22</b><span>7/20 13:25</span></div><div class="r-info">≈ <b>8.5</b> 度 · ¥5.52 <span class="dim">/ 24小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="37809c00-a8d5-420c-9419-8aa64bb159ed" title="编辑">✎</button><button type="button" class="del" data-id="37809c00-a8d5-420c-9419-8aa64bb159ed" title="删除">✕</button></div></div></div><div class="row" data-id="cc9ac7d2-92f6-478f-85ed-83118cc9141f"><button type="button" class="row-del" data-del="cc9ac7d2-92f6-478f-85ed-83118cc9141f" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥477.74</b><span>7/19 13:33 · 演示·周末</span></div><div class="r-info">≈ <b>15.9</b> 度 · ¥10.35 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="cc9ac7d2-92f6-478f-85ed-83118cc9141f" title="编辑">✎</button><button type="button" class="del" data-id="cc9ac7d2-92f6-478f-85ed-83118cc9141f" title="删除">✕</button></div></div></div><div class="row" data-id="60edbbd9-4733-45b5-ad35-aaac7508b6f0"><button type="button" class="row-del" data-del="60edbbd9-4733-45b5-ad35-aaac7508b6f0" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥488.09</b><span>7/17 13:48</span></div><div class="r-info">≈ <b>8.9</b> 度 · ¥5.78 <span class="dim">/ 23小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="60edbbd9-4733-45b5-ad35-aaac7508b6f0" title="编辑">✎</button><button type="button" class="del" data-id="60edbbd9-4733-45b5-ad35-aaac7508b6f0" title="删除">✕</button></div></div></div><div class="row" data-id="fd6a844e-f042-43b4-be30-d3e2161b96e1"><button type="button" class="row-del" data-del="fd6a844e-f042-43b4-be30-d3e2161b96e1" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥493.87</b><span>7/16 14:46</span></div><div class="r-info">≈ <b>23.2</b> 度 · ¥15.11 <span class="dim">/ 3.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="fd6a844e-f042-43b4-be30-d3e2161b96e1" title="编辑">✎</button><button type="button" class="del" data-id="fd6a844e-f042-43b4-be30-d3e2161b96e1" title="删除">✕</button></div></div></div><div class="row" data-id="c0ece709-2f05-4a87-9243-67ebab33dd4b"><button type="button" class="row-del" data-del="c0ece709-2f05-4a87-9243-67ebab33dd4b" aria-label="删除">删除</button><div class="row-c"><span class="tag r">充</span><div class="r-main"><b>¥508.98</b><em>+¥500.00</em><span>7/13 15:14 · 演示·线上充值</span></div><div class="r-info">≈ <b>34.6</b> 度 · ¥22.52 <span class="dim">/ 3.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="c0ece709-2f05-4a87-9243-67ebab33dd4b" title="编辑">✎</button><button type="button" class="del" data-id="c0ece709-2f05-4a87-9243-67ebab33dd4b" title="删除">✕</button></div></div></div><div class="row" data-id="3a9843f8-3674-4511-9ff7-b097962d2a09"><button type="button" class="row-del" data-del="3a9843f8-3674-4511-9ff7-b097962d2a09" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥31.50</b><span>7/10 14:32 · 演示·周末</span></div><div class="r-info">≈ <b>20.1</b> 度 · ¥13.09 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="3a9843f8-3674-4511-9ff7-b097962d2a09" title="编辑">✎</button><button type="button" class="del" data-id="3a9843f8-3674-4511-9ff7-b097962d2a09" title="删除">✕</button></div></div></div><div class="row" data-id="4763c05a-eac4-458e-953d-c48582f12301"><button type="button" class="row-del" data-del="4763c05a-eac4-458e-953d-c48582f12301" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥44.59</b><span>7/8 14:23</span></div><div class="r-info">≈ <b>8.0</b> 度 · ¥5.19 <span class="dim">/ 1.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="4763c05a-eac4-458e-953d-c48582f12301" title="编辑">✎</button><button type="button" class="del" data-id="4763c05a-eac4-458e-953d-c48582f12301" title="删除">✕</button></div></div></div><div class="row" data-id="df6ffbfa-2859-4d36-806e-d668a53262eb"><button type="button" class="row-del" data-del="df6ffbfa-2859-4d36-806e-d668a53262eb" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥49.78</b><span>7/7 14:18</span></div><div class="r-info">≈ <b>2.7</b> 度 · ¥1.77 <span class="dim">/ 1.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="df6ffbfa-2859-4d36-806e-d668a53262eb" title="编辑">✎</button><button type="button" class="del" data-id="df6ffbfa-2859-4d36-806e-d668a53262eb" title="删除">✕</button></div></div></div><div class="row" data-id="335fb241-e141-47ef-a6c8-5877008b54f4"><button type="button" class="row-del" data-del="335fb241-e141-47ef-a6c8-5877008b54f4" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥51.55</b><span>7/6 14:03 · 演示·周末</span></div><div class="r-info">≈ <b>8.2</b> 度 · ¥5.30 <span class="dim">/ 24小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="335fb241-e141-47ef-a6c8-5877008b54f4" title="编辑">✎</button><button type="button" class="del" data-id="335fb241-e141-47ef-a6c8-5877008b54f4" title="删除">✕</button></div></div></div><div class="row" data-id="1447eac9-1662-4727-98e5-a73302d94673"><button type="button" class="row-del" data-del="1447eac9-1662-4727-98e5-a73302d94673" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥56.85</b><span>7/5 14:04</span></div><div class="r-info">≈ <b>21.6</b> 度 · ¥14.06 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="1447eac9-1662-4727-98e5-a73302d94673" title="编辑">✎</button><button type="button" class="del" data-id="1447eac9-1662-4727-98e5-a73302d94673" title="删除">✕</button></div></div></div><div class="row" data-id="569d2432-e2d4-4b42-86bc-b06bc78e204f"><button type="button" class="row-del" data-del="569d2432-e2d4-4b42-86bc-b06bc78e204f" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥70.91</b><span>7/3 14:50</span></div><div class="r-info">≈ <b>6.9</b> 度 · ¥4.51 <span class="dim">/ 24小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="569d2432-e2d4-4b42-86bc-b06bc78e204f" title="编辑">✎</button><button type="button" class="del" data-id="569d2432-e2d4-4b42-86bc-b06bc78e204f" title="删除">✕</button></div></div></div><div class="row" data-id="efc7faef-2ac6-465e-9436-6cd117a2068f"><button type="button" class="row-del" data-del="efc7faef-2ac6-465e-9436-6cd117a2068f" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥75.42</b><span>7/2 15:02 · 演示·周末</span></div><div class="r-info">≈ <b>12.3</b> 度 · ¥8.02 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="efc7faef-2ac6-465e-9436-6cd117a2068f" title="编辑">✎</button><button type="button" class="del" data-id="efc7faef-2ac6-465e-9436-6cd117a2068f" title="删除">✕</button></div></div></div><div class="row" data-id="b142eb46-b82d-42b4-91e0-fa440c22cf18"><button type="button" class="row-del" data-del="b142eb46-b82d-42b4-91e0-fa440c22cf18" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥83.44</b><span>6/30 14:05</span></div><div class="r-info">≈ <b>5.9</b> 度 · ¥3.83 <span class="dim">/ 1.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="b142eb46-b82d-42b4-91e0-fa440c22cf18" title="编辑">✎</button><button type="button" class="del" data-id="b142eb46-b82d-42b4-91e0-fa440c22cf18" title="删除">✕</button></div></div></div><div class="row" data-id="f6c0cc71-d658-4ce4-a6bb-951c08c8fa17"><button type="button" class="row-del" data-del="f6c0cc71-d658-4ce4-a6bb-951c08c8fa17" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥87.27</b><span>6/29 13:46</span></div><div class="r-info">≈ <b>28.6</b> 度 · ¥18.62 <span class="dim">/ 3.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="f6c0cc71-d658-4ce4-a6bb-951c08c8fa17" title="编辑">✎</button><button type="button" class="del" data-id="f6c0cc71-d658-4ce4-a6bb-951c08c8fa17" title="删除">✕</button></div></div></div><div class="row" data-id="ca3410e9-9ac2-4171-8188-6daf70ba7441"><button type="button" class="row-del" data-del="ca3410e9-9ac2-4171-8188-6daf70ba7441" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥105.89</b><span>6/26 13:51</span></div><div class="r-info">≈ <b>10.3</b> 度 · ¥6.69 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="ca3410e9-9ac2-4171-8188-6daf70ba7441" title="编辑">✎</button><button type="button" class="del" data-id="ca3410e9-9ac2-4171-8188-6daf70ba7441" title="删除">✕</button></div></div></div><div class="row" data-id="47a1a7fc-3f81-4016-bddc-41119fc16b15"><button type="button" class="row-del" data-del="47a1a7fc-3f81-4016-bddc-41119fc16b15" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥112.58</b><span>6/24 13:32</span></div><div class="r-info">≈ <b>18.1</b> 度 · ¥11.78 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="47a1a7fc-3f81-4016-bddc-41119fc16b15" title="编辑">✎</button><button type="button" class="del" data-id="47a1a7fc-3f81-4016-bddc-41119fc16b15" title="删除">✕</button></div></div></div></div>
+<div class="pager" id="pager"><button class="pg-btn" data-pg="prev" disabled="">‹</button><button class="pg-btn on" data-pg="1">1</button><button class="pg-btn" data-pg="2">2</button><button class="pg-btn" data-pg="3">3</button><button class="pg-btn" data-pg="4">4</button><button class="pg-btn" data-pg="5">5</button><button class="pg-btn" data-pg="next">›</button><div class="pg-info" style="width:100%">第 1–20 条 / 共 94 条 · 每页 20 条</div></div>
 </section>
 </section>
-<section class="view" data-view="me" hidden>
+<section class="view" data-view="me" hidden="">
 <section class="panel me-panel">
 <div class="p-head"><div><h2 data-i18n="me_title">我的</h2><span class="en" data-i18n="me_sub">Me · Settings &amp; Data</span></div></div>
 <div class="foot-btns">
@@ -602,16 +609,16 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <input type="file" id="importFile" accept="application/json,.json" hidden="">
 </div>
 <p><span class="cloud-status " id="cloudStatus"><span class="dot"></span><span class="ctxt">未连接</span></span> · <span data-i18n="me_note">修改电价后历史用电按新电价重新折算 · 当前电价 </span><b id="footPrice">0.65</b><span data-i18n="me_note_suffix"> 元/度</span></p>
-<p id="verInfo" style="text-align:center;font-size:.7rem;color:var(--dim);margin-top:8px;font-family:var(--mono)"></p>
+<p id="verInfo" style="text-align:center;font-size:.7rem;color:var(--dim);margin-top:8px;font-family:var(--mono)">V1.1.0</p>
 </section>
 </section>
 </main>
 <nav class="tabbar">
-<button class="tab on" data-tab="home">🏠<span data-i18n="nav_home">首页</span></button>
-<button class="tab" data-tab="stats">📊<span data-i18n="nav_stats">统计</span></button>
-<button class="tab fab-center" id="fabAdd" data-i18n-aria="fab_aria" aria-label="记一笔">＋</button>
-<button class="tab" data-tab="ledger">📒<span data-i18n="nav_ledger">记录</span></button>
-<button class="tab" data-tab="me">⚙️<span data-i18n="nav_me">我的</span></button>
+<button class="tab on" data-tab="home"><svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1v-8.5Z"></path></svg><span data-i18n="nav_home">首页</span></button>
+<button class="tab" data-tab="stats"><svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg><span data-i18n="nav_stats">统计</span></button>
+<button class="tab fab-center" id="fabAdd" data-i18n-aria="fab_aria" aria-label="记一笔"><svg class="fab-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+<button class="tab" data-tab="ledger"><svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4Z"></path><path d="M5 17a3 3 0 0 1 3-3h11"></path><path d="M9 8h6M9 11h4"></path></svg><span data-i18n="nav_ledger">记录</span></button>
+<button class="tab" data-tab="me"><svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path></svg><span data-i18n="nav_me">我的</span></button>
 </nav>
 <div class="tip" id="tip"></div>
 <div class="mask" id="mask" hidden="">
@@ -626,14 +633,15 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 </div>
 <div class="toasts" id="toasts"></div>
 <!-- 录入 bottom sheet -->
-<div class="sheet-mask" id="sheetMask" hidden></div>
-<aside class="sheet" id="sheet" hidden aria-hidden="true">
+<div class="sheet-mask" id="sheetMask" hidden=""></div>
+<aside class="sheet" id="sheet" hidden="" aria-hidden="true">
 <div class="sheet-handle" id="sheetHandle" role="button" tabindex="0" data-i18n-aria="close" aria-label="关闭"></div>
+<button type="button" class="sheet-close" id="sheetClose" data-i18n-aria="close" aria-label="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
 <div class="sheet-head">
 <h2 data-i18n="entry_title">记一笔</h2>
 <span class="en" data-i18n="entry_sub">Quick Entry · 余额与充值一次记清</span>
 </div>
-<div class="edit-banner" id="editBanner" hidden>
+<div class="edit-banner" id="editBanner" hidden="">
 <span class="eb-tag" data-i18n="editing">编辑中</span>
 <span id="editInfo">正在修改记录</span>
 <button type="button" class="eb-cancel" id="editCancel" data-i18n="cancel_edit">✕ 取消编辑</button>
@@ -1493,6 +1501,7 @@ function openSheet(){const s=$('#sheet'),m=$('#sheetMask');m.hidden=false;s.hidd
 function closeSheet(){const s=$('#sheet'),m=$('#sheetMask');s.classList.remove('show');m.classList.remove('show');s.setAttribute('aria-hidden','true');setTimeout(()=>{s.hidden=true;m.hidden=true;},300);}
 function dismissSheet(){if(editState.id)cancelEdit();closeSheet();}
 $('#sheetMask').addEventListener('click',dismissSheet);
+const sheetCloseBtn=$('#sheetClose');if(sheetCloseBtn)sheetCloseBtn.addEventListener('click',dismissSheet);
 (function(){const handle=$('#sheetHandle');if(!handle)return;let y0=null,drag=false,moved=false;handle.addEventListener('pointerdown',e=>{y0=e.clientY;drag=true;moved=false;try{handle.setPointerCapture(e.pointerId);}catch(_){}$('#sheet').style.transition='none';});handle.addEventListener('pointermove',e=>{if(!drag)return;const dy=e.clientY-y0;if(Math.abs(dy)>4)moved=true;if(dy>0)$('#sheet').style.transform='translateY('+dy+'px)';});handle.addEventListener('pointerup',e=>{if(!drag)return;drag=false;const dy=e.clientY-y0;const s=$('#sheet');s.style.transition='';s.style.transform='';if(!moved||dy>90)dismissSheet();});handle.addEventListener('pointercancel',()=>{if(!drag)return;drag=false;const s=$('#sheet');s.style.transition='';s.style.transform='';});})();
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;const m=$('#mask');if(!m.hidden){closeModal();return;}const s=$('#sheet');if(s.hidden)return;dismissSheet();});
 function startEdit(id){
@@ -1962,7 +1971,7 @@ load();
 $('#eTime').value=nowInputVal();
 syncDates();applyLang();switchView(location.hash.slice(1)||'home');
 initCloud();
-</script>
+</script><div class="ptr" hidden=""><span class="ptr-spin"></span><span class="ptr-txt"></span></div>
 <script>
 // 注册 Service Worker 实现 PWA 离线支持
 if('serviceWorker' in navigator){
@@ -2046,5 +2055,6 @@ toast(t('install_ios_tip'));
 }
 }
 </script>
-</body>
-</html>
+
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true" style="visibility: visible !important;"></grammarly-desktop-integration></html>
