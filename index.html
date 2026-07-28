@@ -861,38 +861,16 @@ for(let i=0;i<seed.length;i++){hash^=seed.charCodeAt(i);hash=Math.imul(hash,1677
 return'legacy-'+(hash>>>0).toString(16);
 }
 function normalizedTime(value,fallback){const n=+value;return isFinite(n)&&n>0?n:fallback;}
-function migrateRecords(arr){
+function sanitizeRecords(arr){
 if(!Array.isArray(arr))return[];
-const sorted=[...arr].sort((a,b)=>(a.ts||0)-(b.ts||0));
-const result=[];let pendingRch=[];
-for(let i=0;i<sorted.length;i++){
-const r=sorted[i];
-if(!r||typeof r.ts!=='number'||!isFinite(r.ts))continue;
-if(r.balance!==undefined){
-if(!isFinite(r.balance))continue;
-const rchSum=pendingRch.reduce((s,x)=>s+x.amount,0);
-const balance=r2(+r.balance),recharge=r2(+r.recharge+rchSum||0);
-const updatedAt=Math.max(normalizedTime(r.updatedAt,r.ts),...pendingRch.map(x=>normalizedTime(x.updatedAt,x.ts)));
-result.push({id:normalizeRecordId(r.id,r.ts+'|'+balance+'|'+recharge+'|'+i),ts:r.ts,balance,recharge,note:r.note||'',updatedAt});
-pendingRch=[];
-}else if(r.type==='balance'&&isFinite(r.amount)){
-const rchSum=pendingRch.reduce((s,x)=>s+x.amount,0);
-const balance=r2(+r.amount),recharge=r2(rchSum);
-const updatedAt=Math.max(normalizedTime(r.updatedAt,r.ts),...pendingRch.map(x=>normalizedTime(x.updatedAt,x.ts)));
-result.push({id:normalizeRecordId(r.id,r.ts+'|'+balance+'|'+recharge+'|'+i),ts:r.ts,balance,recharge,note:r.note||'',updatedAt});
-pendingRch=[];
-}else if(r.type==='recharge'&&isFinite(r.amount)){
-pendingRch.push(r);
+const out=[];
+for(const r of arr){
+if(!r||typeof r.ts!=='number'||!isFinite(r.ts)||!isFinite(r.balance))continue;
+out.push({id:normalizeRecordId(r.id,r.ts+'|'+r.balance+'|'+(r.recharge||0)+'|'+out.length),ts:r.ts,balance:r2(+r.balance),recharge:r2(+r.recharge||0),note:r.note||'',updatedAt:normalizedTime(r.updatedAt,r.ts)});
 }
+return out.sort((a,b)=>a.ts-b.ts);
 }
-if(pendingRch.length&&result.length){
-const last=result[result.length-1];
-last.recharge=r2(last.recharge+pendingRch.reduce((s,x)=>s+x.amount,0));
-last.updatedAt=Math.max(last.updatedAt,...pendingRch.map(x=>normalizedTime(x.updatedAt,x.ts)));
-}
-return result;
-}
-function migrateDeleted(arr){
+function sanitizeDeleted(arr){
 if(!Array.isArray(arr))return[];
 const latest=new Map();
 for(const item of arr){
@@ -910,8 +888,8 @@ return{
 v:SCHEMA_VERSION,
 price,
 priceUpdatedAt:wrapped?normalizedTime(data.priceUpdatedAt,0):0,
-records:migrateRecords(Array.isArray(data)?data:(wrapped&&Array.isArray(data.records)?data.records:[])),
-deleted:migrateDeleted(wrapped&&Array.isArray(data.deleted)?data.deleted:[])
+records:sanitizeRecords(wrapped&&Array.isArray(data.records)?data.records:[]),
+deleted:sanitizeDeleted(wrapped&&Array.isArray(data.deleted)?data.deleted:[])
 };
 }
 function mergeLedger(a,b){
@@ -1637,7 +1615,7 @@ rd.onload=()=>{
 try{
 const d=JSON.parse(rd.result);
 const incoming=parseLedger(d,state.price);
-if(!Array.isArray(d)&&+d.price>0)incoming.priceUpdatedAt=Date.now();
+if(d&&typeof d==='object'&&!Array.isArray(d)&&+d.price>0)incoming.priceUpdatedAt=Date.now();
 const key=r=>r.ts+'|'+r.balance+'|'+r.recharge;
 const have=new Set(state.records.map(key));
 const beforeById=new Map(state.records.map(r=>[r.id,r]));
