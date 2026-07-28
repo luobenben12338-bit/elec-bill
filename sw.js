@@ -1,6 +1,6 @@
 // Service Worker - 电费小账本 PWA 离线支持
-// 版本号从 index.html 的 V{version} 注释同步
-const CACHE = 'elec-ledger-v1.1.0';
+const VERSION = '1.1.0';
+const CACHE = 'elec-ledger-v' + VERSION;
 const ASSETS = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
