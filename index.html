@@ -374,7 +374,8 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 }
 
 /* ===== 多页面架构 ===== */
-.appbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:max(10px,calc(env(safe-area-inset-top) + 6px)) 16px 10px;background:var(--appbar-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.appbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px 10px;background:var(--appbar-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+@supports(padding:env(safe-area-inset-top)){.appbar{padding-top:max(10px,calc(env(safe-area-inset-top) + 8px));padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}}
 .appbar-brand{display:flex;align-items:center;gap:8px;min-width:0}
 .appbar-logo{font-size:1.2rem;line-height:1}
 .appbar-title{font-size:1.02rem;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1677,8 +1678,9 @@ function setCloudStatus(cls,txt){
 const el=$('#cloudStatus');if(!el)return;
 el.className='cloud-status '+(cls||'');const ctx=el.querySelector('.ctxt');if(ctx)ctx.textContent=txt||t('cs_disconnected');
 }
+function fetchTo(url,opts,ms){return new Promise((res,rej)=>{const ac=new AbortController();const to=setTimeout(()=>{ac.abort();rej(new Error('timeout'));},ms||15000);fetch(url,Object.assign({},opts,{signal:ac.signal})).then(r=>{clearTimeout(to);res(r);},e=>{clearTimeout(to);rej(e);});});}
 async function ghVerifyRepo(token,owner,repo){
-const res=await fetch(`https://api.github.com/repos/${owner}/${repo}`,{headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}});
+const res=await fetchTo(`https://api.github.com/repos/${owner}/${repo}`,{headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}},15000);
 if(res.status===200){const j=await res.json();return{ok:true,defaultBranch:j.default_branch};}
 if(res.status===404)return{ok:false,reason:'notfound'};
 if(res.status===401||res.status===403)return{ok:false,reason:'auth'};
@@ -1686,7 +1688,7 @@ return{ok:false,reason:'error:'+res.status};
 }
 async function ghGet(token,owner,repo,path,branch){
 const url=`https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`;
-const res=await fetch(url,{headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}});
+const res=await fetchTo(url,{headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}},15000);
 if(res.status===404){
 let m='';try{const j=await res.json();m=j.message||'';}catch(e){}
 if(/Branch not found|No ref/i.test(m))return{notFound:true,branchMissing:true};
@@ -1700,7 +1702,7 @@ async function ghPut(token,owner,repo,path,branch,content,sha){
 const url=`https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
 const body={message:'chore: 更新电费账本 '+new Date().toISOString(),content:b64enc(content),branch:branch};
 if(sha)body.sha=sha;
-const res=await fetch(url,{method:'PUT',headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},body:JSON.stringify(body)});
+const res=await fetchTo(url,{method:'PUT',headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},body:JSON.stringify(body)},20000);
 if(res.status===409||res.status===422)throw new Error('conflict');
 if(res.status===401||res.status===403)throw new Error('auth');
 if(!res.ok){
@@ -1855,6 +1857,7 @@ _ghSha=r.sha;
 const cloud=parseCloudLedger(r.content);
 const merged=mergeCloudLedger(cloud);writeLocalCache();refreshAll();
 if(merged.needsPush)await cloudPush(true);
+setCloudStatus('ok',t('cs_synced'));
 toast(merged.added>0?tf('cloud_synced_pulled',{n:merged.added}):t('cloud_synced'));
 }
 }catch(e){
