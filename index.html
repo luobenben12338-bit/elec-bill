@@ -27,6 +27,7 @@ const cs=document.querySelector('meta[name="color-scheme"]');
 if(cs)cs.setAttribute('content',theme);
 const apple=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
 if(apple)apple.setAttribute('content',theme==='light'?'default':'black');
+document.documentElement.lang=((localStorage.getItem('elec.lang')||(navigator.language.toLowerCase().startsWith('zh')?'zh':'en'))==='zh')?'zh-CN':'en';
 }catch(e){document.documentElement.dataset.theme='dark';}
 </script>
 <style>
@@ -50,6 +51,7 @@ if(apple)apple.setAttribute('content',theme==='light'?'default':'black');
 --r:14px; --rs:10px;
 --mono:'SF Mono','Cascadia Code','JetBrains Mono','Fira Code',Consolas,monospace;
 --sans:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
+ --appbar-bg:rgba(11,17,32,.72); --tabbar-bg:rgba(15,23,42,.85);
 }
 :root[data-theme=light]{
 --scheme:light;
@@ -67,6 +69,7 @@ if(apple)apple.setAttribute('content',theme==='light'?'default':'black');
 --bar-track:rgba(15,23,42,.035); --row-hover:rgba(2,132,199,.045);
 --chart-grid:rgba(2,132,199,.14); --chart-point:#ffffff; --chart-cross:rgba(51,65,85,.3);
 --chart-area:rgba(2,132,199,.18); --chart-area-end:rgba(2,132,199,0); --chart-line:#0284c7; --chart-focus:#0369a1; --chart-recharge:#047857;
+ --appbar-bg:rgba(255,255,255,.72); --tabbar-bg:rgba(248,250,252,.85);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 [hidden]{display:none!important}
@@ -182,9 +185,13 @@ input::placeholder{color:var(--dim)}
 #trendSvg .ax{fill:var(--dim);font-family:var(--mono);font-size:10px}
 /* ===== 记录清单 ===== */
 .rows{display:flex;flex-direction:column}
-.row{display:grid;grid-template-columns:auto auto 1fr auto;gap:12px;align-items:center;padding:.7rem .2rem;border-bottom:1px solid var(--line2);transition:background .15s}
-.row:hover{background:var(--row-hover)}
+.row{position:relative;overflow:hidden;border-bottom:1px solid var(--line2)}
 .row:last-child{border-bottom:none}
+.row-del{position:absolute;right:0;top:0;bottom:0;width:76px;border:none;background:var(--red);color:#fff;font-weight:600;font-size:.82rem;font-family:var(--sans);cursor:pointer;display:grid;place-items:center;touch-action:none}
+.row-del:active{filter:brightness(.92)}
+.row-c{display:grid;grid-template-columns:auto auto 1fr auto;gap:12px;align-items:center;padding:.7rem .2rem;background:var(--card);transition:transform .22s cubic-bezier(.32,.72,0,1),background .15s;touch-action:pan-y;will-change:transform}
+.row-c:hover{background:var(--row-hover)}
+.row.del-open .row-c{transform:translateX(-76px)}
 .tag{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:.8rem;font-weight:700}
 .tag.b{background:var(--cyan-bg);color:var(--cyan);border:1px solid rgba(56,189,248,.2)}
 .tag.r{background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.2)}
@@ -200,11 +207,11 @@ input::placeholder{color:var(--dim)}
 .r-info .gsm{color:var(--green);font-size:.68rem}
 .r-actions{display:flex;gap:2px}
 .del,.edit-btn{border:none;background:transparent;color:var(--dim);font-size:.9rem;cursor:pointer;opacity:.3;transition:.15s;padding:6px;border-radius:6px}
-.row:hover .del,.row:hover .edit-btn{opacity:.7}
+.row-c:hover .del,.row-c:hover .edit-btn{opacity:.7}
 .del:hover{opacity:1!important;color:var(--red);background:rgba(248,113,113,.1)}
 .edit-btn:hover{opacity:1!important;color:var(--cyan2);background:var(--cyan-bg)}
-.row.editing{background:rgba(56,189,248,.06);border-left:3px solid var(--cyan);padding-left:8px}
-@media(max-width:640px){.row{grid-template-columns:auto 1fr auto}.r-info{grid-column:1/-1;text-align:left;padding-left:42px}}
+.row.editing .row-c{background:rgba(56,189,248,.06);border-left:3px solid var(--cyan);padding-left:8px}
+@media(max-width:640px){.row-c{grid-template-columns:auto 1fr auto}.r-info{grid-column:1/-1;text-align:left;padding-left:42px}}
 .list-empty{padding:28px 10px;text-align:center;color:var(--dim);font-size:.82rem}
 /* ===== 编辑模式提示 ===== */
 .edit-banner{display:flex;align-items:center;gap:10px;padding:.5rem .8rem;background:var(--cyan-bg);border:1px solid rgba(56,189,248,.3);border-radius:8px;margin-bottom:12px;font-size:.78rem;color:var(--cyan2)}
@@ -366,6 +373,83 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 .toasts{bottom:max(24px,calc(env(safe-area-inset-bottom) + 24px))}
 }
 
+/* ===== 多页面架构 ===== */
+.appbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:max(10px,calc(env(safe-area-inset-top) + 6px)) 16px 10px;background:var(--appbar-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.appbar-brand{display:flex;align-items:center;gap:8px;min-width:0}
+.appbar-logo{font-size:1.2rem;line-height:1}
+.appbar-title{font-size:1.02rem;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.appbar-actions{display:flex;align-items:center;gap:8px}
+.appbar-btn{width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--mut);cursor:pointer;font-size:.85rem;line-height:1;font-weight:600;transition:.15s}
+.appbar-btn:hover{color:var(--ink);border-color:var(--cyan)}
+.view{display:block}
+.view[hidden]{display:none}
+.view-in{animation:viewIn .22s ease both}
+@keyframes viewIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.skel-line{height:12px;border-radius:6px;background:var(--line);position:relative;overflow:hidden}
+.skel-line::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(148,163,184,.28),transparent);transform:translateX(-100%);animation:skelShimmer 1.3s infinite}
+@keyframes skelShimmer{to{transform:translateX(100%)}}
+.tile.skel{min-height:88px;display:flex;flex-direction:column;justify-content:center;gap:7px;padding:14px}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:45;display:flex;justify-content:space-around;align-items:flex-end;padding:6px 8px max(6px,env(safe-area-inset-bottom));background:var(--tabbar-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+.tabbar .tab{flex:1;border:none;background:none;color:var(--dim);cursor:pointer;font-size:.62rem;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;font-family:var(--sans);transition:color .15s}
+.tabbar .tab.on{color:var(--cyan)}
+.tabbar .fab-center{flex:0 0 auto;width:48px;height:48px;margin-top:-14px;border-radius:50%;background:var(--cyan);color:var(--on-accent);font-size:1.6rem;font-weight:600;line-height:1;box-shadow:var(--float-shadow);display:grid;place-items:center;border:none;cursor:pointer}
+.tabbar .fab-center:active{transform:scale(.94)}
+.app{padding-top:14px;padding-bottom:max(80px,calc(env(safe-area-inset-bottom) + 72px))}
+.me-panel .foot-btns{justify-content:flex-start}
+/* ===== 录入 bottom sheet ===== */
+.sheet-mask{position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.45);opacity:0;transition:opacity .25s}
+.sheet-mask.show{opacity:1}
+.sheet-mask[hidden]{display:none}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:56;background:var(--card);border:1px solid var(--line);border-radius:18px 18px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.28);transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);max-height:88vh;overflow-y:auto;overscroll-behavior:contain;padding:0 18px calc(env(safe-area-inset-bottom) + 16px)}
+.sheet.show{transform:translateY(0)}
+.sheet[hidden]{display:none}
+.sheet-handle{width:40px;height:5px;border-radius:3px;background:var(--line);margin:10px auto 4px;cursor:grab;touch-action:none}
+.sheet-handle:active{cursor:grabbing}
+.sheet-head{display:flex;flex-direction:column;gap:1px;padding:6px 2px 10px}
+.sheet-head h2{font-size:1.1rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.sheet-head h2::before{content:"";width:3px;height:18px;background:var(--cyan);border-radius:2px}
+.sheet-head .en{font-size:.62rem;color:var(--dim);letter-spacing:.03em;font-weight:500}
+.sheet .edit-banner{margin-bottom:12px}
+.sheet .entry{margin-bottom:6px}
+@media(prefers-reduced-motion:reduce){.sheet,.sheet-mask{transition-duration:.01ms!important}}
+/* 下拉刷新指示 */
+.ptr{position:fixed;left:50%;top:64px;transform:translate(-50%,-40px);z-index:30;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 16px;box-shadow:var(--panel-shadow);font-size:.78rem;color:var(--mut);opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.ptr[hidden]{display:none}
+.ptr.ready{color:var(--cyan);border-color:var(--cyan)}
+.ptr-spin{width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--cyan);border-radius:50%;flex:none}
+.ptr.busy .ptr-spin{animation:ptrSpin .8s linear infinite}
+@keyframes ptrSpin{to{transform:rotate(360deg)}}
+/* ===== 桌面端导航按钮（默认隐藏） ===== */
+.nav-only{display:none}
+#navAdd .nav-tx{font-size:.82rem;font-weight:600}
+#navAdd{width:auto;padding:0 12px;gap:3px}
+#navRefresh{font-size:1rem;line-height:1}
+/* ===== 小屏走势图轴字号 ===== */
+@media(max-width:640px){#trendSvg .ax{font-size:9px}}
+/* ===== 桌面端响应式 ≥768px ===== */
+@media(min-width:768px){
+.appbar{padding-left:max(24px,calc(env(safe-area-inset-left) + 16px));padding-right:max(24px,calc(env(safe-area-inset-right) + 16px))}
+.appbar-brand .appbar-title{font-size:1.1rem}
+.nav-only{display:inline-flex;align-items:center;justify-content:center}
+#navAdd{background:var(--cyan);color:var(--on-accent);border-color:var(--cyan);font-weight:600}
+#navAdd:hover{background:var(--cyan2);border-color:var(--cyan2)}
+/* 底边栏上移为顶部水平导航，透明叠在 AppBar 中央 */
+.tabbar{position:fixed;top:0;left:50%;right:auto;bottom:auto;transform:translateX(-50%);flex-direction:row;justify-content:center;align-items:center;gap:4px;width:auto;height:56px;padding:0;background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;border:none;box-shadow:none}
+.tabbar .tab{flex:0 0 auto;flex-direction:row;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;font-size:.82rem;border:1px solid transparent;background:transparent}
+.tabbar .tab span{font-size:.82rem}
+.tabbar .tab:hover{color:var(--cyan2);background:var(--cyan-bg)}
+.tabbar .tab.on{color:var(--cyan);background:var(--cyan-bg);border-color:rgba(56,189,248,.25)}
+.tabbar .fab-center{display:none}
+/* 内容居中限宽，去掉底部大留白 */
+.app{max-width:820px;padding-top:14px;padding-bottom:32px}
+/* 录入弹层改为居中 modal */
+.sheet{left:50%;right:auto;bottom:auto;top:50%;transform:translate(-50%,-50%) translateY(16px);width:min(520px,92vw);border-radius:16px;max-height:86vh;opacity:0;transition:transform .3s cubic-bezier(.32,.72,0,1),opacity .3s}
+.sheet.show{transform:translate(-50%,-50%);opacity:1}
+.sheet-handle{display:none}
+.sheet-mask{background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+/* 桌面端账单卡片明确双列 */
+.bills-cards{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
 <body>
@@ -373,32 +457,34 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <!-- ☁️ 云端登录遮罩 -->
 <div class="cloud-login" id="cloudLogin" hidden="">
 <div class="cl-card">
-<h3>☁️ 云端同步登录</h3>
-<p class="cl-tip">数据将存到 GitHub 仓库的 <code>data.json</code>，访问令牌即你的「密码」。登录后自动同步，多设备可共用。</p>
-<label>GitHub 用户名<input id="clOwner" type="text" placeholder="your-username" autocomplete="off"></label>
-<label>仓库名<input id="clRepo" type="text" placeholder="your-repo" autocomplete="off"></label>
-<label>分支（默认 main）<input id="clBranch" type="text" placeholder="main" autocomplete="off"></label>
-<label>数据文件路径（默认 data.json）<input id="clPath" type="text" placeholder="data.json" autocomplete="off"></label>
-<label>访问令牌（密码）<input id="clToken" type="password" placeholder="github_pat_..." autocomplete="off"></label>
-<button type="button" class="btn-primary" id="clBtn">连接云端</button>
+<h3 data-i18n="cl_title">☁️ 云端同步登录</h3>
+<p class="cl-tip" data-i18n-html="cl_tip">数据将存到 GitHub 仓库的 <code>data.json</code>，访问令牌即你的「密码」。登录后自动同步，多设备可共用。</p>
+<label><span data-i18n="cl_owner">GitHub 用户名</span><input id="clOwner" type="text" placeholder="your-username" autocomplete="off"></label>
+<label><span data-i18n="cl_repo">仓库名</span><input id="clRepo" type="text" placeholder="your-repo" autocomplete="off"></label>
+<label><span data-i18n="cl_branch">分支（默认 main）</span><input id="clBranch" type="text" placeholder="main" autocomplete="off"></label>
+<label><span data-i18n="cl_path">数据文件路径（默认 data.json）</span><input id="clPath" type="text" placeholder="data.json" autocomplete="off"></label>
+<label><span data-i18n="cl_token">访问令牌（密码）</span><input id="clToken" type="password" placeholder="github_pat_..." autocomplete="off"></label>
+<button type="button" class="btn-primary" id="clBtn" data-i18n="cloud_login_btn">连接云端</button>
 <div class="cl-err" id="clErr"></div>
-<p class="cl-help">令牌需为<b>细粒度</b>（Fine-grained），仅勾选该仓库的 <b>Contents: Read and write</b>，不勾其他权限，并设过期时间。<a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">去生成 →</a></p>
-<button type="button" class="cl-skip" id="clSkip">暂不启用，仅本地使用</button>
+<p class="cl-help" data-i18n-html="cl_help">令牌需为<b>细粒度</b>（Fine-grained），仅勾选该仓库的 <b>Contents: Read and write</b>，不勾其他权限，并设过期时间。<a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">去生成 →</a></p>
+<button type="button" class="cl-skip" id="clSkip" data-i18n="cl_skip">暂不启用，仅本地使用</button>
 </div>
 </div>
-<div class="app">
-<!-- ⚡ 头部 -->
+<header class="appbar">
+<div class="appbar-brand"><span class="appbar-logo">⚡</span><span class="appbar-title" data-i18n="app_title">电费小账本</span></div>
+<div class="appbar-actions">
+<button type="button" id="navRefresh" class="appbar-btn nav-only" data-i18n-aria="refresh_aria" data-i18n-title="refresh_aria" aria-label="刷新云端" title="刷新云端">↻</button>
+<button type="button" id="navAdd" class="appbar-btn nav-only" data-i18n-aria="nav_add" data-i18n-title="nav_add" aria-label="记一笔" title="记一笔">＋<span class="nav-tx" data-i18n="nav_add">记一笔</span></button>
+<button type="button" id="langToggle" class="appbar-btn" aria-label="切换语言 / Language">中</button>
+<button type="button" class="appbar-btn" id="themeToggle" aria-label="切换到浅色模式" aria-pressed="false" title="切换到浅色模式">☀</button>
+</div>
+</header>
+<main class="app">
+<section class="view" data-view="home">
 <header class="hero">
-<div class="hero-brand">
-<div class="hero-brand-copy">
-<h1>⚡ 电费小账本</h1>
-<p>Electricity Ledger · 记录余额，自动结算用电</p>
-</div>
-<button type="button" class="theme-toggle" id="themeToggle" aria-label="切换到浅色模式" aria-pressed="false" title="切换到浅色模式">☀</button>
-</div>
 <div class="hero-main">
 <div class="bal-card">
-<div class="bal-label">当前余额</div>
+<div class="bal-label" data-i18n="balance">当前余额</div>
 <div id="odo"><span class="bal-cur">¥</span>435.41</div>
 <div class="bal-note" id="balTag">余额正常 · 继续保持</div>
 </div>
@@ -409,53 +495,27 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <span>NO. <span id="serial">EL-20260727</span></span>
 </div>
 </header>
-<!-- 📋 记一笔 -->
-<section class="panel">
-<div class="p-head">
-<div><h2>记一笔</h2><span class="en">Quick Entry · 余额与充值一次记清</span></div>
-</div>
-<div class="edit-banner" id="editBanner" hidden="">
-<span class="eb-tag">编辑中</span>
-<span id="editInfo">正在修改记录</span>
-<button type="button" class="eb-cancel" id="editCancel">✕ 取消编辑</button>
-</div>
-<form id="formEntry" class="entry">
-<label class="fld"><span>抄表时间</span><input type="datetime-local" id="eTime"></label>
-<label class="fld"><span>备注（可选）</span><input type="text" id="eNote" maxlength="30" placeholder="如：网上国网充值 / 换了新热水器"></label>
-<label class="fld"><span>电表余额（元）</span><input type="number" id="eBalance" step="0.01" min="0" placeholder="如 128.45" inputmode="decimal"></label>
-<label class="fld"><span>本次充值（元，无则填0）</span><input type="number" id="eRecharge" step="0.01" min="0" value="0" placeholder="0" inputmode="decimal"></label>
-<div class="chips-row"><span class="lbl">快捷充值</span>
-<div class="chips" id="eChips">
-<button type="button" class="chip on" data-v="0">不充值</button>
-<button type="button" class="chip" data-v="50">¥+50</button>
-<button type="button" class="chip" data-v="100">¥+100</button>
-<button type="button" class="chip" data-v="200">¥+200</button>
-<button type="button" class="chip" data-v="500">¥+500</button>
-</div>
-</div>
-<button type="submit" class="btn-primary">✅ 保存记录</button>
-</form>
 </section>
-<!-- 📊 用电统计 -->
+<section class="view" data-view="stats" hidden>
 <section class="panel">
 <div class="p-head">
-<div><h2>用电统计</h2><span class="en">Usage Analytics · 自由选择区间</span></div>
+<div><h2 data-i18n="stats_title">用电统计</h2><span class="en" data-i18n="stats_sub">Usage Analytics · 自由选择区间</span></div>
 <div class="tabs" id="granTabs">
-<button type="button" data-g="day" class="on">日</button>
-<button type="button" data-g="week">周</button>
-<button type="button" data-g="month">月</button>
-<button type="button" data-g="year">年</button>
+<button type="button" data-g="day" class="on" data-i18n="g_day">日</button>
+<button type="button" data-g="week" data-i18n="g_week">周</button>
+<button type="button" data-g="month" data-i18n="g_month">月</button>
+<button type="button" data-g="year" data-i18n="g_year">年</button>
 </div>
 </div>
 <div class="range-row">
-<input type="date" id="dStart" aria-label="开始日期"><span class="arrow">→</span><input type="date" id="dEnd" aria-label="结束日期">
+<input type="date" id="dStart" data-i18n-aria="range_start_aria" aria-label="开始日期"><span class="arrow">→</span><input type="date" id="dEnd" data-i18n-aria="range_end_aria" aria-label="结束日期">
 <div class="chips" id="presetChips">
-<button type="button" class="chip" data-p="7d">近7天</button>
-<button type="button" class="chip on" data-p="30d">近30天</button>
-<button type="button" class="chip" data-p="month">本月</button>
-<button type="button" class="chip" data-p="lastMonth">上月</button>
-<button type="button" class="chip" data-p="year">今年</button>
-<button type="button" class="chip" data-p="all">全部</button>
+<button type="button" class="chip" data-p="7d" data-i18n="p_7d">近7天</button>
+<button type="button" class="chip on" data-p="30d" data-i18n="p_30d">近30天</button>
+<button type="button" class="chip" data-p="month" data-i18n="p_month">本月</button>
+<button type="button" class="chip" data-p="lastMonth" data-i18n="p_lastMonth">上月</button>
+<button type="button" class="chip" data-p="year" data-i18n="p_year">今年</button>
+<button type="button" class="chip" data-p="all" data-i18n="p_all">全部</button>
 </div>
 <span class="range-info" id="rangeInfo">2026/6/28 → 2026/7/27 · 30 天</span>
 </div>
@@ -463,95 +523,135 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <div class="sums" id="sums"><div class="sum"><span>总用电</span><b>248.7<i>度</i></b><em class="down">▼ 14% 较上一同长区间</em></div><div class="sum"><span>总电费</span><b>¥161.64</b><em>电价 0.65 元/度</em></div><div class="sum"><span>日均用电</span><b>8.3<i>度</i></b><em>区间 30 天</em></div><div class="sum"><span>峰值单日</span><b>14.7<i>度</i></b><em>2026年7月26日 · 周日</em></div><div class="sum"><span>充值合计</span><b class="g">¥500.00</b><em>▲ 已在结算中抵扣</em></div></div>
 <div class="chart-wrap"><div class="chart" id="statChart" style="min-width: 900px;"><div class="bcol" data-i="0"><div class="btrack"><i data-h="65.21" style="height: 65.21%;"></i></div><div class="bmeta"><span class="blab">6/28</span></div></div><div class="bcol" data-i="1"><div class="btrack"><i data-h="54.33" style="height: 54.33%;"></i></div><div class="bmeta"><span class="blab ghost">6/29</span></div></div><div class="bcol" data-i="2"><div class="btrack"><i data-h="40.34" style="height: 40.34%;"></i></div><div class="bmeta"><span class="blab ghost">6/30</span></div></div><div class="bcol" data-i="3"><div class="btrack"><i data-h="41.27" style="height: 41.27%;"></i></div><div class="bmeta"><span class="blab">7/1</span></div></div><div class="bcol" data-i="4"><div class="btrack"><i data-h="43.67" style="height: 43.67%;"></i></div><div class="bmeta"><span class="blab ghost">7/2</span></div></div><div class="bcol" data-i="5"><div class="btrack"><i data-h="58.11" style="height: 58.11%;"></i></div><div class="bmeta"><span class="blab ghost">7/3</span></div></div><div class="bcol" data-i="6"><div class="btrack"><i data-h="74.99" style="height: 74.99%;"></i></div><div class="bmeta"><span class="blab">7/4</span></div></div><div class="bcol" data-i="7"><div class="btrack"><i data-h="67.00" style="height: 67%;"></i></div><div class="bmeta"><span class="blab ghost">7/5</span></div></div><div class="bcol" data-i="8"><div class="btrack"><i data-h="40.23" style="height: 40.23%;"></i></div><div class="bmeta"><span class="blab ghost">7/6</span></div></div><div class="bcol" data-i="9"><div class="btrack"><i data-h="32.89" style="height: 32.89%;"></i></div><div class="bmeta"><span class="blab">7/7</span></div></div><div class="bcol" data-i="10"><div class="btrack"><i data-h="59.96" style="height: 59.96%;"></i></div><div class="bmeta"><span class="blab ghost">7/8</span></div></div><div class="bcol" data-i="11"><div class="btrack"><i data-h="68.47" style="height: 68.47%;"></i></div><div class="bmeta"><span class="blab ghost">7/9</span></div></div><div class="bcol" data-i="12"><div class="btrack"><i data-h="72.23" style="height: 72.23%;"></i></div><div class="bmeta"><span class="blab">7/10</span></div></div><div class="bcol" data-i="13"><div class="btrack"><i data-h="78.02" style="height: 78.02%;"></i></div><div class="bmeta"><span class="blab ghost">7/11</span></div></div><div class="bcol" data-i="14"><div class="btrack"><i data-h="78.02" style="height: 78.02%;"></i></div><div class="bmeta"><span class="blab ghost">7/12</span></div></div><div class="bcol" data-i="15"><div class="btrack"><i data-h="68.97" style="height: 68.97%;"></i></div><div class="bmeta"><em class="tri">▲</em><span class="blab">7/13</span></div></div><div class="bcol" data-i="16"><div class="btrack"><i data-h="53.20" style="height: 53.2%;"></i></div><div class="bmeta"><span class="blab ghost">7/14</span></div></div><div class="bcol" data-i="17"><div class="btrack"><i data-h="53.20" style="height: 53.2%;"></i></div><div class="bmeta"><span class="blab ghost">7/15</span></div></div><div class="bcol" data-i="18"><div class="btrack"><i data-h="57.06" style="height: 57.06%;"></i></div><div class="bmeta"><span class="blab">7/16</span></div></div><div class="bcol" data-i="19"><div class="btrack"><i data-h="59.56" style="height: 59.56%;"></i></div><div class="bmeta"><span class="blab ghost">7/17</span></div></div><div class="bcol" data-i="20"><div class="btrack"><i data-h="54.58" style="height: 54.58%;"></i></div><div class="bmeta"><span class="blab ghost">7/18</span></div></div><div class="bcol" data-i="21"><div class="btrack"><i data-h="56.19" style="height: 56.19%;"></i></div><div class="bmeta"><span class="blab">7/19</span></div></div><div class="bcol" data-i="22"><div class="btrack"><i data-h="52.39" style="height: 52.39%;"></i></div><div class="bmeta"><span class="blab ghost">7/20</span></div></div><div class="bcol" data-i="23"><div class="btrack"><i data-h="44.91" style="height: 44.91%;"></i></div><div class="bmeta"><span class="blab ghost">7/21</span></div></div><div class="bcol" data-i="24"><div class="btrack"><i data-h="41.43" style="height: 41.43%;"></i></div><div class="bmeta"><span class="blab">7/22</span></div></div><div class="bcol" data-i="25"><div class="btrack"><i data-h="44.81" style="height: 44.81%;"></i></div><div class="bmeta"><span class="blab ghost">7/23</span></div></div><div class="bcol" data-i="26"><div class="btrack"><i data-h="55.43" style="height: 55.43%;"></i></div><div class="bmeta"><span class="blab ghost">7/24</span></div></div><div class="bcol" data-i="27"><div class="btrack"><i data-h="79.94" style="height: 79.94%;"></i></div><div class="bmeta"><span class="blab">7/25</span></div></div><div class="bcol peak" data-i="28"><span class="bval">14.7</span><div class="btrack"><i data-h="100.00" style="height: 100%;"></i></div><div class="bmeta"><span class="blab ghost">7/26</span></div></div><div class="bcol" data-i="29"><div class="btrack"><i data-h="0.00" style="height: 0%;"></i></div><div class="bmeta"><span class="blab">7/27</span></div></div></div></div>
 <div class="legend">
-<span><i class="sw cyan"></i>用电量（度）</span>
-<span><i class="sw green"></i>▲ 该区间有充值</span>
+<span><i class="sw cyan"></i><span data-i18n="legend_usage">用电量（度）</span></span>
+<span><i class="sw green"></i><span data-i18n="legend_recharge">▲ 该区间有充值</span></span>
 <span class="fn" id="statNote">结算口径：上期余额 + 期间充值 − 本期余额，跨区间按时间比例分摊</span>
 </div>
 </div>
 <div class="list-empty" id="statEmpty" hidden=""></div>
 </section>
-<!-- 📈 余额走势 -->
 <section class="panel">
-<div class="p-head"><div><h2>余额走势</h2><span class="en">Balance Trend · ▲ 绿色标记为充值</span></div></div>
+<div class="p-head"><div><h2 data-i18n="trend_title">余额走势</h2><span class="en" data-i18n="trend_sub">Balance Trend · ▲ 绿色标记为充值</span></div></div>
 <div class="trend-wrap" id="trendWrap">
 <svg id="trendSvg" height="250" viewBox="0 0 984 250" width="984"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(56,189,248,.25)"></stop><stop offset="1" stop-color="rgba(56,189,248,0)"></stop></linearGradient></defs><line x1="48" x2="968" y1="220" y2="220" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="224" text-anchor="end" class="ax">0.0</text><line x1="48" x2="968" y1="169.5" y2="169.5" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="173.5" text-anchor="end" class="ax">142</text><line x1="48" x2="968" y1="119" y2="119" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="123" text-anchor="end" class="ax">283</text><line x1="48" x2="968" y1="68.5" y2="68.5" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="72.5" text-anchor="end" class="ax">425</text><line x1="48" x2="968" y1="18" y2="18" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="22" text-anchor="end" class="ax">567</text><text x="48" y="242" text-anchor="middle" class="ax">26/2/26</text><text x="278" y="242" text-anchor="middle" class="ax">26/4/5</text><text x="508" y="242" text-anchor="middle" class="ax">26/5/12</text><text x="738" y="242" text-anchor="middle" class="ax">26/6/19</text><text x="968" y="242" text-anchor="middle" class="ax">26/7/26</text><path d="M48.0,117.9L60.3,122.5L72.5,124.6L84.9,128.8L91.1,131.1L97.3,132.3L103.6,134.1L109.6,137.6L122.1,141.3L134.4,144.7L140.7,146.8L152.9,151.1L164.9,156.8L171.3,157.9L177.6,159.5L196.1,167.3L202.2,168.8L220.3,174.6L226.3,176.8L238.4,178.9L244.5,180.8L250.5,182.6L262.7,186.6L275.0,190.0L281.0,193.2L287.0,195.0L305.2,198.2L311.5,202.4L317.6,203.5L329.8,197.1L342.1,200.9L348.2,202.1L354.5,204.1L366.7,209.9L385.2,146.5L397.5,150.1L415.6,156.4L428.0,159.5L434.3,162.4L440.2,164.3L446.6,166.8L458.7,171.5L464.9,171.9L470.9,174.0L477.0,176.1L482.9,177.5L501.4,185.4L507.6,187.4L513.6,189.4L519.4,190.7L531.8,194.3L538.0,197.3L544.1,204.2L550.4,206.1L562.7,209.4L574.7,176.6L587.1,181.3L599.1,187.0L605.0,188.6L617.4,192.5L629.8,200.4L636.1,201.8L654.6,208.3L660.7,210.3L672.7,179.1L678.8,181.2L691.2,184.8L697.5,186.6L709.8,195.7L715.7,197.6L727.8,201.3L733.8,203.8L752.1,209.4L758.3,175.7L770.4,179.9L782.7,182.3L801.0,188.9L807.2,190.3L819.6,193.1L825.7,194.7L837.7,199.7L843.8,201.6L850.0,202.3L856.1,204.1L868.4,208.8L886.9,38.6L905.1,44.0L911.0,46.0L923.2,49.7L929.2,51.7L941.6,54.8L947.6,56.0L959.8,59.8L968.0,64.8L968.0,220.0L48.0,220.0Z" fill="url(#ga)"></path><path d="M48.0,117.9L60.3,122.5L72.5,124.6L84.9,128.8L91.1,131.1L97.3,132.3L103.6,134.1L109.6,137.6L122.1,141.3L134.4,144.7L140.7,146.8L152.9,151.1L164.9,156.8L171.3,157.9L177.6,159.5L196.1,167.3L202.2,168.8L220.3,174.6L226.3,176.8L238.4,178.9L244.5,180.8L250.5,182.6L262.7,186.6L275.0,190.0L281.0,193.2L287.0,195.0L305.2,198.2L311.5,202.4L317.6,203.5L329.8,197.1L342.1,200.9L348.2,202.1L354.5,204.1L366.7,209.9L385.2,146.5L397.5,150.1L415.6,156.4L428.0,159.5L434.3,162.4L440.2,164.3L446.6,166.8L458.7,171.5L464.9,171.9L470.9,174.0L477.0,176.1L482.9,177.5L501.4,185.4L507.6,187.4L513.6,189.4L519.4,190.7L531.8,194.3L538.0,197.3L544.1,204.2L550.4,206.1L562.7,209.4L574.7,176.6L587.1,181.3L599.1,187.0L605.0,188.6L617.4,192.5L629.8,200.4L636.1,201.8L654.6,208.3L660.7,210.3L672.7,179.1L678.8,181.2L691.2,184.8L697.5,186.6L709.8,195.7L715.7,197.6L727.8,201.3L733.8,203.8L752.1,209.4L758.3,175.7L770.4,179.9L782.7,182.3L801.0,188.9L807.2,190.3L819.6,193.1L825.7,194.7L837.7,199.7L843.8,201.6L850.0,202.3L856.1,204.1L868.4,208.8L886.9,38.6L905.1,44.0L911.0,46.0L923.2,49.7L929.2,51.7L941.6,54.8L947.6,56.0L959.8,59.8L968.0,64.8" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="48" cy="117.92817455360515" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="60.34697205200474" cy="122.53281137192715" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="72.50353745243989" cy="124.62842007871765" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="84.8873028642708" cy="128.7661780865132" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="91.08799479380892" cy="131.09700817875978" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="97.26419526696455" cy="132.34439431375415" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="103.57949271136815" cy="134.1192465858318" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="109.58593667380023" cy="137.5513404372591" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="122.0640128669685" cy="141.30062676301358" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="134.4422548184009" cy="144.66500536711263" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="140.73779299725132" cy="146.76417803428882" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="152.87681264113945" cy="151.07657010098362" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="164.9463053892659" cy="156.8323661238861" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="171.27877172585357" cy="157.90868216036694" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="177.59725053349257" cy="159.49108057161692" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="196.13178381406382" cy="167.29258985591014" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="202.18227742781792" cy="168.81440094060326" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="220.26447869507047" cy="174.57376092389146" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="226.33350505579688" cy="176.84756764996686" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="238.35713511726556" cy="178.9431763567574" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="244.53131561990457" cy="180.8356393215631" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="250.51814298568422" cy="182.61405555402646" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="262.65712774246765" cy="186.5700515821514" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="274.98395694995816" cy="189.97006979010743" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="280.9522919412086" cy="193.16694225607867" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="286.994304394947" cy="195.02020165664172" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="305.2375459767753" cy="198.18143451875596" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="311.50447201341024" cy="202.44036717966526" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="317.64022785290103" cy="203.54519489923166" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="324.25406873908355,207.1193743238179 335.25406873908355,207.1193743238179 329.75406873908355,198.1193743238179" fill="#34d399" opacity=".9"></polygon><circle cx="342.1350266152404" cy="200.9363758969006" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="348.1718042423758" cy="202.1196107449524" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="354.5146963621228" cy="204.07266103631497" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="366.6539658904983" cy="209.88548042538866" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="379.70995171124855,156.52895664883278 390.70995171124855,156.52895664883278 385.20995171124855,147.52895664883278" fill="#34d399" opacity=".9"></polygon><circle cx="397.46398071668" cy="150.07866119298808" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="415.5971687160918" cy="156.44033048145928" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="427.9658031764914" cy="159.53741205663098" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="434.31296418024897" cy="162.42778392943217" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="440.2275835976557" cy="164.30599105269508" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="446.5651405325251" cy="166.7936354019124" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="458.68539095131695" cy="171.47667934871976" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="464.9183565539994" cy="171.90079063461783" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="470.87014537254225" cy="174.03560290565102" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="476.96706287296485" cy="176.05993240472756" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="482.9267707478195" cy="177.47838863823543" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="501.39495613430677" cy="185.37968881332822" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="507.55275459432914" cy="187.40045435201907" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="513.5544494914645" cy="189.37845236608155" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="519.4256752332755" cy="190.72919335226112" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="531.7926342822195" cy="194.2575141341023" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="537.9729160881943" cy="197.27262462040295" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="544.0771193316382" cy="204.22591133290004" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="550.4011171497079" cy="206.1468859807913" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="562.6789343188545" cy="209.432857456405" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="569.1908685092321,186.598090422968 580.1908685092321,186.598090422968 574.6908685092321,177.598090422968" fill="#34d399" opacity=".9"></polygon><circle cx="587.0603198852249" cy="181.25975060746117" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="599.1005104664013" cy="187.03693039267787" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="604.9663586909464" cy="188.57299731891376" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="617.3947298050639" cy="192.50404562433883" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="629.7697792920985" cy="200.35188639364614" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="636.0947087812791" cy="201.77390658753967" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="654.5783179921802" cy="208.3209018160672" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="660.7316891175705" cy="210.28108002820116" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="667.2151924439047,189.05722308909972 678.2151924439047,189.05722308909972 672.7151924439047,180.05722308909972" fill="#34d399" opacity=".9"></polygon><circle cx="678.8080890257404" cy="181.15283179589022" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="691.2413563040053" cy="184.82727495354501" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="697.5215562368595" cy="186.5557957406086" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="709.83716565688" cy="195.73655769416703" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="715.7322130519755" cy="197.55774145125878" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="727.7968130126925" cy="201.29277193547045" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="733.8342228219949" cy="203.76616044314497" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="752.1458739249981" cy="209.38652597139094" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="752.7614928551993,185.67858864345786 763.7614928551993,185.67858864345786 758.2614928551993,176.67858864345786" fill="#34d399" opacity=".9"></polygon><circle cx="770.3535916716415" cy="179.8769339778103" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="782.6571895008838" cy="182.26122347584234" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="800.9742180867134" cy="188.8973177140123" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="807.1660935979627" cy="190.2623145417347" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="819.631570957213" cy="193.12061077106458" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="825.696374782927" cy="194.72795690501445" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="837.7240322510312" cy="199.73888520730605" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="843.8323953131458" cy="201.62778421172607" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="850.0058354661851" cy="202.25860519999463" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="856.1407380114861" cy="204.10830064017196" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="868.4041416882096" cy="208.77352478505085" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="881.4196608103474,48.60154428873585 892.4196608103474,48.60154428873585 886.9196608103474,39.60154428873585" fill="#34d399" opacity=".9"></polygon><circle cx="905.1383641974796" cy="43.986688431525735" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="911.0013895485229" cy="46.046657534459285" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="923.16470832908" cy="49.73535653365685" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="929.2401067201222" cy="51.702662666562226" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="941.6388086749673" cy="54.796180281348214" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="947.5840668436582" cy="56.00079889171419" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="959.8040314889641" cy="59.76434105901143" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="968" cy="64.8216008463171" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><line id="tCross" y1="18" y2="220" stroke="rgba(226,232,240,.2)" stroke-dasharray="3 3" opacity="0"></line><circle id="tFocus" r="5" fill="none" stroke="#7dd3fc" stroke-width="2" opacity="0"></circle><rect id="tHit" x="48" y="18" width="920" height="202" fill="transparent"></rect></svg>
 </div>
 <div class="list-empty" id="trendEmpty" hidden="">至少记录两笔后，这里会画出余额走势</div>
 </section>
-<!-- 💰 账单汇总 -->
 <section class="panel">
 <div class="p-head">
-<div><h2>账单汇总</h2><span class="en">Bills Summary · 按月/年回顾电费开销</span></div>
+<div><h2 data-i18n="bills_title">账单汇总</h2><span class="en" data-i18n="bills_sub">Bills Summary · 按月/年回顾电费开销</span></div>
 <div class="tabs" id="billTabs">
-<button type="button" data-bg="month" class="on">月度</button>
-<button type="button" data-bg="year">年度</button>
+<button type="button" data-bg="month" class="on" data-i18n="bg_month">月度</button>
+<button type="button" data-bg="year" data-i18n="bg_year">年度</button>
 </div>
 </div>
 <div class="bills-nav">
-<button type="button" class="bn-btn" id="billPrev">‹ 上</button>
+<button type="button" class="bn-btn" id="billPrev" data-i18n="bill_prev">‹ 上</button>
 <span class="bn-period" id="billPeriod">2026年 2–7月</span>
-<button type="button" class="bn-btn" id="billNext">下 ›</button>
+<button type="button" class="bn-btn" id="billNext" data-i18n="bill_next">下 ›</button>
 </div>
 <div class="bills-cards" id="billsCards"><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年2月<span class="bm-sub"></span></span><span class="bill-kwh">22.6<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥14.68</b></div><div class="bill-row"><span>充值</span><b class="rch">—</b></div><div class="bill-row"><span>日均用电</span><b class="avg">0.8 度</b></div><div class="bill-row"><span>28天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年3月<span class="bm-sub"></span></span><span class="bill-kwh">260.8<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥169.52</b></div><div class="bill-row"><span>充值</span><b class="rch">—</b></div><div class="bill-row"><span>日均用电</span><b class="avg">8.4 度</b></div><div class="bill-row"><span>31天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年4月<span class="bm-sub"></span></span><span class="bill-kwh">296.8<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥192.91</b></div><div class="bill-row"><span>充值</span><b class="rch">¥250.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">9.9 度</b></div><div class="bill-row"><span>30天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年5月<span class="bm-sub"></span></span><span class="bill-kwh">304.6<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥198.02</b></div><div class="bill-row"><span>充值</span><b class="rch">¥100.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">9.8 度</b></div><div class="bill-row"><span>31天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年6月<span class="bm-sub"></span></span><span class="bill-kwh">276.1<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥179.45</b></div><div class="bill-row"><span>充值</span><b class="rch">¥200.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">9.2 度</b></div><div class="bill-row"><span>30天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card current"><div class="bill-head"><span class="bill-month">2026年7月<span class="bm-sub">(本月)</span></span><span class="bill-kwh">225.2<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥146.41</b></div><div class="bill-row"><span>充值</span><b class="rch">¥500.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">7.3 度</b></div><div class="bill-row"><span>31天 · 0.65元/度</span><b></b></div></div></div></div>
 <div class="list-empty" id="billsEmpty" hidden="">至少记录两笔后，这里会生成账单汇总</div>
 </section>
-<!-- 📒 记录清单 -->
+</section>
+<section class="view" data-view="ledger" hidden>
 <section class="panel">
 <div class="p-head">
-<div><h2>记录清单</h2><span class="en">Ledger Entries · <span id="recCount">94</span> 条 · 自动与上一笔结算用电</span></div>
+<div><h2 data-i18n="ledger_title">记录清单</h2><span class="en" id="ledgerSub">Ledger Entries · <span id="recCount">94</span> 条 · 自动与上一笔结算用电</span></div>
 </div>
 <div class="list-toolbar" id="listToolbar">
-<div class="list-search"><input type="text" id="listSearch" placeholder="搜索备注或日期（如 7月、充值）" maxlength="30"></div>
+<div class="list-search"><input type="text" id="listSearch" data-i18n-ph="search_ph" placeholder="搜索备注或日期（如 7月、充值）" maxlength="30"></div>
 <div class="chips" id="listTypeChips">
-<button type="button" class="chip on" data-t="all">全部</button>
-<button type="button" class="chip" data-t="recharge">仅充值</button>
-<button type="button" class="chip" data-t="balance">仅余额</button>
+<button type="button" class="chip on" data-t="all" data-i18n="t_all">全部</button>
+<button type="button" class="chip" data-t="recharge" data-i18n="t_recharge">仅充值</button>
+<button type="button" class="chip" data-t="balance" data-i18n="t_balance">仅余额</button>
 </div>
 </div>
 <div class="list-filter-row" id="listFilterRow">
-<span class="fl-label">区间</span>
-<input type="date" id="listStart" aria-label="记录开始日期">
+<span class="fl-label" data-i18n="range_label">区间</span>
+<input type="date" id="listStart" data-i18n-aria="list_start_aria" aria-label="记录开始日期">
 <span class="arrow">→</span>
-<input type="date" id="listEnd" aria-label="记录结束日期">
+<input type="date" id="listEnd" data-i18n-aria="list_end_aria" aria-label="记录结束日期">
 <div class="chips" id="listPresetChips">
-<button type="button" class="chip on" data-lp="all">全部</button>
-<button type="button" class="chip" data-lp="7d">近7天</button>
-<button type="button" class="chip" data-lp="30d">近30天</button>
-<button type="button" class="chip" data-lp="month">本月</button>
-<button type="button" class="chip" data-lp="lastMonth">上月</button>
-<button type="button" class="chip" data-lp="year">今年</button>
+<button type="button" class="chip on" data-lp="all" data-i18n="lp_all">全部</button>
+<button type="button" class="chip" data-lp="7d" data-i18n="lp_7d">近7天</button>
+<button type="button" class="chip" data-lp="30d" data-i18n="lp_30d">近30天</button>
+<button type="button" class="chip" data-lp="month" data-i18n="lp_month">本月</button>
+<button type="button" class="chip" data-lp="lastMonth" data-i18n="lp_lastMonth">上月</button>
+<button type="button" class="chip" data-lp="year" data-i18n="lp_year">今年</button>
 </div>
 <span class="list-summary" id="listSummary">94 条记录</span>
 </div>
 <div class="rows" id="recList"><div class="row" data-id="83fdb41b-290e-4d02-af33-5810c84f3223"><span class="tag b">余</span><div class="r-main"><b>¥435.41</b><span>7/26 21:36 · 演示·周末</span></div><div class="r-info">≈ <b>21.8</b> 度 · ¥14.19 <span class="dim">/ 1.3天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="83fdb41b-290e-4d02-af33-5810c84f3223" title="编辑">✎</button><button type="button" class="del" data-id="83fdb41b-290e-4d02-af33-5810c84f3223" title="删除">✕</button></div></div><div class="row" data-id="499371fc-5fbf-4592-afd5-4dd38a45a9a2"><span class="tag b">余</span><div class="r-main"><b>¥449.60</b><span>7/25 13:25</span></div><div class="r-info">≈ <b>16.2</b> 度 · ¥10.56 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="499371fc-5fbf-4592-afd5-4dd38a45a9a2" title="编辑">✎</button><button type="button" class="del" data-id="499371fc-5fbf-4592-afd5-4dd38a45a9a2" title="删除">✕</button></div></div><div class="row" data-id="a60e41b8-64ee-4f85-a14c-050f95a423a7"><span class="tag b">余</span><div class="r-main"><b>¥460.16</b><span>7/23 13:26</span></div><div class="r-info">≈ <b>5.2</b> 度 · ¥3.38 <span class="dim">/ 23小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="a60e41b8-64ee-4f85-a14c-050f95a423a7" title="编辑">✎</button><button type="button" class="del" data-id="a60e41b8-64ee-4f85-a14c-050f95a423a7" title="删除">✕</button></div></div><div class="row" data-id="f6d3cbb2-8a59-4588-8090-4aef240442d8"><span class="tag b">余</span><div class="r-main"><b>¥463.54</b><span>7/22 14:06</span></div><div class="r-info">≈ <b>13.4</b> 度 · ¥8.68 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="f6d3cbb2-8a59-4588-8090-4aef240442d8" title="编辑">✎</button><button type="button" class="del" data-id="f6d3cbb2-8a59-4588-8090-4aef240442d8" title="删除">✕</button></div></div><div class="row" data-id="37809c00-a8d5-420c-9419-8aa64bb159ed"><span class="tag b">余</span><div class="r-main"><b>¥472.22</b><span>7/20 13:25</span></div><div class="r-info">≈ <b>8.5</b> 度 · ¥5.52 <span class="dim">/ 24小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="37809c00-a8d5-420c-9419-8aa64bb159ed" title="编辑">✎</button><button type="button" class="del" data-id="37809c00-a8d5-420c-9419-8aa64bb159ed" title="删除">✕</button></div></div><div class="row" data-id="cc9ac7d2-92f6-478f-85ed-83118cc9141f"><span class="tag b">余</span><div class="r-main"><b>¥477.74</b><span>7/19 13:33 · 演示·周末</span></div><div class="r-info">≈ <b>15.9</b> 度 · ¥10.35 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="cc9ac7d2-92f6-478f-85ed-83118cc9141f" title="编辑">✎</button><button type="button" class="del" data-id="cc9ac7d2-92f6-478f-85ed-83118cc9141f" title="删除">✕</button></div></div><div class="row" data-id="60edbbd9-4733-45b5-ad35-aaac7508b6f0"><span class="tag b">余</span><div class="r-main"><b>¥488.09</b><span>7/17 13:48</span></div><div class="r-info">≈ <b>8.9</b> 度 · ¥5.78 <span class="dim">/ 23小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="60edbbd9-4733-45b5-ad35-aaac7508b6f0" title="编辑">✎</button><button type="button" class="del" data-id="60edbbd9-4733-45b5-ad35-aaac7508b6f0" title="删除">✕</button></div></div><div class="row" data-id="fd6a844e-f042-43b4-be30-d3e2161b96e1"><span class="tag b">余</span><div class="r-main"><b>¥493.87</b><span>7/16 14:46</span></div><div class="r-info">≈ <b>23.2</b> 度 · ¥15.11 <span class="dim">/ 3.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="fd6a844e-f042-43b4-be30-d3e2161b96e1" title="编辑">✎</button><button type="button" class="del" data-id="fd6a844e-f042-43b4-be30-d3e2161b96e1" title="删除">✕</button></div></div><div class="row" data-id="c0ece709-2f05-4a87-9243-67ebab33dd4b"><span class="tag r">充</span><div class="r-main"><b>¥508.98</b><em>+¥500.00</em><span>7/13 15:14 · 演示·线上充值</span></div><div class="r-info">≈ <b>34.6</b> 度 · ¥22.52 <span class="dim">/ 3.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="c0ece709-2f05-4a87-9243-67ebab33dd4b" title="编辑">✎</button><button type="button" class="del" data-id="c0ece709-2f05-4a87-9243-67ebab33dd4b" title="删除">✕</button></div></div><div class="row" data-id="3a9843f8-3674-4511-9ff7-b097962d2a09"><span class="tag b">余</span><div class="r-main"><b>¥31.50</b><span>7/10 14:32 · 演示·周末</span></div><div class="r-info">≈ <b>20.1</b> 度 · ¥13.09 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="3a9843f8-3674-4511-9ff7-b097962d2a09" title="编辑">✎</button><button type="button" class="del" data-id="3a9843f8-3674-4511-9ff7-b097962d2a09" title="删除">✕</button></div></div><div class="row" data-id="4763c05a-eac4-458e-953d-c48582f12301"><span class="tag b">余</span><div class="r-main"><b>¥44.59</b><span>7/8 14:23</span></div><div class="r-info">≈ <b>8.0</b> 度 · ¥5.19 <span class="dim">/ 1.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="4763c05a-eac4-458e-953d-c48582f12301" title="编辑">✎</button><button type="button" class="del" data-id="4763c05a-eac4-458e-953d-c48582f12301" title="删除">✕</button></div></div><div class="row" data-id="df6ffbfa-2859-4d36-806e-d668a53262eb"><span class="tag b">余</span><div class="r-main"><b>¥49.78</b><span>7/7 14:18</span></div><div class="r-info">≈ <b>2.7</b> 度 · ¥1.77 <span class="dim">/ 1.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="df6ffbfa-2859-4d36-806e-d668a53262eb" title="编辑">✎</button><button type="button" class="del" data-id="df6ffbfa-2859-4d36-806e-d668a53262eb" title="删除">✕</button></div></div><div class="row" data-id="335fb241-e141-47ef-a6c8-5877008b54f4"><span class="tag b">余</span><div class="r-main"><b>¥51.55</b><span>7/6 14:03 · 演示·周末</span></div><div class="r-info">≈ <b>8.2</b> 度 · ¥5.30 <span class="dim">/ 24小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="335fb241-e141-47ef-a6c8-5877008b54f4" title="编辑">✎</button><button type="button" class="del" data-id="335fb241-e141-47ef-a6c8-5877008b54f4" title="删除">✕</button></div></div><div class="row" data-id="1447eac9-1662-4727-98e5-a73302d94673"><span class="tag b">余</span><div class="r-main"><b>¥56.85</b><span>7/5 14:04</span></div><div class="r-info">≈ <b>21.6</b> 度 · ¥14.06 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="1447eac9-1662-4727-98e5-a73302d94673" title="编辑">✎</button><button type="button" class="del" data-id="1447eac9-1662-4727-98e5-a73302d94673" title="删除">✕</button></div></div><div class="row" data-id="569d2432-e2d4-4b42-86bc-b06bc78e204f"><span class="tag b">余</span><div class="r-main"><b>¥70.91</b><span>7/3 14:50</span></div><div class="r-info">≈ <b>6.9</b> 度 · ¥4.51 <span class="dim">/ 24小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="569d2432-e2d4-4b42-86bc-b06bc78e204f" title="编辑">✎</button><button type="button" class="del" data-id="569d2432-e2d4-4b42-86bc-b06bc78e204f" title="删除">✕</button></div></div><div class="row" data-id="efc7faef-2ac6-465e-9436-6cd117a2068f"><span class="tag b">余</span><div class="r-main"><b>¥75.42</b><span>7/2 15:02 · 演示·周末</span></div><div class="r-info">≈ <b>12.3</b> 度 · ¥8.02 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="efc7faef-2ac6-465e-9436-6cd117a2068f" title="编辑">✎</button><button type="button" class="del" data-id="efc7faef-2ac6-465e-9436-6cd117a2068f" title="删除">✕</button></div></div><div class="row" data-id="b142eb46-b82d-42b4-91e0-fa440c22cf18"><span class="tag b">余</span><div class="r-main"><b>¥83.44</b><span>6/30 14:05</span></div><div class="r-info">≈ <b>5.9</b> 度 · ¥3.83 <span class="dim">/ 1.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="b142eb46-b82d-42b4-91e0-fa440c22cf18" title="编辑">✎</button><button type="button" class="del" data-id="b142eb46-b82d-42b4-91e0-fa440c22cf18" title="删除">✕</button></div></div><div class="row" data-id="f6c0cc71-d658-4ce4-a6bb-951c08c8fa17"><span class="tag b">余</span><div class="r-main"><b>¥87.27</b><span>6/29 13:46</span></div><div class="r-info">≈ <b>28.6</b> 度 · ¥18.62 <span class="dim">/ 3.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="f6c0cc71-d658-4ce4-a6bb-951c08c8fa17" title="编辑">✎</button><button type="button" class="del" data-id="f6c0cc71-d658-4ce4-a6bb-951c08c8fa17" title="删除">✕</button></div></div><div class="row" data-id="ca3410e9-9ac2-4171-8188-6daf70ba7441"><span class="tag b">余</span><div class="r-main"><b>¥105.89</b><span>6/26 13:51</span></div><div class="r-info">≈ <b>10.3</b> 度 · ¥6.69 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="ca3410e9-9ac2-4171-8188-6daf70ba7441" title="编辑">✎</button><button type="button" class="del" data-id="ca3410e9-9ac2-4171-8188-6daf70ba7441" title="删除">✕</button></div></div><div class="row" data-id="47a1a7fc-3f81-4016-bddc-41119fc16b15"><span class="tag b">余</span><div class="r-main"><b>¥112.58</b><span>6/24 13:32</span></div><div class="r-info">≈ <b>18.1</b> 度 · ¥11.78 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="47a1a7fc-3f81-4016-bddc-41119fc16b15" title="编辑">✎</button><button type="button" class="del" data-id="47a1a7fc-3f81-4016-bddc-41119fc16b15" title="删除">✕</button></div></div></div>
 <div class="pager" id="pager"><button class="pg-btn" data-pg="prev" disabled="">‹</button><button class="pg-btn on" data-pg="1">1</button><button class="pg-btn" data-pg="2">2</button><button class="pg-btn" data-pg="3">3</button><button class="pg-btn" data-pg="4">4</button><button class="pg-btn" data-pg="5">5</button><button class="pg-btn" data-pg="next">›</button><div class="pg-info" style="width:100%">第 1–20 条 / 共 94 条 · 每页 20 条</div></div>
 </section>
-<footer class="foot">
+</section>
+<section class="view" data-view="me" hidden>
+<section class="panel me-panel">
+<div class="p-head"><div><h2 data-i18n="me_title">我的</h2><span class="en" data-i18n="me_sub">Me · Settings &amp; Data</span></div></div>
 <div class="foot-btns">
-<button type="button" class="btn-ghost" id="cloudBtn">☁️ 云端</button>
-<button type="button" class="btn-ghost" id="installBtn" hidden="">📱 安装应用</button>
-<button type="button" class="btn-ghost" id="priceBtn">⚙️ 设置电价</button>
-<button type="button" class="btn-ghost" id="exportBtn">📤 导出备份</button>
-<button type="button" class="btn-ghost" id="importBtn">📥 导入数据</button>
-<button type="button" class="btn-ghost danger" id="clearBtn">🗑️ 清空数据</button>
+<button type="button" class="btn-ghost" id="cloudBtn" data-i18n="cloud">☁️ 云端</button>
+<button type="button" class="btn-ghost" id="installBtn" hidden="" data-i18n="install">📱 安装应用</button>
+<button type="button" class="btn-ghost" id="priceBtn" data-i18n="price">⚙️ 设置电价</button>
+<button type="button" class="btn-ghost" id="exportBtn" data-i18n="exportBtn">📤 导出备份</button>
+<button type="button" class="btn-ghost" id="importBtn" data-i18n="importBtn">📥 导入数据</button>
+<button type="button" class="btn-ghost danger" id="clearBtn" data-i18n="clear">🗑️ 清空数据</button>
 <input type="file" id="importFile" accept="application/json,.json" hidden="">
 </div>
-<p><span class="cloud-status " id="cloudStatus"><span class="dot"></span><span class="ctxt">未连接</span></span> · 修改电价后历史用电按新电价重新折算 · 当前电价 <b id="footPrice">0.65</b> 元/度</p>
-<p style="text-align:center;font-size:.7rem;color:var(--dim);margin-top:8px;font-family:var(--mono)">build 2026.07.27g</p>
-</footer>
-</div>
+<p><span class="cloud-status " id="cloudStatus"><span class="dot"></span><span class="ctxt">未连接</span></span> · <span data-i18n="me_note">修改电价后历史用电按新电价重新折算 · 当前电价 </span><b id="footPrice">0.65</b><span data-i18n="me_note_suffix"> 元/度</span></p>
+<p style="text-align:center;font-size:.7rem;color:var(--dim);margin-top:8px;font-family:var(--mono)">V1.0.0 · 2026.07.28</p>
+</section>
+</section>
+</main>
+<nav class="tabbar">
+<button class="tab on" data-tab="home">🏠<span data-i18n="nav_home">首页</span></button>
+<button class="tab" data-tab="stats">📊<span data-i18n="nav_stats">统计</span></button>
+<button class="tab fab-center" id="fabAdd" data-i18n-aria="fab_aria" aria-label="记一笔">＋</button>
+<button class="tab" data-tab="ledger">📒<span data-i18n="nav_ledger">记录</span></button>
+<button class="tab" data-tab="me">⚙️<span data-i18n="nav_me">我的</span></button>
+</nav>
 <div class="tip" id="tip"></div>
 <div class="mask" id="mask" hidden="">
 <div class="modal">
 <h3 id="mTitle"></h3>
 <div class="m-body" id="mBody"></div>
 <div class="m-btns">
-<button type="button" class="btn-ghost" id="mCancel">取消</button>
-<button type="button" class="btn-primary" id="mOk">确定</button>
+<button type="button" class="btn-ghost" id="mCancel" data-i18n="cancel">取消</button>
+<button type="button" class="btn-primary" id="mOk" data-i18n="ok">确定</button>
 </div>
 </div>
 </div>
 <div class="toasts" id="toasts"></div>
+<!-- 录入 bottom sheet -->
+<div class="sheet-mask" id="sheetMask" hidden></div>
+<aside class="sheet" id="sheet" hidden aria-hidden="true">
+<div class="sheet-handle" id="sheetHandle" role="button" tabindex="0" data-i18n-aria="close" aria-label="关闭"></div>
+<div class="sheet-head">
+<h2 data-i18n="entry_title">记一笔</h2>
+<span class="en" data-i18n="entry_sub">Quick Entry · 余额与充值一次记清</span>
+</div>
+<div class="edit-banner" id="editBanner" hidden>
+<span class="eb-tag" data-i18n="editing">编辑中</span>
+<span id="editInfo">正在修改记录</span>
+<button type="button" class="eb-cancel" id="editCancel" data-i18n="cancel_edit">✕ 取消编辑</button>
+</div>
+<form id="formEntry" class="entry">
+<label class="fld"><span data-i18n="f_time">抄表时间</span><input type="datetime-local" id="eTime"></label>
+<label class="fld"><span data-i18n="f_note">备注（可选）</span><input type="text" id="eNote" maxlength="30" data-i18n-ph="f_note_ph" placeholder="如：网上国网充值 / 换了新热水器"></label>
+<label class="fld"><span data-i18n="f_balance">电表余额（元）</span><input type="number" id="eBalance" step="0.01" min="0" data-i18n-ph="f_balance_ph" placeholder="如 128.45" inputmode="decimal"></label>
+<label class="fld"><span data-i18n="f_recharge">本次充值（元，无则填0）</span><input type="number" id="eRecharge" step="0.01" min="0" value="0" data-i18n-ph="f_recharge_ph" placeholder="0" inputmode="decimal"></label>
+<div class="chips-row"><span class="lbl" data-i18n="quick_recharge">快捷充值</span>
+<div class="chips" id="eChips">
+<button type="button" class="chip on" data-v="0" data-i18n="no_recharge">不充值</button>
+<button type="button" class="chip" data-v="50">¥+50</button>
+<button type="button" class="chip" data-v="100">¥+100</button>
+<button type="button" class="chip" data-v="200">¥+200</button>
+<button type="button" class="chip" data-v="500">¥+500</button>
+</div>
+</div>
+<button type="submit" class="btn-primary" id="entrySubmit" data-i18n="save">✅ 保存记录</button>
+</form>
+</aside>
 <script>
 'use strict';
 /* ================= 工具 ================= */
@@ -560,11 +660,152 @@ const DAY=86400000;
 const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+''+Math.random().toString(16).slice(2);
 const r2=n=>Math.round(n*100)/100;
 const pad=n=>String(n).padStart(2,'0');
-const fmt1=n=>n==null||!isFinite(n)?'--':(Math.round(n*10)/10).toFixed(1);
-const fmt2=n=>n==null||!isFinite(n)?'--':n.toFixed(2);
-const fmtY=n=>n==null||!isFinite(n)?'--':'¥'+n.toFixed(2);
+const fmt1=n=>n==null||!isFinite(n)?'--':(Math.round(n*10)/10).toLocaleString(loc(),{minimumFractionDigits:1,maximumFractionDigits:1});
+const fmt2=n=>n==null||!isFinite(n)?'--':n.toLocaleString(loc(),{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtY=n=>n==null||!isFinite(n)?'--':'¥'+n.toLocaleString(loc(),{minimumFractionDigits:2,maximumFractionDigits:2});
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const WK=['日','一','二','三','四','五','六'];
+const I18N={
+zh:{
+app_title:'电费小账本',nav_home:'首页',nav_stats:'统计',nav_ledger:'记录',nav_me:'我的',
+lang_aria:'切换语言',lang_zh:'中',lang_en:'EN',fab_aria:'记一笔',nav_add:'记一笔',refresh_aria:'刷新云端',pull_refresh:'下拉刷新',pull_release:'释放同步',
+theme_to_dark:'切换到深色模式',theme_to_light:'切换到浅色模式',
+balance:'当前余额',bal_normal:'余额正常 · 继续保持',bal_low:'⚠ 余额偏低，建议尽快充值',bal_none:'在下方记一笔，开始追踪用电',
+bal_days_left:'余额可用约 {n} 天，注意及时充值',last_rec:'最近抄表 {t}',no_rec:'暂无抄表记录',
+tile_daily_usage:'日均用电',tile_daily_cost:'日均电费',tile_monthly_cost:'月均电费',tile_days_left:'余额可用',
+tile_usage_unit:'度/天',tile_cost_unit:'元 / 天',tile_month_unit:'元 / 30天',tile_days_unit:'天',tile_usage_sub:'近14天',
+days_left_sub:'约 {d} 需充值',
+entry_title:'记一笔',entry_sub:'Quick Entry · 余额与充值一次记清',editing:'编辑中',editing_info:'正在修改记录',
+editing_info_dt:'正在修改 {t} 的记录',cancel_edit:'✕ 取消编辑',
+f_time:'抄表时间',f_note:'备注（可选）',f_balance:'电表余额（元）',f_recharge:'本次充值（元，无则填0）',
+f_note_ph:'如：网上国网充值 / 换了新热水器',f_balance_ph:'如 128.45',f_recharge_ph:'0',
+quick_recharge:'快捷充值',no_recharge:'不充值',save:'✅ 保存记录',update:'✏️ 更新记录',
+stats_title:'用电统计',stats_sub:'Usage Analytics · 自由选择区间',
+g_day:'日',g_week:'周',g_month:'月',g_year:'年',range_start_aria:'开始日期',range_end_aria:'结束日期',
+p_7d:'近7天',p_30d:'近30天',p_month:'本月',p_lastMonth:'上月',p_year:'今年',p_all:'全部',
+range_info:'{a} → {b} · {n} 天',legend_usage:'用电量（度）',legend_recharge:'▲ 该区间有充值',
+stat_note:'结算口径：上期余额 + 期间充值 − 本期余额，跨区间按时间比例分摊',
+sum_total_usage:'总用电',sum_total_cost:'总电费',sum_daily_usage:'日均用电',sum_peak:'峰值{g}',sum_recharge:'充值合计',
+sum_cost_note:'电价 {p} 元/度',sum_range_note:'区间 {n} 天',sum_delta_up:'▲ {n}% 较上一同长区间',sum_delta_down:'▼ {n}% 较上一同长区间',sum_delta_none:'较上一同长区间 --',sum_recharge_note:'▲ 已在结算中抵扣',
+unit_kwh:'度',per_kwh:'元/度',day_unit:'天',hour_unit:'小时',
+chart_tip:'{label}用电 {k} 度 · {c}',chart_tip_recharge:'<br><span class="g">▲ 充值 +{c}</span>',
+stats_empty_2:'需要至少两笔记录才能结算用电区间',stats_empty_0:'还没有任何记录 · 先记一笔吧',
+trend_title:'余额走势',trend_sub:'Balance Trend · ▲ 绿色标记为充值',trend_empty:'至少记录两笔后，这里会画出余额走势',
+trend_tip_recharge:'充值 <span class="g">+{c}</span> · 余额 {v}',trend_tip_bal:'余额 {v}',
+bills_title:'账单汇总',bills_sub:'Bills Summary · 按月/年回顾电费开销',bg_month:'月度',bg_year:'年度',
+bill_prev:'‹ 上',bill_next:'下 ›',bill_period_m:'{y}年 {a}–{b}月',bill_period_y:'{a}–{b}年',bill_label_m:'{y}年{m}月',bill_label_y:'{y}年',bill_current:'(本月)',
+bill_cost_label:'电费',bill_recharge_label:'充值',bill_avg_label:'日均用电',bill_meta:'{d}天 · {p}元/度',bills_empty:'至少记录两笔后，这里会生成账单汇总',
+ledger_title:'记录清单',ledger_sub:'Ledger Entries · {n} 条 · 自动与上一笔结算',
+search_ph:'搜索备注或日期（如 7月、充值）',t_all:'全部',t_recharge:'仅充值',t_balance:'仅余额',
+range_label:'区间',list_start_aria:'记录开始日期',list_end_aria:'记录结束日期',
+lp_7d:'近7天',lp_30d:'近30天',lp_month:'本月',lp_lastMonth:'上月',lp_year:'今年',lp_all:'全部',
+list_summary:'{n} 条记录',list_summary_filter:'筛选结果：{n} / {total} 条',list_summary_filter0:'筛选结果：0 条',
+pager_info:'第 {a}–{b} 条 / 共 {total} 条 · 每页 {size} 条',
+list_empty_none:'还没有记录 · 先记一笔吧',list_empty_filter:'没有匹配的记录 · 试试调整筛选条件或搜索关键词',
+row_first:'首笔基准 · 开始追踪',row_anomaly:'⚠️ 余额反升 {c}（充值 {r}），请核对',
+row_seg:'≈ <b>{k}</b> 度 · {c} <span class="dim">/ {d}</span>',row_seg_h:'{n}小时',row_seg_d:'{n}天',
+tag_recharge:'充',tag_balance:'余',edit_aria:'编辑',del_aria:'删除',
+me_title:'我的',me_sub:'Me · Settings & Data',cloud:'☁️ 云端',install:'📱 安装应用',price:'⚙️ 设置电价',exportBtn:'📤 导出备份',importBtn:'📥 导入数据',clear:'🗑️ 清空数据',
+me_note:'修改电价后历史用电按新电价重新折算 · 当前电价 ',me_note_suffix:' 元/度',
+cs_disconnected:'未连接',cs_connecting:'连接中…',cs_syncing:'同步中…',cs_synced:'已同步',cs_err_auth:'令牌失效',cs_err_branch:'分支或仓库不存在',cs_err_sync:'同步失败 ({m})',
+ok:'确定',cancel:'取消',
+del_title:'删除这条记录？',del_body_time:'时间：',del_body_bal:'余额：',del_body_recharge:' · 充值 ',del_note:'删除后会重新计算相邻记录的用电区间，此操作不可撤销。',del_confirm:'确认删除',del_done:'已删除 1 条记录',
+err_time:'⚠️ 请选择抄表时间',err_balance:'⚠️ 请输入有效余额',err_recharge:'⚠️ 请输入有效充值金额',err_duplicate:'⚠️ {t} 已有记录，请修改原记录或调整时间',
+adj_title:'相邻区间出现余额反升？',adj_note:'可能是抄表、充值金额填写有误，也可能发生了换表。请核对后再继续。',adj_prev:'上一笔',adj_next:'下一笔',adj_li:'{side}（{t}）相邻区间余额反升 {c}',adj_still:'仍要{v}',verb_save:'保存',verb_update:'更新',
+saved_new:'⚡ 已记录：余额 {b}{r}',saved_upd:'✏️ 已更新记录：余额 {b}{r}',recharge_part:' · 充值 {r}',
+price_title:'⚙️ 电价设置',price_label:'电价（元 / 度）',price_ph:'0.65',price_err:'⚠️ 请输入有效电价',price_done:'电价已更新为 {v} 元/度',price_modal_note:'修改后，所有历史用电将按新电价重新折算。',close:'关闭',
+backup_filename:'电费小账本-备份-{d}.json',backup_done:'📤 备份已下载',
+import_done:'📥 新增 {add} 条{upd}，跳过重复 {dup} 条',import_upd_part:'，更新 {n} 条',import_err:'⚠️ 文件格式无法识别',
+clear_none:'当前没有数据',clear_title:'🗑️ 清空全部数据',clear_body:'将先<b>自动下载一份备份</b>，随后删除全部 <b>{n}</b> 条记录，此操作不可撤销。',clear_confirm:'仍要清空',clear_done:'已清空，备份已下载',
+cloud_first:'请先连接云端',cloud_syncing:'正在同步中…',cloud_uploaded:'☁️ 已上传本地数据',cloud_synced:'☁️ 同步完成',cloud_synced_pulled:'☁️ 同步完成（拉取 {n} 条新记录）',cloud_sync_fail:'同步失败：{m}',cloud_logout_done:'已退出云端，数据保留在本机',
+cloud_err_fields:'请填写用户名、仓库名和令牌',cloud_connecting:'连接中…',cloud_login_btn:'连接云端',cloud_opened_first:'☁️ 已开启云端同步',cloud_opened_synced:'☁️ 云端数据已同步',cloud_token_expired:'令牌已失效，请重新输入',
+cloud_modal_title:'☁️ 云端同步',cloud_modal_status:'当前状态：',cloud_modal_sync:'立即同步',cloud_modal_reconfig:'修改配置',cloud_modal_logout:'退出云端',cl_title:'☁️ 云端同步登录',cl_tip:'数据将存到 GitHub 仓库的 <code>data.json</code>，访问令牌即你的「密码」。登录后自动同步，多设备可共用。',cl_owner:'GitHub 用户名',cl_repo:'仓库名',cl_branch:'分支（默认 main）',cl_path:'数据文件路径（默认 data.json）',cl_token:'访问令牌（密码）',cl_help:'令牌需为<b>细粒度</b>（Fine-grained），仅勾选该仓库的 <b>Contents: Read and write</b>，不勾其他权限，并设过期时间。<a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">去生成 →</a>',cl_skip:'暂不启用，仅本地使用',
+err_write404:'仓库或分支不存在',err_cloud_json:'云端数据文件不是有效 JSON',err_cloud_format:'云端数据文件格式不正确',
+err_repo_notfound:'仓库 {o}/{r} 不存在，或令牌无权访问。请检查用户名、仓库名和令牌权限',err_auth:'令牌无效或无权访问该仓库',err_connect_fail:'连接失败：{m}',
+err_branch_mismatch:'你填的分支是「{b}」，但该仓库的默认分支是「{d}」。请把分支改为 {d} 后重试',err_branch_missing:'分支「{b}」不存在，请在仓库里确认默认分支名，或先在 GitHub 上创建该分支',
+err_push_branch:'推送失败：分支「{b}」不存在。新建仓库时请勾选「Add a README」来创建初始分支，或检查分支名是否正确',err_push_fail:'推送失败：{m}',
+bucket_month:'{m}月',bucket_month_y:'{y}·{m}月',bucket_day:'{y}年{m}月{d}日 · 周{w}',bucket_week:'{y}年第{n}周 · {a} ~ {b}',full_month:'{y}年{m}月',full_year:'{y}年',
+install_ios:'请用浏览器菜单的「添加到主屏幕」',install_added:'已添加到主屏幕',install_add_home:'📱 添加到主屏幕',install_ios_tip:'点击 Safari 底部分享按钮 → 添加到主屏幕'
+},
+en:{
+app_title:'Electricity Ledger',nav_home:'Home',nav_stats:'Stats',nav_ledger:'Ledger',nav_me:'Me',
+lang_aria:'Switch language',lang_zh:'中',lang_en:'EN',fab_aria:'Add Entry',nav_add:'Add',refresh_aria:'Refresh cloud',pull_refresh:'Pull to refresh',pull_release:'Release to sync',
+theme_to_dark:'Switch to dark mode',theme_to_light:'Switch to light mode',
+balance:'Balance',bal_normal:'Balance OK · keep it up',bal_low:'⚠ Balance low, top up soon',bal_none:'Add an entry below to start tracking',
+bal_days_left:'Balance lasts ~{n} days, top up soon',last_rec:'Last reading {t}',no_rec:'No readings yet',
+tile_daily_usage:'Daily Usage',tile_daily_cost:'Daily Cost',tile_monthly_cost:'Monthly Cost',tile_days_left:'Days Left',
+tile_usage_unit:'kWh/d',tile_cost_unit:'CNY / day',tile_month_unit:'CNY / 30d',tile_days_unit:'days',tile_usage_sub:'last 14d',
+days_left_sub:'top up ~{d}',
+entry_title:'Add Entry',entry_sub:'Quick Entry · balance & recharge in one',editing:'Editing',editing_info:'Editing record',
+editing_info_dt:'Editing record of {t}',cancel_edit:'✕ Cancel edit',
+f_time:'Reading time',f_note:'Note (optional)',f_balance:'Meter balance (CNY)',f_recharge:'Recharge (CNY, 0 if none)',
+f_note_ph:'e.g. online top-up / new water heater',f_balance_ph:'e.g. 128.45',f_recharge_ph:'0',
+quick_recharge:'Quick recharge',no_recharge:'No recharge',save:'✅ Save',update:'✏️ Update',
+stats_title:'Usage Stats',stats_sub:'Usage Analytics · pick any range',
+g_day:'D',g_week:'W',g_month:'M',g_year:'Y',range_start_aria:'Start date',range_end_aria:'End date',
+p_7d:'7d',p_30d:'30d',p_month:'This month',p_lastMonth:'Last month',p_year:'This year',p_all:'All',
+range_info:'{a} → {b} · {n} d',legend_usage:'Usage (kWh)',legend_recharge:'▲ recharged in this range',
+stat_note:'Formula: prev balance + recharge − this balance; split proportionally across ranges',
+sum_total_usage:'Total Usage',sum_total_cost:'Total Cost',sum_daily_usage:'Daily Avg',sum_peak:'Peak {g}',sum_recharge:'Recharge',
+sum_cost_note:'price {p} CNY/kWh',sum_range_note:'range {n} d',sum_delta_up:'▲ {n}% vs same-length prior',sum_delta_down:'▼ {n}% vs same-length prior',sum_delta_none:'vs same-length prior --',sum_recharge_note:'▲ already deducted',
+unit_kwh:'kWh',per_kwh:'CNY/kWh',day_unit:'days',hour_unit:'hours',
+chart_tip:'{label} usage {k} kWh · {c}',chart_tip_recharge:'<br><span class="g">▲ recharge +{c}</span>',
+stats_empty_2:'Need at least two records to settle usage',stats_empty_0:'No records yet · add one to start',
+trend_title:'Balance Trend',trend_sub:'Balance Trend · ▲ green marks are recharges',trend_empty:'Record at least two readings to see the trend',
+trend_tip_recharge:'Recharge <span class="g">+{c}</span> · Balance {v}',trend_tip_bal:'Balance {v}',
+bills_title:'Bills',bills_sub:'Bills Summary · review cost by month / year',bg_month:'Monthly',bg_year:'Yearly',
+bill_prev:'‹ Prev',bill_next:'Next ›',bill_period_m:'{y} {a}–{b}',bill_period_y:'{a}–{b}',bill_label_m:'{y}-{m}',bill_label_y:'{y}',bill_current:'(this month)',
+bill_cost_label:'Cost',bill_recharge_label:'Recharge',bill_avg_label:'Daily avg',bill_meta:'{d}d · {p} CNY/kWh',bills_empty:'Record at least two readings to see bills',
+ledger_title:'Ledger',ledger_sub:'Ledger Entries · {n} entries · auto-settled with previous',
+search_ph:'Search note or date (e.g. Jul, recharge)',t_all:'All',t_recharge:'Recharge only',t_balance:'Balance only',
+range_label:'Range',list_start_aria:'Ledger start date',list_end_aria:'Ledger end date',
+lp_7d:'7d',lp_30d:'30d',lp_month:'This month',lp_lastMonth:'Last month',lp_year:'This year',lp_all:'All',
+list_summary:'{n} entries',list_summary_filter:'Filtered: {n} / {total}',list_summary_filter0:'Filtered: 0',
+pager_info:'{a}–{b} of {total} · {size} per page',
+list_empty_none:'No records yet · add one to start',list_empty_filter:'No matching records · try adjusting filters or search',
+row_first:'First baseline · tracking starts',row_anomaly:'⚠️ Balance rose {c} (recharge {r}), please check',
+row_seg:'≈ <b>{k}</b> kWh · {c} <span class="dim">/ {d}</span>',row_seg_h:'{n}h',row_seg_d:'{n}d',
+tag_recharge:'R',tag_balance:'B',edit_aria:'Edit',del_aria:'Delete',
+me_title:'Me',me_sub:'Me · Settings & Data',cloud:'☁️ Cloud',install:'📱 Install',price:'⚙️ Set Price',exportBtn:'📤 Export',importBtn:'📥 Import',clear:'🗑️ Clear Data',
+me_note:'Changing price re-evaluates past usage · current price ',me_note_suffix:' CNY/kWh',
+cs_disconnected:'Disconnected',cs_connecting:'Connecting…',cs_syncing:'Syncing…',cs_synced:'Synced',cs_err_auth:'Token expired',cs_err_branch:'Branch or repo not found',cs_err_sync:'Sync failed ({m})',
+ok:'OK',cancel:'Cancel',
+del_title:'Delete this record?',del_body_time:'Time: ',del_body_bal:'Balance: ',del_body_recharge:' · recharge ',del_note:'Adjacent intervals will be re-settled. This cannot be undone.',del_confirm:'Delete',del_done:'Deleted 1 record',
+err_time:'⚠️ Please pick a reading time',err_balance:'⚠️ Please enter a valid balance',err_recharge:'⚠️ Please enter a valid recharge',err_duplicate:'⚠️ A record already exists at {t}, edit it or change the time',
+adj_title:'Balance rose in an adjacent interval?',adj_note:'The reading or recharge may be wrong, or the meter was replaced. Please check before continuing.',adj_prev:'Previous',adj_next:'Next',adj_li:'{side} ({t}) adjacent interval balance rose {c}',adj_still:'{v} anyway',verb_save:'Save',verb_update:'Update',
+saved_new:'⚡ Saved: balance {b}{r}',saved_upd:'✏️ Updated: balance {b}{r}',recharge_part:' · recharge {r}',
+price_title:'⚙️ Price Setting',price_label:'Price (CNY / kWh)',price_ph:'0.65',price_err:'⚠️ Please enter a valid price',price_done:'Price updated to {v} CNY/kWh',price_modal_note:'After changing, all past usage is re-evaluated at the new price.',close:'Close',
+backup_filename:'elec-ledger-backup-{d}.json',backup_done:'📤 Backup downloaded',
+import_done:'📥 Added {add}{upd}, skipped {dup} duplicates',import_upd_part:', updated {n}',import_err:'⚠️ Unrecognized file format',
+clear_none:'No data yet',clear_title:'🗑️ Clear all data',clear_body:'A backup will be <b>auto-downloaded</b> first, then all <b>{n}</b> records will be deleted. This cannot be undone.',clear_confirm:'Clear',clear_done:'Cleared, backup downloaded',
+cloud_first:'Connect cloud first',cloud_syncing:'Syncing…',cloud_uploaded:'☁️ Local data uploaded',cloud_synced:'☁️ Sync complete',cloud_synced_pulled:'☁️ Sync complete ({n} new records pulled)',cloud_sync_fail:'Sync failed: {m}',cloud_logout_done:'Logged out of cloud, local data kept',
+cloud_err_fields:'Please fill in username, repo and token',cloud_connecting:'Connecting…',cloud_login_btn:'Connect Cloud',cloud_opened_first:'☁️ Cloud sync enabled',cloud_opened_synced:'☁️ Cloud data synced',cloud_token_expired:'Token expired, please re-enter',
+cloud_modal_title:'☁️ Cloud Sync',cloud_modal_status:'Status: ',cloud_modal_sync:'Sync now',cloud_modal_reconfig:'Edit config',cloud_modal_logout:'Log out',cl_title:'☁️ Cloud Sync Login',cl_tip:'Data is stored as <code>data.json</code> in a GitHub repo; the access token is your “password”. Auto-syncs after login, share across devices.',cl_owner:'GitHub username',cl_repo:'Repo name',cl_branch:'Branch (default main)',cl_path:'Data file path (default data.json)',cl_token:'Access token (password)',cl_help:'Use a <b>fine-grained</b> token: select only <b>Contents: Read and write</b> for that repo, no other scopes, and set an expiry. <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">Generate one →</a>',cl_skip:'Not now, local only',
+err_write404:'Repo or branch not found',err_cloud_json:'Cloud data file is not valid JSON',err_cloud_format:'Cloud data file format is invalid',
+err_repo_notfound:'Repo {o}/{r} does not exist, or token has no access. Check username, repo and token permissions',err_auth:'Token invalid or no access to this repo',err_connect_fail:'Connection failed: {m}',
+err_branch_mismatch:'You entered branch "{b}", but the repo default branch is "{d}". Change the branch to {d} and retry',err_branch_missing:'Branch "{b}" does not exist. Confirm the default branch name in the repo, or create it on GitHub first',
+err_push_branch:'Push failed: branch "{b}" does not exist. Tick "Add a README" when creating the repo to make an initial branch, or check the branch name',err_push_fail:'Push failed: {m}',
+bucket_month:'{m}',bucket_month_y:'{y}·{m}',bucket_day:'{y}-{m}-{d} · {w}',bucket_week:'{y} W{n} · {a} ~ {b}',full_month:'{y}-{m}',full_year:'{y}',
+install_ios:'Use the browser menu "Add to Home Screen"',install_added:'Added to home screen',install_add_home:'📱 Add to Home Screen',install_ios_tip:'Tap the Safari Share button -> Add to Home Screen'
+}
+};
+let lang=localStorage.getItem('elec.lang')||(navigator.language.toLowerCase().startsWith('zh')?'zh':'en');
+const loc=()=>lang==='zh'?'zh-CN':'en-US';
+function t(k){return (I18N[lang]&&I18N[lang][k])||I18N.zh[k]||k;}
+(function(){const a=Object.keys(I18N.zh||{}),b=Object.keys(I18N.en||{});const m=a.filter(k=>!(k in I18N.en)).concat(b.filter(k=>!(k in I18N.zh)));if(m.length)console.warn('[i18n] key mismatch:',m);})();
+function tf(k,v){let s=t(k);if(v)for(const x in v)s=s.split('{'+x+'}').join(v[x]);return s;}
+function applyLang(){
+document.documentElement.lang=lang==='zh'?'zh-CN':'en';
+try{localStorage.setItem('elec.lang',lang);}catch(e){}
+const lt=$('#langToggle');if(lt){lt.textContent=lang==='zh'?'中':'EN';lt.setAttribute('aria-label',t('lang_aria'));}
+document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));
+document.querySelectorAll('[data-i18n-html]').forEach(el=>el.innerHTML=t(el.dataset.i18nHtml));
+document.querySelectorAll('[data-i18n-ph]').forEach(el=>el.placeholder=t(el.dataset.i18nPh));
+document.querySelectorAll('[data-i18n-aria]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.i18nAria)));
+document.querySelectorAll('[data-i18n-title]').forEach(el=>el.setAttribute('title',t(el.dataset.i18nTitle)));
+document.title=t('app_title');
+if(typeof refreshAll==='function')refreshAll();
+}
 const THEME_KEY='elec.theme';
 /* 方案A：主题纯色唯一来源；系统栏只做建议色，不追求透明 */
 const THEME_COLORS={dark:'#0f172a',light:'#f3f6fa'};
@@ -590,7 +831,7 @@ const apple=document.querySelector('meta[name="apple-mobile-web-app-status-bar-s
 if(apple)apple.setAttribute('content',mode==='light'?'default':'black');
 const btn=document.querySelector('#themeToggle');
 if(btn){
-const label=mode==='light'?'切换到深色模式':'切换到浅色模式';
+const label=t(mode==='light'?'theme_to_dark':'theme_to_light');
 btn.textContent=mode==='light'?'☾':'☀';
 btn.title=label;btn.setAttribute('aria-label',label);btn.setAttribute('aria-pressed',String(mode==='light'));
 }
@@ -598,8 +839,8 @@ if(persist)try{localStorage.setItem(THEME_KEY,mode);}catch(e){}
 }
 function sod(ts){const d=new Date(ts);d.setHours(0,0,0,0);return d.getTime();}
 function dKey(ts){const d=new Date(ts);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
-function fmtDT(ts){const d=new Date(ts);return (d.getMonth()+1)+'/'+d.getDate()+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
-function fmtD(ts){const d=new Date(ts);return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
+function fmtDT(ts){const d=new Date(ts);if(lang==='en')return d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});return (d.getMonth()+1)+'/'+d.getDate()+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
+function fmtD(ts){const d=new Date(ts);if(lang==='en')return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
 function nowInputVal(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16);}
 function parseLocal(v){return v?new Date(v).getTime():NaN;}
 function parseDateVal(v){return new Date(v+'T00:00:00').getTime();}
@@ -795,14 +1036,14 @@ return buckets;
 function bucketLabel(b,g,i,all){
 if(g==='day')return b.m+'/'+b.dd;
 if(g==='week'){const d=new Date(b.t0);return (d.getMonth()+1)+'/'+d.getDate();}
-if(g==='month')return b.m===1||i===0?String(b.y).slice(2)+'·'+b.m+'月':b.m+'月';
+if(g==='month')return b.m===1||i===0?tf('bucket_month_y',{y:String(b.y).slice(2),m:b.m}):tf('bucket_month',{m:b.m});
 return String(b.y);
 }
 function bucketFull(b,g){
-if(g==='day'){const d=new Date(b.t0);return b.y+'年'+b.m+'月'+b.dd+'日 · 周'+WK[d.getDay()];}
-if(g==='week'){const a=new Date(b.t0),z=new Date(b.t1-1);return b.iw.year+'年第'+b.iw.week+'周 · '+(a.getMonth()+1)+'/'+a.getDate()+' ~ '+(z.getMonth()+1)+'/'+z.getDate();}
-if(g==='month')return b.y+'年'+b.m+'月';
-return b.y+'年';
+if(g==='day'){const d=new Date(b.t0);const wd=lang==='zh'?WK[d.getDay()]:d.toLocaleDateString('en-US',{weekday:'short'});return tf('bucket_day',{y:b.y,m:b.m,d:b.dd,w:wd});}
+if(g==='week'){const a=new Date(b.t0),z=new Date(b.t1-1);return tf('bucket_week',{y:b.iw.year,n:b.iw.week,a:(a.getMonth()+1)+'/'+a.getDate(),b:(z.getMonth()+1)+'/'+z.getDate()});}
+if(g==='month')return tf('full_month',{y:b.y,m:b.m});
+return tf('full_year',{y:b.y});
 }
 /* ================= 视图状态 ================= */
 const view={g:'day',start:sod(Date.now())-29*DAY,end:sod(Date.now())};
@@ -841,17 +1082,17 @@ const daysLeft=estimateDaysLeft(bal,dailyCost);
 const low=bal!=null&&bal<20;
 renderOdo(bal);
 const tag=$('#balTag');
-if(low)tag.innerHTML='<span class="warn-badge">⚠ 余额偏低，建议尽快充值</span>';
-else if(bal==null)tag.textContent='在下方记一笔，开始追踪用电';
-else if(daysLeft!=null&&daysLeft<7)tag.textContent='余额可用约 '+fmt1(daysLeft)+' 天，注意及时充值';
-else tag.textContent='余额正常 · 继续保持';
+if(low)tag.innerHTML='<span class="warn-badge">'+t('bal_low')+'</span>';
+else if(bal==null)tag.textContent=t('bal_none');
+else if(daysLeft!=null&&daysLeft<7)tag.textContent=tf('bal_days_left',{n:fmt1(daysLeft)});
+else tag.textContent=t('bal_normal');
 const warn=low||(daysLeft!=null&&daysLeft<3);
 $('#tiles').innerHTML=
-'<div class="tile"><div class="tile-label">日均用电</div><div class="tile-val">'+(rate==null?'--':fmt1(rate))+' <span class="u">度/天</span></div><div class="tile-sub">近14天</div></div>'+
-'<div class="tile"><div class="tile-label">日均电费</div><div class="tile-val">'+fmtY(dailyCost)+'</div><div class="tile-sub">元 / 天</div></div>'+
-'<div class="tile"><div class="tile-label">月均电费</div><div class="tile-val">'+fmtY(dailyCost!=null?dailyCost*30:null)+'</div><div class="tile-sub">元 / 30天</div></div>'+
-'<div class="tile'+(warn?' warn':'')+'"><div class="tile-label">余额可用</div><div class="tile-val">'+(daysLeft==null?'--':fmt1(daysLeft))+' <span class="u">天</span></div><div class="tile-sub">'+(daysLeft!=null?'约 '+fmtD(Date.now()+daysLeft*DAY)+' 需充值':'--')+'</div></div>';
-$('#lastRec').textContent=latest?'最近抄表 '+fmtDT(latest.ts):'暂无抄表记录';
+'<div class="tile"><div class="tile-label">'+t('tile_daily_usage')+'</div><div class="tile-val">'+(rate==null?'--':fmt1(rate))+' <span class="u">'+t('tile_usage_unit')+'</span></div><div class="tile-sub">'+t('tile_usage_sub')+'</div></div>'+
+'<div class="tile"><div class="tile-label">'+t('tile_daily_cost')+'</div><div class="tile-val">'+fmtY(dailyCost)+'</div><div class="tile-sub">'+t('tile_cost_unit')+'</div></div>'+
+'<div class="tile"><div class="tile-label">'+t('tile_monthly_cost')+'</div><div class="tile-val">'+fmtY(dailyCost!=null?dailyCost*30:null)+'</div><div class="tile-sub">'+t('tile_month_unit')+'</div></div>'+
+'<div class="tile'+(warn?' warn':'')+'"><div class="tile-label">'+t('tile_days_left')+'</div><div class="tile-val">'+(daysLeft==null?'--':fmt1(daysLeft))+' <span class="u">'+t('tile_days_unit')+'</span></div><div class="tile-sub">'+(daysLeft!=null?tf('days_left_sub',{d:fmtD(Date.now()+daysLeft*DAY)}):'--')+'</div></div>';
+$('#lastRec').textContent=latest?tf('last_rec',{t:fmtDT(latest.ts)}):t('no_rec');
 $('#serial').textContent='EL-'+dKey(Date.now()).replace(/-/g,'');
 }
 /* ================= 统计面板 ================= */
@@ -867,15 +1108,14 @@ const delta=prevKwh>0.05?(kwh-prevKwh)/prevKwh*100:null;
 return{kwh,cost,rch,rangeDays,peak,delta};
 }
 function renderSums(s){
-const gn={day:'单日',week:'单周',month:'单月',year:'单年'}[view.g];
-const dHtml=s.delta==null?'<em>较上一同长区间 --</em>':
-'<em class="'+(s.delta>0?'up':'down')+'">'+(s.delta>0?'▲':'▼')+' '+Math.abs(s.delta).toFixed(0)+'% 较上一同长区间</em>';
+const gn=t('g_'+view.g);
+const dHtml=s.delta==null?'<em>'+t('sum_delta_none')+'</em>':'<em class="'+(s.delta>0?'up':'down')+'">'+tf(s.delta>0?'sum_delta_up':'sum_delta_down',{n:Math.abs(s.delta).toFixed(0)})+'</em>';
 $('#sums').innerHTML=
-'<div class="sum"><span>总用电</span><b>'+fmt1(s.kwh)+'<i>度</i></b>'+dHtml+'</div>'+
-'<div class="sum"><span>总电费</span><b>'+fmtY(s.cost)+'</b><em>电价 '+state.price+' 元/度</em></div>'+
-'<div class="sum"><span>日均用电</span><b>'+fmt1(s.kwh/s.rangeDays)+'<i>度</i></b><em>区间 '+s.rangeDays+' 天</em></div>'+
-'<div class="sum"><span>峰值'+gn+'</span><b>'+fmt1(s.peak.kwh)+'<i>度</i></b><em>'+(s.peak.kwh>0?bucketFull(s.peak,view.g):'--')+'</em></div>'+
-'<div class="sum"><span>充值合计</span><b class="g">'+fmtY(s.rch)+'</b><em>▲ 已在结算中抵扣</em></div>';
+'<div class="sum"><span>'+t('sum_total_usage')+'</span><b>'+fmt1(s.kwh)+'<i>'+t('unit_kwh')+'</i></b>'+dHtml+'</div>'+
+'<div class="sum"><span>'+t('sum_total_cost')+'</span><b>'+fmtY(s.cost)+'</b><em>'+tf('sum_cost_note',{p:state.price})+'</em></div>'+
+'<div class="sum"><span>'+t('sum_daily_usage')+'</span><b>'+fmt1(s.kwh/s.rangeDays)+'<i>'+t('unit_kwh')+'</i></b><em>'+tf('sum_range_note',{n:s.rangeDays})+'</em></div>'+
+'<div class="sum"><span>'+tf('sum_peak',{g:gn})+'</span><b>'+fmt1(s.peak.kwh)+'<i>'+t('unit_kwh')+'</i></b><em>'+(s.peak.kwh>0?bucketFull(s.peak,view.g):'--')+'</em></div>'+
+'<div class="sum"><span>'+t('sum_recharge')+'</span><b class="g">'+fmtY(s.rch)+'</b><em>'+t('sum_recharge_note')+'</em></div>';
 }
 function renderStatChart(buckets,s){
 const el=$('#statChart'),tip=$('#tip'),n=buckets.length;
@@ -894,18 +1134,25 @@ return '<div class="bcol'+(peak?' peak':'')+'" data-i="'+i+'">'+
 requestAnimationFrame(()=>requestAnimationFrame(()=>{
 el.querySelectorAll('.btrack i').forEach(i=>{i.style.height=i.dataset.h+'%';});
 }));
-el.onmousemove=e=>{
-const col=e.target.closest('.bcol');if(!col){tip.classList.remove('show');return;}
+let barTipTimer=null;
+function showBarTip(x,y){
+const el0=document.elementFromPoint(x,y);const col=el0&&el0.closest?el0.closest('.bcol'):null;
+if(!col){tip.classList.remove('show');return;}
 const b=buckets[+col.dataset.i];
-tip.innerHTML='<b>'+bucketFull(b,view.g)+'</b>用电 '+fmt1(b.kwh)+' 度 · '+fmtY(b.cost)+
-(b.rch>0?'<br><span class="g">▲ 充值 +'+fmtY(b.rch)+'</span>':'');
+tip.innerHTML=tf('chart_tip',{label:'<b>'+bucketFull(b,view.g)+'</b>',k:fmt1(b.kwh),c:fmtY(b.cost)})+
+(b.rch>0?tf('chart_tip_recharge',{c:fmtY(b.rch)}):'');
 tip.classList.add('show');
 const r=col.querySelector('.btrack').getBoundingClientRect();
 const frac=b.kwh>0?Math.max(0.03,b.kwh/max):0;
 tip.style.left=Math.max(85,Math.min(innerWidth-85,r.left+r.width/2))+'px';
 tip.style.top=Math.max(8,r.top+r.height*(1-frac)-tip.offsetHeight-10)+'px';
-};
-el.onmouseleave=()=>tip.classList.remove('show');
+clearTimeout(barTipTimer);
+}
+el.addEventListener('mousemove',e=>showBarTip(e.clientX,e.clientY));
+el.addEventListener('mouseleave',()=>{tip.classList.remove('show');clearTimeout(barTipTimer);});
+el.addEventListener('touchstart',e=>{const t=e.touches[0];showBarTip(t.clientX,t.clientY);},{passive:true});
+el.addEventListener('touchmove',e=>{const t=e.touches[0];showBarTip(t.clientX,t.clientY);},{passive:true});
+el.addEventListener('touchend',()=>{clearTimeout(barTipTimer);barTipTimer=setTimeout(()=>tip.classList.remove('show'),1500);},{passive:true});
 }
 function renderStats(){
 const hasBal=state.records.length>=2;
@@ -913,15 +1160,15 @@ $('#statsBody').style.display=hasBal?'':'none';
 const empty=$('#statEmpty');empty.hidden=hasBal;
 if(!hasBal){
 empty.innerHTML=state.records.length
-?'需要至少两笔记录才能结算用电区间'
-:'还没有任何记录 · 先记一笔吧';
+?t('stats_empty_2')
+:t('stats_empty_0');
 $('#rangeInfo').textContent='';return;
 }
 const buckets=computeStats(view.g,view.start,view.end);
 const s=summarize(buckets,view.start,view.end);
 renderSums(s);renderStatChart(buckets,s);
-$('#rangeInfo').textContent=fmtD(view.start)+' → '+fmtD(view.end)+' · '+s.rangeDays+' 天';
-$('#statNote').textContent='结算口径：上期余额 + 期间充值 − 本期余额，跨区间按时间比例分摊';
+$('#rangeInfo').textContent=tf('range_info',{a:fmtD(view.start),b:fmtD(view.end),n:s.rangeDays});
+$('#statNote').textContent=t('stat_note');
 }
 function syncDates(){$('#dStart').value=dKey(view.start);$('#dEnd').value=dKey(view.end);}
 /* ================= 余额走势 ================= */
@@ -936,7 +1183,7 @@ $('#trendEmpty').hidden=true;wrap.style.display='';
 const styles=getComputedStyle(document.documentElement);
 const color=(name,fallback)=>styles.getPropertyValue(name).trim()||fallback;
 const chart={grid:color('--chart-grid','rgba(56,189,248,.08)'),point:color('--chart-point','#0e1626'),cross:color('--chart-cross','rgba(226,232,240,.2)'),area:color('--chart-area','rgba(56,189,248,.25)'),areaEnd:color('--chart-area-end','rgba(56,189,248,0)'),line:color('--chart-line','#38bdf8'),focus:color('--chart-focus','#7dd3fc'),recharge:color('--chart-recharge','#34d399')};
-const W=Math.max(wrap.clientWidth,320),H=250,Pl=48,Pr=16,Pt=18,Pb=30;
+const small=innerWidth<640,W=Math.max(wrap.clientWidth,320),H=small?180:250,Pl=48,Pr=16,Pt=18,Pb=30;
 svg.setAttribute('viewBox','0 0 '+W+' '+H);svg.setAttribute('width',W);svg.setAttribute('height',H);
 const t0=pts[0].ts,t1=pts[pts.length-1].ts;
 let mn=Math.min(...pts.map(p=>p.v)),mx=Math.max(...pts.map(p=>p.v));
@@ -946,21 +1193,23 @@ const Y=v=>Pt+(1-(v-mn)/(mx-mn))*(H-Pt-Pb);
 let g='';
 for(let i=0;i<=4;i++){const v=mn+(mx-mn)*i/4,y=Y(v);
 g+='<line x1="'+Pl+'" x2="'+(W-Pr)+'" y1="'+y+'" y2="'+y+'" stroke="'+chart.grid+'" stroke-dasharray="3 5"/><text x="'+(Pl-8)+'" y="'+(y+4)+'" text-anchor="end" class="ax">'+(v>=100?Math.round(v):v.toFixed(1))+'</text>';}
-for(let i=0;i<5;i++){const ts=t0+(t1-t0)*i/4;g+='<text x="'+X(ts)+'" y="'+(H-8)+'" text-anchor="middle" class="ax">'+fmtD(ts).slice(2)+'</text>';}
+for(let i=0;i<5;i++){if(small&&i!==0&&i!==2&&i!==4)continue;const ts=t0+(t1-t0)*i/4;g+='<text x="'+X(ts)+'" y="'+(H-8)+'" text-anchor="middle" class="ax">'+fmtD(ts).slice(2)+'</text>';}
 const line=pts.map((p,i)=>(i?'L':'M')+X(p.ts).toFixed(1)+','+Y(p.v).toFixed(1)).join('');
 const area=line+'L'+X(t1).toFixed(1)+','+Y(mn).toFixed(1)+'L'+X(t0).toFixed(1)+','+Y(mn).toFixed(1)+'Z';
 let marks='';
+const tri=small?7:5.5,pr=small?4:3;
 for(const p of pts){const x=X(p.ts),y=Y(p.v);
 marks+=p.kind==='r'
-?'<polygon points="'+(x-5.5)+','+(y+10)+' '+(x+5.5)+','+(y+10)+' '+x+','+(y+1)+'" fill="'+chart.recharge+'" opacity=".9"/>'
-:'<circle cx="'+x+'" cy="'+y+'" r="3" fill="'+chart.point+'" stroke="'+chart.line+'" stroke-width="2"/>';}
+?'<polygon points="'+(x-tri)+','+(y+10)+' '+(x+tri)+','+(y+10)+' '+x+','+(y+1)+'" fill="'+chart.recharge+'" opacity=".9"/>'
+:'<circle cx="'+x+'" cy="'+y+'" r="'+pr+'" fill="'+chart.point+'" stroke="'+chart.line+'" stroke-width="2"/>';}
 svg.innerHTML='<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+chart.area+'"/><stop offset="1" stop-color="'+chart.areaEnd+'"/></linearGradient></defs>'+
 g+'<path d="'+area+'" fill="url(#ga)"/><path d="'+line+'" fill="none" stroke="'+chart.line+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+marks+
 '<line id="tCross" y1="'+Pt+'" y2="'+(H-Pb)+'" stroke="'+chart.cross+'" stroke-dasharray="3 3" opacity="0"/><circle id="tFocus" r="5" fill="none" stroke="'+chart.focus+'" stroke-width="2" opacity="0"/>'+
 '<rect id="tHit" x="'+Pl+'" y="'+Pt+'" width="'+(W-Pl-Pr)+'" height="'+(H-Pt-Pb)+'" fill="transparent"/>';
 const hit=$('#tHit');
-hit.addEventListener('mousemove',e=>{
-const rect=svg.getBoundingClientRect(),sx=(e.clientX-rect.left)*(W/rect.width);
+let trendTimer=null;
+function moveTrend(clientX){
+const rect=svg.getBoundingClientRect(),sx=(clientX-rect.left)*(W/rect.width);
 let best=pts[0],bd=Infinity;
 for(const p of pts){const d=Math.abs(X(p.ts)-sx);if(d<bd){bd=d;best=p;}}
 const x=X(best.ts),y=Y(best.v);
@@ -968,12 +1217,18 @@ const c=$('#tCross');c.setAttribute('x1',x);c.setAttribute('x2',x);c.setAttribut
 const f=$('#tFocus');f.setAttribute('cx',x);f.setAttribute('cy',y);f.setAttribute('opacity',1);
 const dd=new Date(best.ts);
 tip.innerHTML='<b>'+fmtD(best.ts)+' '+pad(dd.getHours())+':'+pad(dd.getMinutes())+'</b>'+
-(best.r.recharge>0?'充值 <span class="g">+'+fmtY(best.r.recharge)+'</span> · 余额 '+fmtY(best.v):'余额 '+fmtY(best.v));
+(best.r.recharge>0?tf('trend_tip_recharge',{c:fmtY(best.r.recharge),v:fmtY(best.v)}):tf('trend_tip_bal',{v:fmtY(best.v)}));
 tip.classList.add('show');
 tip.style.left=Math.max(85,Math.min(innerWidth-85,rect.left+x*(rect.width/W)))+'px';
 tip.style.top=Math.max(8,rect.top+y*(rect.height/H)-tip.offsetHeight-12)+'px';
-});
-hit.addEventListener('mouseleave',()=>{tip.classList.remove('show');$('#tCross').setAttribute('opacity',0);$('#tFocus').setAttribute('opacity',0);});
+clearTimeout(trendTimer);
+}
+function hideTrend(){tip.classList.remove('show');$('#tCross').setAttribute('opacity',0);$('#tFocus').setAttribute('opacity',0);}
+hit.addEventListener('mousemove',e=>moveTrend(e.clientX));
+hit.addEventListener('mouseleave',()=>{hideTrend();clearTimeout(trendTimer);});
+hit.addEventListener('touchstart',e=>{const t=e.touches[0];moveTrend(t.clientX);},{passive:true});
+hit.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches[0];moveTrend(t.clientX);},{passive:false});
+hit.addEventListener('touchend',()=>{clearTimeout(trendTimer);trendTimer=setTimeout(hideTrend,1500);},{passive:true});
 }
 /* ================= 账单汇总 ================= */
 const billState={gran:'month',offset:0};
@@ -1025,22 +1280,22 @@ const startIdx=billState.offset*pageSize;
 const slice=periods.slice(startIdx,startIdx+pageSize);
 if(billState.gran==='month'){
 const first=slice[0],last=slice[slice.length-1];
-periodEl.textContent=first.y===last.y?first.y+'年 '+first.m+'–'+last.m+'月':first.y+'.'+first.m+' – '+last.y+'.'+last.m;
+periodEl.textContent=first.y===last.y?tf('bill_period_m',{y:first.y,a:first.m,b:last.m}):first.y+'.'+first.m+' – '+last.y+'.'+last.m;
 }else{
-periodEl.textContent=slice.length>1?slice[0].y+'–'+slice[slice.length-1].y+'年':slice[0].y+'年';
+periodEl.textContent=slice.length>1?tf('bill_period_y',{a:slice[0].y,b:slice[slice.length-1].y}):tf('full_year',{y:slice[0].y});
 }
 el.innerHTML=slice.map(p=>{
 const b=computeBill(p);
-const label=billState.gran==='month'?p.y+'年'+p.m+'月':p.y+'年';
-const sub=b.isCurrent?'(本月)':'';
+const label=billState.gran==='month'?tf('bill_label_m',{y:p.y,m:p.m}):tf('bill_label_y',{y:p.y});
+const sub=b.isCurrent?t('bill_current'):'';
 return '<div class="bill-card'+(b.isCurrent?' current':'')+'">'+
 '<div class="bill-head"><span class="bill-month">'+label+'<span class="bm-sub">'+sub+'</span></span>'+
-'<span class="bill-kwh">'+fmt1(b.kwh)+'<span class="u">度</span></span></div>'+
+'<span class="bill-kwh">'+fmt1(b.kwh)+'<span class="u">'+t('unit_kwh')+'</span></span></div>'+
 '<div class="bill-rows">'+
-'<div class="bill-row"><span>电费</span><b class="cost">'+fmtY(b.cost)+'</b></div>'+
-'<div class="bill-row"><span>充值</span><b class="rch">'+(b.rch>0?fmtY(b.rch):'—')+'</b></div>'+
-'<div class="bill-row"><span>日均用电</span><b class="avg">'+fmt1(b.avg)+' 度</b></div>'+
-'<div class="bill-row"><span>'+b.days+'天 · '+state.price+'元/度</span><b></b></div>'+
+'<div class="bill-row"><span>'+t('bill_cost_label')+'</span><b class="cost">'+fmtY(b.cost)+'</b></div>'+
+'<div class="bill-row"><span>'+t('bill_recharge_label')+'</span><b class="rch">'+(b.rch>0?fmtY(b.rch):'—')+'</b></div>'+
+'<div class="bill-row"><span>'+t('bill_avg_label')+'</span><b class="avg">'+fmt1(b.avg)+' '+t('unit_kwh')+'</b></div>'+
+'<div class="bill-row"><span>'+tf('bill_meta',{d:b.days,p:state.price})+'</span><b></b></div>'+
 '</div></div>';
 }).join('');
 }
@@ -1062,7 +1317,7 @@ if(f.keyword){
 const kw=f.keyword.toLowerCase();
 const noteMatch=(r.note||'').toLowerCase().includes(kw);
 const dt=new Date(r.ts);
-const dateStr=(dt.getMonth()+1)+'月'+dt.getDate()+'日';
+const dateStr=lang==='zh'?(dt.getMonth()+1)+'月'+dt.getDate()+'日':dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
 const dateMatch=dateStr.includes(kw)||(dt.getFullYear()+'/'+(dt.getMonth()+1)).includes(f.keyword);
 if(!noteMatch&&!dateMatch)return false;
 }
@@ -1076,22 +1331,24 @@ return rows.map(r=>{
 const dt=fmtDT(r.ts);
 const s=segMap.get(r.id);
 const rchHtml=r.recharge>0?'<em>+'+fmtY(r.recharge)+'</em>':'';
-let info='首笔基准 · 开始追踪';
+let info=t('row_first');
 if(s){
 info=s.anomaly
-?'<span class="warn">⚠️ 余额反升 '+fmtY(-s.cost)+'（充值 '+fmtY(s.rSum)+'），请核对</span>'
-:'≈ <b>'+fmt1(s.kwh)+'</b> 度 · '+fmtY(s.cost)+' <span class="dim">/ '+(s.days<1?Math.max(1,Math.round(s.days*24))+'小时':s.days.toFixed(1)+'天')+'</span>';
+?'<span class="warn">'+tf('row_anomaly',{c:fmtY(-s.cost),r:fmtY(s.rSum)})+'</span>'
+:tf('row_seg',{k:fmt1(s.kwh),c:fmtY(s.cost),d:(s.days<1?tf('row_seg_h',{n:Math.max(1,Math.round(s.days*24))}):tf('row_seg_d',{n:s.days.toFixed(1)}))});
 }
-const tag=r.recharge>0?'<span class="tag r">充</span>':'<span class="tag b">余</span>';
+const tag=r.recharge>0?'<span class="tag r">'+t('tag_recharge')+'</span>':'<span class="tag b">'+t('tag_balance')+'</span>';
 const isEditing=editState.id===r.id;
 const safeId=esc(r.id);
-return '<div class="row'+(isEditing?' editing':'')+'" data-id="'+safeId+'">'+tag+
+return '<div class="row'+(isEditing?' editing':'')+'" data-id="'+safeId+'">'+
+'<button type="button" class="row-del" data-del="'+safeId+'" aria-label="'+t('del_aria')+'">'+t('del_aria')+'</button>'+
+'<div class="row-c">'+tag+
 '<div class="r-main"><b>'+fmtY(r.balance)+'</b>'+rchHtml+'<span>'+dt+(r.note?' · '+esc(r.note):'')+'</span></div>'+
 '<div class="r-info">'+info+'</div>'+
 '<div class="r-actions">'+
-'<button type="button" class="edit-btn" data-edit="'+safeId+'" title="编辑">✎</button>'+
-'<button type="button" class="del" data-id="'+safeId+'" title="删除">✕</button>'+
-'</div></div>';
+'<button type="button" class="edit-btn" data-edit="'+safeId+'" title="'+t('edit_aria')+'">✎</button>'+
+'<button type="button" class="del" data-id="'+safeId+'" title="'+t('del_aria')+'">✕</button>'+
+'</div></div></div>';
 }).join('');
 }
 function renderPager(page,totalPages,total){
@@ -1107,16 +1364,16 @@ for(let i=start;i<=end;i++)html+='<button class="pg-btn'+(i===page?' on':'')+'" 
 if(end<totalPages){if(end<totalPages-1)html+='<span class="pg-ellipsis">…</span>';html+='<button class="pg-btn" data-pg="'+totalPages+'">'+totalPages+'</button>';}
 html+='<button class="pg-btn" data-pg="next"'+(page>=totalPages?' disabled':'')+'>›</button>';
 const from=(page-1)*listState.size+1,to=Math.min(page*listState.size,total);
-html+='<div class="pg-info" style="width:100%">第 '+from+'–'+to+' 条 / 共 '+total+' 条 · 每页 '+listState.size+' 条</div>';
+html+='<div class="pg-info" style="width:100%">'+tf('pager_info',{a:from,b:to,total:total,size:listState.size})+'</div>';
 el.innerHTML=html;
 }
 function renderList(){
 const el=$('#recList'),all=sorted();
-$('#recCount').textContent=all.length;
+$('#ledgerSub').innerHTML=tf('ledger_sub',{n:all.length});
 const hasData=all.length>0;
 $('#listToolbar').hidden=!hasData;
 $('#listFilterRow').hidden=!hasData;
-if(!hasData){el.innerHTML='<div class="list-empty">还没有记录 · 先记一笔吧</div>';$('#pager').innerHTML='';$('#listSummary').textContent='';return;}
+if(!hasData){el.innerHTML='<div class="list-empty">'+t('list_empty_none')+'</div>';$('#pager').innerHTML='';$('#listSummary').textContent='';return;}
 const filtered=applyListFilter([...all].reverse());
 const segMap=new Map(segments().map(s=>[s.b.id,s]));
 const totalPages=Math.max(1,Math.ceil(filtered.length/listState.size));
@@ -1124,35 +1381,67 @@ const page=Math.min(listState.page,totalPages);
 listState.page=page;
 const slice=filtered.slice((page-1)*listState.size,page*listState.size);
 if(!filtered.length){
-el.innerHTML='<div class="list-empty">没有匹配的记录 · 试试调整筛选条件或搜索关键词</div>';
-$('#pager').innerHTML='';$('#listSummary').textContent='筛选结果：0 条';return;
+el.innerHTML='<div class="list-empty">'+t('list_empty_filter')+'</div>';
+$('#pager').innerHTML='';$('#listSummary').textContent=t('list_summary_filter0');return;
 }
 el.innerHTML=renderListRows(slice,segMap);
 renderPager(page,totalPages,filtered.length);
 const allCount=all.length;
-$('#listSummary').textContent=filtered.length<allCount?'筛选结果：'+filtered.length+' / '+allCount+' 条':allCount+' 条记录';
+$('#listSummary').textContent=filtered.length<allCount?tf('list_summary_filter',{n:filtered.length,total:allCount}):tf('list_summary',{n:allCount});
 }
-$('#recList').addEventListener('click',e=>{
-const d=e.target.closest('.del');
-if(d){
-const id=d.dataset.id;
+function confirmDelete(id){
 const record=state.records.find(r=>r.id===id);if(!record)return;
-const recharge=record.recharge>0?' · 充值 '+fmtY(record.recharge):'';
-openModal('删除这条记录？',
-'<p>时间：<b>'+fmtDT(record.ts)+'</b></p>'+ 
-'<p>余额：<b>'+fmtY(record.balance)+'</b>'+recharge+'</p>'+ 
-'<p class="m-note">删除后会重新计算相邻记录的用电区间，此操作不可撤销。</p>',
-'确认删除',()=>{
+const recharge=record.recharge>0?t('del_body_recharge')+fmtY(record.recharge):'';
+openModal(t('del_title'),
+'<p>'+t('del_body_time')+'<b>'+fmtDT(record.ts)+'</b></p>'+
+'<p>'+t('del_body_bal')+'<b>'+fmtY(record.balance)+'</b>'+recharge+'</p>'+
+'<p class="m-note">'+t('del_note')+'</p>',
+t('del_confirm'),()=>{
 if(editState.id===id)cancelEdit();
-markRecordDeleted(id);
-save();refreshAll();toast('已删除 1 条记录');
+markRecordDeleted(id);save();refreshAll();toast(t('del_done'));
+if(navigator.vibrate)try{navigator.vibrate(15);}catch(e){}
 },true);
-return;
 }
-const ed=e.target.closest('.edit-btn');
-if(ed){startEdit(ed.dataset.edit);}
+function closeAllRows(){document.querySelectorAll('.row.del-open').forEach(r=>r.classList.remove('del-open'));}
+$('#recList').addEventListener('click',e=>{
+const rd=e.target.closest('.row-del');if(rd){closeAllRows();confirmDelete(rd.dataset.del);return;}
+const d=e.target.closest('.del');if(d){closeAllRows();confirmDelete(d.dataset.id);return;}
+const ed=e.target.closest('.edit-btn');if(ed){closeAllRows();startEdit(ed.dataset.edit);return;}
 });
-$('#pager').addEventListener('click',e=>{
+(function(){
+const list=$('#recList');if(!list)return;
+let row=null,inner=null,x0=0,drag=false,moved=false,wasOpen=false;
+list.addEventListener('pointerdown',e=>{
+const c=e.target.closest('.row-c');if(!c)return;
+if(e.pointerType!=='touch')return;
+if(e.target.closest('.edit-btn,.del,.row-del'))return;
+row=c.parentElement;inner=c;x0=e.clientX;drag=true;moved=false;wasOpen=row.classList.contains('del-open');
+document.querySelectorAll('.row.del-open').forEach(r=>r!==row&&r.classList.remove('del-open'));
+c.style.transition='none';
+});
+list.addEventListener('pointermove',e=>{
+if(!drag)return;
+const dx=e.clientX-x0;if(Math.abs(dx)>6)moved=true;
+const base=wasOpen?-76:0;const tx=Math.max(-84,Math.min(0,base+dx));
+inner.style.transform='translateX('+tx+'px)';
+});
+function endDrag(ev){
+if(!drag)return;drag=false;
+const dx=(ev.clientX-x0)||0;
+inner.style.transition='';inner.style.transform='';
+if(!moved){if(wasOpen)row.classList.remove('del-open');return;}
+let nowOpen=wasOpen;
+if(!wasOpen&&dx<-38)nowOpen=true;
+else if(wasOpen&&dx>38)nowOpen=false;
+if(nowOpen&&!wasOpen){
+document.querySelectorAll('.row.del-open').forEach(r=>r!==row&&r.classList.remove('del-open'));
+row.classList.add('del-open');
+if(navigator.vibrate)try{navigator.vibrate(10);}catch(_){}
+}else if(!nowOpen&&wasOpen){row.classList.remove('del-open');}
+}
+list.addEventListener('pointerup',endDrag);
+list.addEventListener('pointercancel',()=>{if(!drag)return;drag=false;inner.style.transition='';inner.style.transform='';if(wasOpen)row.classList.add('del-open');else row.classList.remove('del-open');});
+})();$('#pager').addEventListener('click',e=>{
 const b=e.target.closest('.pg-btn');if(!b||b.disabled)return;
 const v=b.dataset.pg;
 if(v==='prev')listState.page--;
@@ -1200,7 +1489,7 @@ listState.page=1;renderList();
 let modalOk=null;
 function openModal(title,html,okText,onOk,danger){
 $('#mTitle').textContent=title;$('#mBody').innerHTML=html;
-const ok=$('#mOk');ok.textContent=okText||'确定';ok.classList.toggle('danger',!!danger);
+const ok=$('#mOk');ok.textContent=okText||t('ok');ok.classList.toggle('danger',!!danger);
 modalOk=onOk;
 const m=$('#mask');m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));
 const inp=m.querySelector('input');if(inp)setTimeout(()=>inp.focus(),80);
@@ -1216,6 +1505,12 @@ setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300);},2400
 }
 /* ================= 记一笔 ================= */
 const editState={id:null};
+function openSheet(){const s=$('#sheet'),m=$('#sheetMask');m.hidden=false;s.hidden=false;s.setAttribute('aria-hidden','false');void s.offsetWidth;requestAnimationFrame(()=>{m.classList.add('show');s.classList.add('show');});if(window.matchMedia('(min-width:768px)').matches){const tm=$('#eTime');if(tm)setTimeout(()=>tm.focus(),300);}}
+function closeSheet(){const s=$('#sheet'),m=$('#sheetMask');s.classList.remove('show');m.classList.remove('show');s.setAttribute('aria-hidden','true');setTimeout(()=>{s.hidden=true;m.hidden=true;},300);}
+function dismissSheet(){if(editState.id)cancelEdit();closeSheet();}
+$('#sheetMask').addEventListener('click',dismissSheet);
+(function(){const handle=$('#sheetHandle');if(!handle)return;let y0=null,drag=false,moved=false;handle.addEventListener('pointerdown',e=>{y0=e.clientY;drag=true;moved=false;try{handle.setPointerCapture(e.pointerId);}catch(_){}$('#sheet').style.transition='none';});handle.addEventListener('pointermove',e=>{if(!drag)return;const dy=e.clientY-y0;if(Math.abs(dy)>4)moved=true;if(dy>0)$('#sheet').style.transform='translateY('+dy+'px)';});handle.addEventListener('pointerup',e=>{if(!drag)return;drag=false;const dy=e.clientY-y0;const s=$('#sheet');s.style.transition='';s.style.transform='';if(!moved||dy>90)dismissSheet();});handle.addEventListener('pointercancel',()=>{if(!drag)return;drag=false;const s=$('#sheet');s.style.transition='';s.style.transform='';});})();
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;const s=$('#sheet');if(s.hidden)return;if(!$('#mask').hidden)return;dismissSheet();});
 function startEdit(id){
 const r=state.records.find(x=>x.id===id);if(!r)return;
 editState.id=id;
@@ -1226,64 +1521,65 @@ $('#eRecharge').value=r.recharge||0;
 $('#eNote').value=r.note||'';
 document.querySelectorAll('#eChips .chip').forEach(x=>x.classList.toggle('on',x.dataset.v===(r.recharge||0)));
 $('#editBanner').hidden=false;
-$('#editInfo').textContent='正在修改 '+fmtDT(r.ts)+' 的记录';
-$('.btn-primary').textContent='✏️ 更新记录';
+$('#editInfo').textContent=tf('editing_info_dt',{t:fmtDT(r.ts)});
+$('#entrySubmit').textContent=t('update');
 renderList();
-$('#formEntry').closest('.panel').scrollIntoView({behavior:'smooth',block:'start'});
+openSheet();
 }
 function cancelEdit(){
 editState.id=null;
 $('#editBanner').hidden=true;
-$('.btn-primary').textContent='✅ 保存记录';
+$('#entrySubmit').textContent=t('save');
 $('#eBalance').value='';$('#eRecharge').value='0';$('#eNote').value='';$('#eTime').value=nowInputVal();
 document.querySelectorAll('#eChips .chip').forEach(x=>x.classList.toggle('on',x.dataset.v==='0'));
 renderList();
 }
-$('#editCancel').addEventListener('click',cancelEdit);
+$('#editCancel').addEventListener('click',dismissSheet);
 $('#eChips').addEventListener('click',e=>{
 const c=e.target.closest('.chip');if(!c)return;
 $('#eRecharge').value=c.dataset.v;
 document.querySelectorAll('#eChips .chip').forEach(x=>x.classList.toggle('on',x===c));
+if(navigator.vibrate)try{navigator.vibrate(6);}catch(e){}
 });
-function afterSave(msg){save();refreshAll();toast(msg);}
+function afterSave(msg){save();refreshAll();toast(msg);closeSheet();if(navigator.vibrate)try{navigator.vibrate(12);}catch(e){}}
 function confirmAdjacent(candidate,excludeId,action,verb){
 const check=inspectAdjacent(state.records,candidate,excludeId);
-if(check.duplicate){toast('⚠️ '+fmtDT(check.duplicate.ts)+' 已有记录，请修改原记录或调整时间');return;}
+if(check.duplicate){toast(tf('err_duplicate',{t:fmtDT(check.duplicate.ts)}));return;}
 if(!check.issues.length){action();return;}
 const rows=check.issues.map(issue=>{
-const side=issue.side==='previous'?'上一笔':'下一笔';
-return'<li>'+side+'（'+fmtDT(issue.record.ts)+'）相邻区间余额反升 '+fmtY(-issue.cost)+'</li>';
+const side=t(issue.side==='previous'?'adj_prev':'adj_next');
+return'<li>'+tf('adj_li',{side:side,t:fmtDT(issue.record.ts),c:fmtY(-issue.cost)})+'</li>';
 }).join('');
-openModal('相邻区间出现余额反升？','<ul style="margin:0 0 10px 18px">'+rows+'</ul>'+ 
-'<p class="m-note">可能是抄表、充值金额填写有误，也可能发生了换表。请核对后再继续。</p>',
-'仍要'+verb,action);
+openModal(t('adj_title'),'<ul style="margin:0 0 10px 18px">'+rows+'</ul>'+ 
+'<p class="m-note">'+t('adj_note')+'</p>',
+tf('adj_still',{v:verb}),action);
 }
 $('#formEntry').addEventListener('submit',e=>{
 e.preventDefault();
 const ts=parseLocal($('#eTime').value);
 const bal=+$('#eBalance').value;
 const rch=+$('#eRecharge').value||0;
-if(!isFinite(ts)){toast('⚠️ 请选择抄表时间');return;}
-if(!(bal>=0)){toast('⚠️ 请输入有效余额');return;}
-if(!(rch>=0)){toast('⚠️ 请输入有效充值金额');return;}
+if(!isFinite(ts)){toast(t('err_time'));return;}
+if(!(bal>=0)){toast(t('err_balance'));return;}
+if(!(rch>=0)){toast(t('err_recharge'));return;}
 const candidate={ts,balance:r2(bal),recharge:r2(rch),note:$('#eNote').value.trim()};
 if(editState.id){
 const r=state.records.find(x=>x.id===editState.id);
 if(!r){cancelEdit();return;}
 const doUpdate=()=>{
 r.ts=candidate.ts;r.balance=candidate.balance;r.recharge=candidate.recharge;r.note=candidate.note;r.updatedAt=Date.now();
-cancelEdit();afterSave('✏️ 已更新记录：余额 '+fmtY(bal)+(rch>0?' · 充值 '+fmtY(rch):''));
+cancelEdit();afterSave(tf('saved_upd',{b:fmtY(bal),r:(rch>0?tf('recharge_part',{r:fmtY(rch)}):'')}));
 };
-confirmAdjacent(candidate,editState.id,doUpdate,'更新');
+confirmAdjacent(candidate,editState.id,doUpdate,t('verb_update'));
 return;
 }
 const doSave=()=>{
 state.records.push({id:uid(),...candidate,updatedAt:Date.now()});
-afterSave('⚡ 已记录：余额 '+fmtY(bal)+(rch>0?' · 充值 '+fmtY(rch):''));
+afterSave(tf('saved_new',{b:fmtY(bal),r:(rch>0?tf('recharge_part',{r:fmtY(rch)}):'')}));
 $('#eBalance').value='';$('#eRecharge').value='0';$('#eNote').value='';$('#eTime').value=nowInputVal();
 document.querySelectorAll('#eChips .chip').forEach(x=>x.classList.toggle('on',x.dataset.v==='0'));
 };
-confirmAdjacent(candidate,null,doSave,'保存');
+confirmAdjacent(candidate,null,doSave,t('verb_save'));
 });
 /* ================= 统计交互 ================= */
 $('#granTabs').addEventListener('click',e=>{
@@ -1319,19 +1615,19 @@ view.start=s;view.end=t;syncDates();renderStats();
 });
 /* ================= 设置 / 备份 ================= */
 $('#priceBtn').addEventListener('click',()=>{
-openModal('⚙️ 电价设置','<label class="fld"><span>电价（元 / 度）</span><input type="number" id="mPrice" step="0.01" min="0.01" value="'+state.price+'"></label><p class="m-note">修改后，所有历史用电将按新电价重新折算。</p>','保存',()=>{
+openModal(t('price_title'),'<label class="fld"><span>'+t('price_label')+'</span><input type="number" id="mPrice" step="0.01" min="0.01" value="'+state.price+'"></label><p class="m-note">'+t('price_modal_note')+'</p>',t('verb_save'),()=>{
 const v=+$('#mPrice').value;
-if(!(v>0)){toast('⚠️ 请输入有效电价');return false;}
-state.price=v;state.priceUpdatedAt=Date.now();save();refreshAll();toast('电价已更新为 '+v+' 元/度');
+if(!(v>0)){toast(t('price_err'));return false;}
+state.price=v;state.priceUpdatedAt=Date.now();save();refreshAll();toast(tf('price_done',{v:v}));
 });
 });
 function exportData(){
 const payload=ledgerPayload();payload.exportedAt=new Date().toISOString();
 const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
 const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-a.download='电费小账本-备份-'+dKey(Date.now())+'.json';a.click();URL.revokeObjectURL(a.href);
+a.download=tf('backup_filename',{d:dKey(Date.now())});a.click();URL.revokeObjectURL(a.href);
 }
-$('#exportBtn').addEventListener('click',()=>{exportData();toast('📤 备份已下载');});
+$('#exportBtn').addEventListener('click',()=>{exportData();toast(t('backup_done'));});
 $('#importBtn').addEventListener('click',()=>$('#importFile').click());
 $('#importFile').addEventListener('change',e=>{
 const f=e.target.files[0];if(!f)return;
@@ -1354,15 +1650,15 @@ const merged=mergeLedger(state,incoming);
 add=merged.records.filter(r=>!beforeById.has(r.id)).length;
 updated=merged.records.filter(r=>{const old=beforeById.get(r.id);return old&&r.updatedAt>old.updatedAt;}).length;
 applyLedger(merged);
-save();refreshAll();toast('📥 新增 '+add+' 条'+(updated?'，更新 '+updated+' 条':'')+'，跳过重复 '+dup+' 条');
-}catch(err){toast('⚠️ 文件格式无法识别');}
+save();refreshAll();toast(tf('import_done',{add:add,upd:(updated?tf('import_upd_part',{n:updated}):''),dup:dup}));
+}catch(err){toast(t('import_err'));}
 };
 rd.readAsText(f);e.target.value='';
 });
 $('#clearBtn').addEventListener('click',()=>{
-if(!state.records.length){toast('当前没有数据');return;}
-openModal('🗑️ 清空全部数据','将先<b>自动下载一份备份</b>，随后删除全部 <b>'+state.records.length+'</b> 条记录，此操作不可撤销。','仍要清空',()=>{
-exportData();for(const r of [...state.records])markRecordDeleted(r.id);save();refreshAll();toast('已清空，备份已下载');
+if(!state.records.length){toast(t('clear_none'));return;}
+openModal(t('clear_title'),tf('clear_body',{n:state.records.length}),t('clear_confirm'),()=>{
+exportData();for(const r of [...state.records])markRecordDeleted(r.id);save();refreshAll();toast(t('clear_done'));
 },true);
 });
 /* ================= 云端同步（GitHub 仓库存储） =================
@@ -1379,7 +1675,7 @@ function b64enc(s){return btoa(unescape(encodeURIComponent(s)))}
 function b64dec(b){return decodeURIComponent(escape(atob(b.replace(/\n/g,''))))}
 function setCloudStatus(cls,txt){
 const el=$('#cloudStatus');if(!el)return;
-el.className='cloud-status '+(cls||'');const t=el.querySelector('.ctxt');if(t)t.textContent=txt||'未连接';
+el.className='cloud-status '+(cls||'');const ctx=el.querySelector('.ctxt');if(ctx)ctx.textContent=txt||t('cs_disconnected');
 }
 async function ghVerifyRepo(token,owner,repo){
 const res=await fetch(`https://api.github.com/repos/${owner}/${repo}`,{headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}});
@@ -1409,14 +1705,14 @@ if(res.status===409||res.status===422)throw new Error('conflict');
 if(res.status===401||res.status===403)throw new Error('auth');
 if(!res.ok){
 let m='';try{const j=await res.json();m=j.message||'';}catch(e){}
-if(res.status===404)throw new Error('write404:'+(m||'仓库或分支不存在'));
+if(res.status===404)throw new Error('write404:'+(m||t('err_write404')));
 throw new Error('write:'+res.status+(m?' '+m:''));
 }
 return res.json();
 }
 function parseCloudLedger(content){
-let data;try{data=JSON.parse(content);}catch(e){throw new Error('云端数据文件不是有效 JSON');}
-if(!Array.isArray(data)&&(!data||!Array.isArray(data.records)))throw new Error('云端数据文件格式不正确');
+let data;try{data=JSON.parse(content);}catch(e){throw new Error(t('err_cloud_json'));}
+if(!Array.isArray(data)&&(!data||!Array.isArray(data.records)))throw new Error(t('err_cloud_format'));
 return parseLedger(data,state.price);
 }
 function mergeCloudLedger(cloud){
@@ -1427,40 +1723,40 @@ applyLedger(merged);return result;
 }
 function writeLocalCache(){_dm=null;_segsDirty=true;try{localStorage.setItem(KEY,ledgerJSON());}catch(e){}}
 async function cloudLogin(cfg){
-setCloudStatus('busy','连接中…');
+setCloudStatus('busy',t('cs_connecting'));
 const path=cfg.path||'data.json',branch=cfg.branch||'main';
 // 第一步：验证仓库存在且令牌有权限
 const vr=await ghVerifyRepo(cfg.token,cfg.owner,cfg.repo);
 if(!vr.ok){
-setCloudStatus('err','仓库不可用');
-if(vr.reason==='notfound')throw new Error('仓库 '+cfg.owner+'/'+cfg.repo+' 不存在，或令牌无权访问。请检查用户名、仓库名和令牌权限');
-if(vr.reason==='auth')throw new Error('令牌无效或无权访问该仓库');
-throw new Error('连接失败：'+vr.reason);
+setCloudStatus('err',t('cs_err_branch'));
+if(vr.reason==='notfound')throw new Error(tf('err_repo_notfound',{o:cfg.owner,r:cfg.repo}));
+if(vr.reason==='auth')throw new Error(t('err_auth'));
+throw new Error(tf('err_connect_fail',{m:vr.reason}));
 }
 // 提示默认分支不匹配
 if(vr.defaultBranch&&vr.defaultBranch!==branch){
-setCloudStatus('err','分支名不匹配');
-throw new Error('你填的分支是「'+branch+'」，但该仓库的默认分支是「'+vr.defaultBranch+'」。请把分支改为 '+vr.defaultBranch+' 后重试');
+setCloudStatus('err',t('cs_err_branch'));
+throw new Error(tf('err_branch_mismatch',{b:branch,d:vr.defaultBranch}));
 }
 // 第二步：检查数据文件是否存在
 let r;
 try{r=await ghGet(cfg.token,cfg.owner,cfg.repo,path,branch);}
-catch(e){if(e.message==='auth')throw new Error('令牌无效或无权访问该仓库');throw new Error('连接失败：'+e.message);}
+catch(e){if(e.message==='auth')throw new Error(t('err_auth'));throw new Error(tf('err_connect_fail',{m:e.message}));}
 if(r.notFound){
 if(r.branchMissing){
-setCloudStatus('err','分支不存在');
-throw new Error('分支「'+branch+'」不存在，请在仓库里确认默认分支名，或先在 GitHub 上创建该分支');
+setCloudStatus('err',t('cs_err_branch'));
+throw new Error(tf('err_branch_missing',{b:branch}));
 }
 // 文件不存在 → 首次推送创建
 _ghSha=null;setGH(cfg);
-try{await cloudPush(true);setCloudStatus('ok','已同步');return{first:true};}
+try{await cloudPush(true);setCloudStatus('ok',t('cs_synced'));return{first:true};}
 catch(e){
 if(e.message.startsWith('write404')){
-setCloudStatus('err','分支或仓库不存在');
-throw new Error('推送失败：分支「'+branch+'」不存在。新建仓库时请勾选「Add a README」来创建初始分支，或检查分支名是否正确');
+setCloudStatus('err',t('cs_err_branch'));
+throw new Error(tf('err_push_branch',{b:branch}));
 }
-setCloudStatus('err','同步失败 ('+e.message+')');
-throw new Error('推送失败：'+e.message);
+setCloudStatus('err',tf('cs_err_sync',{m:e.message}));
+throw new Error(tf('err_push_fail',{m:e.message}));
 }
 }
 _ghSha=r.sha;
@@ -1468,7 +1764,7 @@ const cloud=parseCloudLedger(r.content);
 const merged=mergeCloudLedger(cloud);
 writeLocalCache();setGH(cfg);
 if(merged.needsPush)await cloudPush(true);
-setCloudStatus('ok','已同步');
+setCloudStatus('ok',t('cs_synced'));
 return{merged:merged.added};
 }
 function scheduleCloudPush(){
@@ -1481,11 +1777,11 @@ if(_pushing){_pushPending=true;return false;}
 _pushing=true;
 const cfg=getGH();const path=cfg.path||'data.json',branch=cfg.branch||'main';
 const pushOnce=async()=>{const res=await ghPut(cfg.token,cfg.owner,cfg.repo,path,branch,ledgerJSON(),_ghSha);_ghSha=res.content.sha;};
-if(force!==true)setCloudStatus('busy','同步中…');
+if(force!==true)setCloudStatus('busy',t('cs_syncing'));
 let lastErr=null;
 try{
 await pushOnce();
-setCloudStatus('ok','已同步');
+setCloudStatus('ok',t('cs_synced'));
 return true;
 }catch(e){
 lastErr=e;
@@ -1499,35 +1795,35 @@ const cloud=parseCloudLedger(g.content);
 mergeCloudLedger(cloud);writeLocalCache();refreshAll();
 }
 await pushOnce();
-setCloudStatus('ok','已同步');
+setCloudStatus('ok',t('cs_synced'));
 return true;
 }catch(e2){
 lastErr=e2;
-if(e2.message==='auth')setCloudStatus('err','令牌失效');
-else if(e2.message.startsWith('write404'))setCloudStatus('err','分支或仓库不存在');
-else setCloudStatus('err','同步失败 ('+e2.message+')');
+if(e2.message==='auth')setCloudStatus('err',t('cs_err_auth'));
+else if(e2.message.startsWith('write404'))setCloudStatus('err',t('cs_err_branch'));
+else setCloudStatus('err',tf('cs_err_sync',{m:e2.message}));
 }
-}else if(e.message==='auth'){setCloudStatus('err','令牌失效');}
-else if(e.message.startsWith('write404')){setCloudStatus('err','分支或仓库不存在');}
-else{setCloudStatus('err','同步失败 ('+e.message+')');}
+}else if(e.message==='auth'){setCloudStatus('err',t('cs_err_auth'));}
+else if(e.message.startsWith('write404')){setCloudStatus('err',t('cs_err_branch'));}
+else{setCloudStatus('err',tf('cs_err_sync',{m:e.message}));}
 }finally{_pushing=false;if(_pushPending){_pushPending=false;cloudPush();}}
 if(force===true&&lastErr)throw lastErr;
 return false;
 }
 async function cloudLogout(){
 clearGH();_ghSha=null;clearTimeout(_pushTimer);
-setCloudStatus('','未连接');
-toast('已退出云端，数据保留在本机');
+setCloudStatus('',t('cs_disconnected'));
+toast(t('cloud_logout_done'));
 }
 async function initCloud(){
 const cfg=getGH();
-if(!cfg){setCloudStatus('','未连接');return;}
-setCloudStatus('busy','同步中…');
+if(!cfg){setCloudStatus('',t('cs_disconnected'));return;}
+setCloudStatus('busy',t('cs_syncing'));
 try{
 const path=cfg.path||'data.json',branch=cfg.branch||'main';
 const r=await ghGet(cfg.token,cfg.owner,cfg.repo,path,branch);
 if(r.notFound){
-if(r.branchMissing){setCloudStatus('err','分支不存在');return;}
+if(r.branchMissing){setCloudStatus('err',t('cs_err_branch'));return;}
 _ghSha=null;await cloudPush(true);
 }
 else{
@@ -1535,33 +1831,37 @@ _ghSha=r.sha;
 const cloud=parseCloudLedger(r.content);
 const merged=mergeCloudLedger(cloud);writeLocalCache();refreshAll();
 if(merged.needsPush)await cloudPush(true);
-setCloudStatus('ok','已同步');
+setCloudStatus('ok',t('cs_synced'));
 }
 }catch(e){
-if(e.message==='auth')setCloudStatus('err','令牌失效');
-else if(e.message.startsWith('write404'))setCloudStatus('err','分支或仓库不存在');
-else setCloudStatus('err','同步失败 ('+e.message+')');
+if(e.message==='auth')setCloudStatus('err',t('cs_err_auth'));
+else if(e.message.startsWith('write404'))setCloudStatus('err',t('cs_err_branch'));
+else setCloudStatus('err',tf('cs_err_sync',{m:e.message}));
 }
 }
+function showHomeSkeleton(){const c=$('#tiles');if(!c)return;c.innerHTML=Array.from({length:4}).map(()=>'<div class="tile skel"><div class="skel-line" style="width:42%"></div><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:34%"></div></div>').join('');}
+function hideHomeSkeleton(){const c=$('#tiles');if(c&&c.querySelector('.skel'))renderHead();}
 async function cloudSyncNow(){
-if(!cloudEnabled()){toast('请先连接云端');return;}
-if(_pushing){toast('正在同步中…');return;}
-setCloudStatus('busy','同步中…');
+if(!cloudEnabled()){toast(t('cloud_first'));return;}
+if(_pushing){toast(t('cloud_syncing'));return;}
+setCloudStatus('busy',t('cs_syncing'));
+showHomeSkeleton();
 try{
 const cfg=getGH();const path=cfg.path||'data.json',branch=cfg.branch||'main';
 const r=await ghGet(cfg.token,cfg.owner,cfg.repo,path,branch);
-if(r.notFound){_ghSha=null;await cloudPush(true);toast('☁️ 已上传本地数据');}
+if(r.notFound){_ghSha=null;await cloudPush(true);toast(t('cloud_uploaded'));}
 else{
 _ghSha=r.sha;
 const cloud=parseCloudLedger(r.content);
 const merged=mergeCloudLedger(cloud);writeLocalCache();refreshAll();
 if(merged.needsPush)await cloudPush(true);
-toast('☁️ 同步完成'+(merged.added>0?'（拉取 '+merged.added+' 条新记录）':''));
+toast(merged.added>0?tf('cloud_synced_pulled',{n:merged.added}):t('cloud_synced'));
 }
 }catch(e){
-setCloudStatus('err',e.message==='auth'?'令牌失效':'同步失败 ('+e.message+')');
-toast('同步失败：'+(e.message==='auth'?'令牌失效':e.message));
-}
+setCloudStatus('err',e.message==='auth'?t('cs_err_auth'):tf('cs_err_sync',{m:e.message}));
+toast(tf('cloud_sync_fail',{m:(e.message==='auth'?t('cs_err_auth'):e.message)}));
+}finally{hideHomeSkeleton();}
+
 }
 /* 云端登录交互 */
 (function(){
@@ -1570,15 +1870,15 @@ const prefill=c=>{if(!c)return;$('#clOwner').value=c.owner||'';$('#clRepo').valu
 $('#clBtn').onclick=async()=>{
 const cfg={owner:$('#clOwner').value.trim(),repo:$('#clRepo').value.trim(),branch:$('#clBranch').value.trim()||'main',path:$('#clPath').value.trim()||'data.json',token:$('#clToken').value.trim()};
 const err=$('#clErr');
-if(!cfg.owner||!cfg.repo||!cfg.token){err.textContent='请填写用户名、仓库名和令牌';return;}
-err.textContent='';const btn=$('#clBtn');btn.disabled=true;btn.textContent='连接中…';
+if(!cfg.owner||!cfg.repo||!cfg.token){err.textContent=t('cloud_err_fields');return;}
+err.textContent='';const btn=$('#clBtn');btn.disabled=true;btn.textContent=t('cloud_connecting');
 try{
 const r=await cloudLogin(cfg);
-box.hidden=true;btn.disabled=false;btn.textContent='连接云端';
+box.hidden=true;btn.disabled=false;btn.textContent=t('cloud_login_btn');
 refreshAll();
-toast(r.first?'☁️ 已开启云端同步':'☁️ 云端数据已同步');
+toast(r.first?t('cloud_opened_first'):t('cloud_opened_synced'));
 }catch(e){
-err.textContent=e.message;btn.disabled=false;btn.textContent='连接云端';
+err.textContent=e.message;btn.disabled=false;btn.textContent=t('cloud_login_btn');
 }
 };
 $('#clSkip').onclick=()=>{box.hidden=true;};
@@ -1587,12 +1887,12 @@ $('#cloudBtn').onclick=()=>{
 const cfg=getGH();
 if(!cfg){box.hidden=false;return;}
 const statusTxt=($('#cloudStatus .ctxt')&&$('#cloudStatus .ctxt').textContent)||'';
-const isAuthErr=/令牌/.test(statusTxt);
+const isAuthErr=statusTxt===t('cs_err_auth');
 if(isAuthErr){
-prefill(cfg);box.hidden=false;$('#clErr').textContent='令牌已失效，请重新输入';
+prefill(cfg);box.hidden=false;$('#clErr').textContent=t('cloud_token_expired');
 }else{
-const st=statusTxt||'已同步';
-openModal('☁️ 云端同步','<p style="margin-bottom:10px;color:var(--mut);font-size:.8rem">当前状态：'+st+'</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn-primary" id="mSync" style="flex:1;min-width:120px">立即同步</button><button type="button" class="btn-ghost" id="mCfg" style="flex:1;min-width:120px">修改配置</button><button type="button" class="btn-ghost danger" id="mLogout" style="flex:1;min-width:120px">退出云端</button></div>','关闭',null,false);
+const st=statusTxt||t('cs_synced');
+openModal(t('cloud_modal_title'),'<p style="margin-bottom:10px;color:var(--mut);font-size:.8rem">'+t('cloud_modal_status')+st+'</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn-primary" id="mSync" style="flex:1;min-width:120px">'+t('cloud_modal_sync')+'</button><button type="button" class="btn-ghost" id="mCfg" style="flex:1;min-width:120px">'+t('cloud_modal_reconfig')+'</button><button type="button" class="btn-ghost danger" id="mLogout" style="flex:1;min-width:120px">'+t('cloud_modal_logout')+'</button></div>',t('close'),null,false);
 setTimeout(()=>{
 const s=$('#mSync'),c=$('#mCfg'),l=$('#mLogout');
 if(s)s.onclick=()=>{closeModal();cloudSyncNow();};
@@ -1605,11 +1905,66 @@ if(l)l.onclick=()=>{closeModal();cloudLogout();};
 /* ================= 总渲染 / 初始化 ================= */
 function refreshAll(){renderHead();renderStats();renderTrend();renderBills();renderList();$('#footPrice').textContent=state.price;}
 let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(renderTrend,160);});
+/* === 多页面路由 === */
+function switchView(name){
+const VIEWS=['home','stats','ledger','me'];
+if(!VIEWS.includes(name))name='home';
+document.querySelectorAll('.view').forEach(v=>{
+const on=v.dataset.view===name;
+v.hidden=!on;
+if(on){v.classList.remove('view-in');void v.offsetWidth;v.classList.add('view-in');}
+});
+document.querySelectorAll('.tabbar .tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===name));
+const cur=location.hash.slice(1)||'home';
+if(cur!==name)history.replaceState(null,'','#'+name);
+if(name==='stats'){renderStats();renderTrend();}
+if(name==='ledger')renderList();
+}
+window.addEventListener('hashchange',()=>switchView(location.hash.slice(1)||'home'));
+document.addEventListener('click',e=>{const t=e.target.closest('.tabbar .tab[data-tab]');if(!t)return;switchView(t.dataset.tab);if(navigator.vibrate)try{navigator.vibrate(8);}catch(e){}});
+$('#fabAdd').addEventListener('click',()=>{cancelEdit();openSheet();});
+$('#navAdd').addEventListener('click',()=>{cancelEdit();openSheet();});
+$('#navRefresh').addEventListener('click',()=>{if(typeof cloudEnabled==='function'&&cloudEnabled()){cloudSyncNow();}else{refreshAll();}});
+function toggleLang(){lang=lang==='zh'?'en':'zh';applyLang();}
+$('#langToggle').addEventListener('click',toggleLang);
 applyTheme(savedTheme(),false);
 $('#themeToggle').addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='light'?'dark':'light';applyTheme(next,true);renderTrend();});
+(function(){
+const ptr=document.createElement('div');ptr.className='ptr';ptr.hidden=true;
+ptr.innerHTML='<span class="ptr-spin"></span><span class="ptr-txt"></span>';
+document.body.append(ptr);
+const txtEl=ptr.querySelector('.ptr-txt');
+let startY=0,pulling=false,ready=false;
+function active(){const v=(location.hash.slice(1)||'home');return v==='home'||v==='ledger';}
+document.addEventListener('touchstart',e=>{
+if(!active()||window.scrollY>0)return;
+if(e.target.closest('.row-c,.entry,.chips,button,input,select,textarea,.modal,.sheet,.tabbar,.appbar'))return;
+startY=e.touches[0].clientY;pulling=true;ready=false;
+},{passive:true});
+document.addEventListener('touchmove',e=>{
+if(!pulling)return;
+const dy=e.touches[0].clientY-startY;
+if(dy<=0||window.scrollY>0){if(ptr.hidden===false){ptr.style.transform='';ptr.style.opacity='';ptr.hidden=true;}ready=false;return;}
+const d=Math.min(dy*0.4,72);
+ptr.hidden=false;ptr.style.transform='translate(-50%,'+(d-40)+'px)';ptr.style.opacity=Math.min(1,d/40);
+ready=d>=64;ptr.classList.toggle('ready',ready);
+txtEl.textContent=t(ready?'pull_release':'pull_refresh');
+},{passive:true});
+document.addEventListener('touchend',()=>{
+if(!pulling)return;pulling=false;ptr.classList.remove('ready');
+if(ready){
+ptr.classList.add('busy');txtEl.textContent=t('cs_syncing');ptr.style.opacity='1';
+const done=()=>{ptr.style.transform='';ptr.style.opacity='';ptr.hidden=true;ptr.classList.remove('busy');};
+try{
+if(typeof cloudEnabled==='function'&&cloudEnabled()){Promise.resolve(cloudSyncNow()).then(done,done);}
+else{setTimeout(()=>{done();toast(t('pull_refresh'));},450);}
+}catch(_){done();}
+}else{ptr.style.transform='';ptr.style.opacity='';ptr.hidden=true;}
+});
+})();
 load();
 $('#eTime').value=nowInputVal();
-syncDates();refreshAll();
+syncDates();applyLang();switchView(location.hash.slice(1)||'home');
 initCloud();
 </script>
 <script>
@@ -1670,10 +2025,10 @@ _hideInstallBtn();
 const _btn=document.getElementById('installBtn');
 if(_btn){
 _btn.addEventListener('click',async()=>{
-if(!_deferredPrompt){toast('请用浏览器菜单的「添加到主屏幕」');return;}
+if(!_deferredPrompt){toast(t('install_ios'));return;}
 _deferredPrompt.prompt();
 const {outcome}=_deferredPrompt.userChoice;
-if(outcome==='accepted'){toast('已添加到主屏幕');}
+if(outcome==='accepted'){toast(t('install_added'));}
 _deferredPrompt=null;
 _hideInstallBtn();
 });
@@ -1684,9 +2039,9 @@ window.addEventListener('load',()=>{
 _checkInstalled().then(installed=>{
 if(installed){_hideInstallBtn();return;}
 const b=document.getElementById('installBtn');
-if(b){b.hidden=false;b.textContent='📱 添加到主屏幕';}
+if(b){b.hidden=false;b.textContent=t('install_add_home');}
 b&&b.addEventListener('click',()=>{
-toast('点击 Safari 底部分享按钮 → 添加到主屏幕');
+toast(t('install_ios_tip'));
 },{once:true});
 });
 });

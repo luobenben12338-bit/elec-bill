@@ -1,7 +1,7 @@
 {
-  "name": "电费小账本",
+  "name": "电费小账本 · Electricity Ledger",
   "short_name": "电费账本",
-  "description": "记录电表余额和充值，自动结算用电量和电费开销",
+  "description": "记录电表余额和充值，自动结算用电量和电费开销 · Track meter balance & recharge, auto-calculate usage and cost",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
