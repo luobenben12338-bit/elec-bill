@@ -138,6 +138,7 @@ background-size:40px 40px;-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#
 input[type=number],input[type=text],input[type=date],input[type=datetime-local]{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:.6rem .75rem;font-family:var(--mono);font-size:.9rem;outline:none;color-scheme:var(--scheme);transition:border-color .15s,box-shadow .15s}
 .sheet input[type=number],.sheet input[type=text],.sheet input[type=date],.sheet input[type=datetime-local]{font-size:16px}
 input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(56,189,248,.1)}
+input:user-invalid,input:invalid:not(:placeholder-shown){border-color:var(--red);box-shadow:0 0 0 3px rgba(239,68,68,.1)}
 input::placeholder{color:var(--dim)}
 /* ===== 记一笔 ===== */
 .entry{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -215,6 +216,8 @@ input::placeholder{color:var(--dim)}
 .row.editing .row-c{background:rgba(56,189,248,.06);border-left:3px solid var(--cyan);padding-left:8px}
 @media(max-width:640px){.row-c{grid-template-columns:auto 1fr auto}.r-info{grid-column:1/-1;text-align:left;padding-left:42px}}
 .list-empty{padding:28px 10px;text-align:center;color:var(--dim);font-size:.82rem}
+.cta-btn{margin-top:14px;padding:.55rem 1.4rem;font-size:.85rem}
+.hero-cta{display:block;width:100%;max-width:280px;margin:14px auto 0;padding:.8rem 1.6rem;font-size:1rem;font-weight:700}
 /* ===== 编辑模式提示 ===== */
 .edit-banner{display:flex;align-items:center;gap:10px;padding:.5rem .8rem;background:var(--cyan-bg);border:1px solid rgba(56,189,248,.3);border-radius:8px;margin-bottom:12px;font-size:.78rem;color:var(--cyan2)}
 .edit-banner .eb-tag{padding:2px 8px;background:var(--cyan);color:var(--on-accent);border-radius:4px;font-weight:600;font-size:.72rem}
@@ -229,6 +232,7 @@ input::placeholder{color:var(--dim)}
 .bills-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
 .bill-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--rs);padding:14px 16px;transition:transform .15s,border-color .15s;cursor:pointer}
 .bill-card:hover{transform:translateY(-2px);border-color:var(--line2)}
+.bill-card:active{transform:translateY(0);border-color:var(--cyan)}
 .bill-card.current{border-color:var(--cyan);box-shadow:0 0 0 1px rgba(56,189,248,.2)}
 .bill-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .bill-month{font-size:.95rem;font-weight:700;color:var(--ink)}
@@ -279,6 +283,25 @@ input::placeholder{color:var(--dim)}
 .modal .m-body b{color:var(--cyan2)}
 .modal input{margin-top:10px}
 .m-note{margin-top:8px;font-size:.7rem;color:var(--dim)}
+/* 电价历史管理面板 */
+.price-cur{display:flex;align-items:baseline;gap:6px;padding:10px 12px;background:var(--card2);border-radius:10px;margin-bottom:14px}
+.price-cur span{font-size:.8rem;color:var(--mut)}
+.price-cur b{font-size:1.4rem;color:var(--cyan2)}
+.price-cur .u{font-size:.7rem;color:var(--dim)}
+.price-hist{margin-bottom:16px}
+.price-hist-title{font-size:.74rem;color:var(--dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.price-hist-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
+.price-hist-row.cur{background:rgba(34,211,238,.06)}
+.ph-info{display:flex;align-items:center;gap:8px}
+.ph-label{font-size:.82rem;color:var(--fg)}
+.ph-now{font-size:.64rem;color:var(--cyan2);background:rgba(34,211,238,.14);padding:2px 6px;border-radius:4px}
+.ph-right{display:flex;align-items:baseline;gap:4px}
+.ph-right b{font-size:.9rem;color:var(--fg)}
+.ph-right .u{font-size:.66rem;color:var(--dim)}
+.ph-del{margin-left:8px;background:none;border:none;color:var(--dim);font-size:.8rem;cursor:pointer;padding:2px 4px;border-radius:4px}
+.ph-del:hover{color:var(--red);background:rgba(239,68,68,.1)}
+.price-add{border-top:1px dashed var(--line);padding-top:14px}
+.price-add .fld{display:block;margin-bottom:10px}
 .m-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
 .m-btns .btn-primary{padding:.55rem 1.2rem;font-size:.9rem}
 .m-btns .btn-primary.danger{background:var(--red);color:#fff}
@@ -402,6 +425,12 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 .tabbar .fab-center:active{transform:scale(.94)}
 .app{padding-top:14px;padding-bottom:max(80px,calc(env(safe-area-inset-bottom) + 72px))}
 .me-panel .foot-btns{justify-content:flex-start}
+.settings-groups{display:flex;flex-direction:column;gap:16px;margin-top:12px}
+.settings-group{padding-bottom:14px;border-bottom:1px solid var(--line)}
+.settings-group:last-of-type{border-bottom:none}
+.settings-group-title{font-size:.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;font-weight:600}
+.danger-zone{border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:12px;background:rgba(239,68,68,.03);border-bottom:none}
+.danger-zone .settings-group-title{color:var(--red)}
 /* ===== 录入 bottom sheet ===== */
 .sheet-mask{position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.45);opacity:0;transition:opacity .25s}
 .sheet-mask.show{opacity:1}
@@ -462,7 +491,7 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 }
 </style>
 <script>document.documentElement.setAttribute('data-trae-theme', "light");window.__TRAE_DISABLE_LEGACY_ADD_TO_CHAT__=true;</script><style data-id="immersive-translate-input-injected-css"></style></head>
-<body style="background-color: rgb(15, 23, 42);" data-new-gr-c-s-check-loaded="14.1139.0" data-gr-ext-installed="">
+<body style="background-color: rgb(15, 23, 42);">
 <div class="bg-deco"></div>
 <!-- ☁️ 云端登录遮罩 -->
 <div class="cloud-login" id="cloudLogin" hidden="">
@@ -493,16 +522,16 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <section class="view view-in" data-view="home">
 <header class="hero">
 <div class="hero-main">
-<div class="bal-card">
+<div class="bal-card" title="在下方记一笔，开始追踪用电" style="cursor: pointer;">
 <div class="bal-label" data-i18n="balance">当前余额</div>
-<div id="odo"><span class="bal-cur">¥</span>435.41</div>
-<div class="bal-note" id="balTag">余额正常 · 继续保持</div>
+<div id="odo"><span class="bal-placeholder">— — —</span></div>
+<div class="bal-note" id="balTag">在下方记一笔，开始追踪用电</div>
 </div>
-<div class="tiles" id="tiles"><div class="tile"><div class="tile-label">日均用电</div><div class="tile-val">8.6 <span class="u">度/天</span></div><div class="tile-sub">近14天</div></div><div class="tile"><div class="tile-label">日均电费</div><div class="tile-val">¥5.60</div><div class="tile-sub">元 / 天</div></div><div class="tile"><div class="tile-label">月均电费</div><div class="tile-val">¥167.92</div><div class="tile-sub">元 / 30天</div></div><div class="tile"><div class="tile-label">余额可用</div><div class="tile-val">77.8 <span class="u">天</span></div><div class="tile-sub">约 2026/10/14 需充值</div></div></div>
+<div class="tiles" id="tiles"><div class="tile"><div class="tile-label">日均用电</div><div class="tile-val">-- <span class="u">度/天</span></div><div class="tile-sub">近14天</div></div><div class="tile"><div class="tile-label">日均电费</div><div class="tile-val">--</div><div class="tile-sub">元 / 天</div></div><div class="tile"><div class="tile-label">本月已用</div><div class="tile-val">-- <span class="u">度/天</span></div><div class="tile-sub">自本月1日起累计</div></div><div class="tile"><div class="tile-label">余额可用</div><div class="tile-val">-- <span class="u">天</span></div><div class="tile-sub">--</div></div></div>
 </div>
-<div class="hero-foot">
-<span id="lastRec">最近抄表 7/26 21:36</span>
-<span>NO. <span id="serial">EL-20260728</span></span>
+<button type="button" class="btn-primary cta-btn hero-cta" id="heroCta">+ 记一笔</button><div class="hero-foot">
+<span id="lastRec">暂无抄表记录</span>
+<span>NO. <span id="serial">EL-20260729</span></span>
 </div>
 </header>
 </section>
@@ -527,25 +556,26 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <button type="button" class="chip" data-p="year" data-i18n="p_year">今年</button>
 <button type="button" class="chip" data-p="all" data-i18n="p_all">全部</button>
 </div>
-<span class="range-info" id="rangeInfo">2026/6/29 → 2026/7/28 · 30 天</span>
+<span class="range-info" id="rangeInfo"></span>
 </div>
-<div id="statsBody">
-<div class="sums" id="sums"><div class="sum"><span>总用电</span><b>239.1<i>度</i></b><em class="down">▼ 18% 较上一同长区间</em></div><div class="sum"><span>总电费</span><b>¥155.43</b><em>电价 0.65 元/度</em></div><div class="sum"><span>日均用电</span><b>8.0<i>度</i></b><em>区间 30 天</em></div><div class="sum"><span>峰值日</span><b>14.7<i>度</i></b><em>2026年7月26日 · 周日</em></div><div class="sum"><span>充值合计</span><b class="g">¥500.00</b><em>▲ 已在结算中抵扣</em></div></div>
-<div class="chart-wrap"><div class="chart" id="statChart" style="min-width: 900px;"><div class="bcol" data-i="0"><div class="btrack"><i data-h="54.33" style="height: 54.33%;"></i></div><div class="bmeta"><span class="blab">6/29</span></div></div><div class="bcol" data-i="1"><div class="btrack"><i data-h="40.34" style="height: 40.34%;"></i></div><div class="bmeta"><span class="blab ghost">6/30</span></div></div><div class="bcol" data-i="2"><div class="btrack"><i data-h="41.27" style="height: 41.27%;"></i></div><div class="bmeta"><span class="blab ghost">7/1</span></div></div><div class="bcol" data-i="3"><div class="btrack"><i data-h="43.67" style="height: 43.67%;"></i></div><div class="bmeta"><span class="blab">7/2</span></div></div><div class="bcol" data-i="4"><div class="btrack"><i data-h="58.11" style="height: 58.11%;"></i></div><div class="bmeta"><span class="blab ghost">7/3</span></div></div><div class="bcol" data-i="5"><div class="btrack"><i data-h="74.99" style="height: 74.99%;"></i></div><div class="bmeta"><span class="blab ghost">7/4</span></div></div><div class="bcol" data-i="6"><div class="btrack"><i data-h="67.00" style="height: 67%;"></i></div><div class="bmeta"><span class="blab">7/5</span></div></div><div class="bcol" data-i="7"><div class="btrack"><i data-h="40.23" style="height: 40.23%;"></i></div><div class="bmeta"><span class="blab ghost">7/6</span></div></div><div class="bcol" data-i="8"><div class="btrack"><i data-h="32.89" style="height: 32.89%;"></i></div><div class="bmeta"><span class="blab ghost">7/7</span></div></div><div class="bcol" data-i="9"><div class="btrack"><i data-h="59.96" style="height: 59.96%;"></i></div><div class="bmeta"><span class="blab">7/8</span></div></div><div class="bcol" data-i="10"><div class="btrack"><i data-h="68.47" style="height: 68.47%;"></i></div><div class="bmeta"><span class="blab ghost">7/9</span></div></div><div class="bcol" data-i="11"><div class="btrack"><i data-h="72.23" style="height: 72.23%;"></i></div><div class="bmeta"><span class="blab ghost">7/10</span></div></div><div class="bcol" data-i="12"><div class="btrack"><i data-h="78.02" style="height: 78.02%;"></i></div><div class="bmeta"><span class="blab">7/11</span></div></div><div class="bcol" data-i="13"><div class="btrack"><i data-h="78.02" style="height: 78.02%;"></i></div><div class="bmeta"><span class="blab ghost">7/12</span></div></div><div class="bcol" data-i="14"><div class="btrack"><i data-h="68.97" style="height: 68.97%;"></i></div><div class="bmeta"><em class="tri">▲</em><span class="blab ghost">7/13</span></div></div><div class="bcol" data-i="15"><div class="btrack"><i data-h="53.20" style="height: 53.2%;"></i></div><div class="bmeta"><span class="blab">7/14</span></div></div><div class="bcol" data-i="16"><div class="btrack"><i data-h="53.20" style="height: 53.2%;"></i></div><div class="bmeta"><span class="blab ghost">7/15</span></div></div><div class="bcol" data-i="17"><div class="btrack"><i data-h="57.06" style="height: 57.06%;"></i></div><div class="bmeta"><span class="blab ghost">7/16</span></div></div><div class="bcol" data-i="18"><div class="btrack"><i data-h="59.56" style="height: 59.56%;"></i></div><div class="bmeta"><span class="blab">7/17</span></div></div><div class="bcol" data-i="19"><div class="btrack"><i data-h="54.58" style="height: 54.58%;"></i></div><div class="bmeta"><span class="blab ghost">7/18</span></div></div><div class="bcol" data-i="20"><div class="btrack"><i data-h="56.19" style="height: 56.19%;"></i></div><div class="bmeta"><span class="blab ghost">7/19</span></div></div><div class="bcol" data-i="21"><div class="btrack"><i data-h="52.39" style="height: 52.39%;"></i></div><div class="bmeta"><span class="blab">7/20</span></div></div><div class="bcol" data-i="22"><div class="btrack"><i data-h="44.91" style="height: 44.91%;"></i></div><div class="bmeta"><span class="blab ghost">7/21</span></div></div><div class="bcol" data-i="23"><div class="btrack"><i data-h="41.43" style="height: 41.43%;"></i></div><div class="bmeta"><span class="blab ghost">7/22</span></div></div><div class="bcol" data-i="24"><div class="btrack"><i data-h="44.81" style="height: 44.81%;"></i></div><div class="bmeta"><span class="blab">7/23</span></div></div><div class="bcol" data-i="25"><div class="btrack"><i data-h="55.43" style="height: 55.43%;"></i></div><div class="bmeta"><span class="blab ghost">7/24</span></div></div><div class="bcol" data-i="26"><div class="btrack"><i data-h="79.94" style="height: 79.94%;"></i></div><div class="bmeta"><span class="blab ghost">7/25</span></div></div><div class="bcol peak" data-i="27"><span class="bval">14.7</span><div class="btrack"><i data-h="100.00" style="height: 100%;"></i></div><div class="bmeta"><span class="blab">7/26</span></div></div><div class="bcol" data-i="28"><div class="btrack"><i data-h="0.00" style="height: 0%;"></i></div><div class="bmeta"><span class="blab ghost">7/27</span></div></div><div class="bcol" data-i="29"><div class="btrack"><i data-h="0.00" style="height: 0%;"></i></div><div class="bmeta"><span class="blab">7/28</span></div></div></div>
+<div id="statsBody" style="display: none;">
+<div class="sums" id="sums"></div>
+<div class="chart-wrap"><div class="chart" id="statChart"></div>
 <div class="legend">
 <span><i class="sw cyan"></i><span data-i18n="legend_usage">用电量（度）</span></span>
+<span><i class="sw amber"></i><span data-i18n="legend_peak">峰值</span></span>
 <span><i class="sw green"></i><span data-i18n="legend_recharge">▲ 该区间有充值</span></span>
 <span class="fn" id="statNote">结算口径：上期余额 + 期间充值 − 本期余额，跨区间按时间比例分摊</span>
 </div>
 </div>
-<div class="list-empty" id="statEmpty" hidden=""></div>
+<div class="list-empty" id="statEmpty"><div>还没有任何记录 · 先记一笔吧</div><button type="button" class="btn-primary cta-btn" onclick="document.getElementById('fabAdd').click()">+ 记一笔</button></div>
 </div></section>
 <section class="panel">
 <div class="p-head"><div><h2 data-i18n="trend_title">余额走势</h2><span class="en" data-i18n="trend_sub">Balance Trend · ▲ 绿色标记为充值</span></div></div>
-<div class="trend-wrap" id="trendWrap">
-<svg id="trendSvg" viewBox="0 0 320 250" width="320" height="250"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(56,189,248,.25)"></stop><stop offset="1" stop-color="rgba(56,189,248,0)"></stop></linearGradient></defs><line x1="48" x2="304" y1="220" y2="220" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="224" text-anchor="end" class="ax">0.0</text><line x1="48" x2="304" y1="169.5" y2="169.5" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="173.5" text-anchor="end" class="ax">142</text><line x1="48" x2="304" y1="119" y2="119" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="123" text-anchor="end" class="ax">283</text><line x1="48" x2="304" y1="68.5" y2="68.5" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="72.5" text-anchor="end" class="ax">425</text><line x1="48" x2="304" y1="18" y2="18" stroke="rgba(56,189,248,.08)" stroke-dasharray="3 5"></line><text x="40" y="22" text-anchor="end" class="ax">567</text><text x="48" y="242" text-anchor="middle" class="ax">2/26</text><text x="112" y="242" text-anchor="middle" class="ax">4/5</text><text x="176" y="242" text-anchor="middle" class="ax">5/12</text><text x="240" y="242" text-anchor="middle" class="ax">6/19</text><text x="304" y="242" text-anchor="middle" class="ax">7/26</text><path d="M48.0,117.9L51.4,122.5L54.8,124.6L58.3,128.8L60.0,131.1L61.7,132.3L63.5,134.1L65.1,137.6L68.6,141.3L72.1,144.7L73.8,146.8L77.2,151.1L80.5,156.8L82.3,157.9L84.1,159.5L89.2,167.3L90.9,168.8L95.9,174.6L97.6,176.8L101.0,178.9L102.7,180.8L104.4,182.6L107.7,186.6L111.2,190.0L112.8,193.2L114.5,195.0L119.6,198.2L121.3,202.4L123.0,203.5L126.4,197.1L129.8,200.9L131.5,202.1L133.3,204.1L136.7,209.9L141.8,146.5L145.2,150.1L150.3,156.4L153.7,159.5L155.5,162.4L157.1,164.3L158.9,166.8L162.3,171.5L164.0,171.9L165.7,174.0L167.4,176.1L169.0,177.5L174.2,185.4L175.9,187.4L177.5,189.4L179.2,190.7L182.6,194.3L184.3,197.3L186.0,204.2L187.8,206.1L191.2,209.4L194.6,176.6L198.0,181.3L201.3,187.0L203.0,188.6L206.4,192.5L209.9,200.4L211.6,201.8L216.8,208.3L218.5,210.3L221.8,179.1L223.5,181.2L227.0,184.8L228.7,186.6L232.2,195.7L233.8,197.6L237.2,201.3L238.8,203.8L243.9,209.4L245.6,175.7L249.0,179.9L252.4,182.3L257.5,188.9L259.2,190.3L262.7,193.1L264.4,194.7L267.7,199.7L269.4,201.6L271.2,202.3L272.9,204.1L276.3,208.8L281.4,38.6L286.5,44.0L288.1,46.0L291.5,49.7L293.2,51.7L296.7,54.8L298.3,56.0L301.7,59.8L304.0,64.8L304.0,220.0L48.0,220.0Z" fill="url(#ga)"></path><path d="M48.0,117.9L51.4,122.5L54.8,124.6L58.3,128.8L60.0,131.1L61.7,132.3L63.5,134.1L65.1,137.6L68.6,141.3L72.1,144.7L73.8,146.8L77.2,151.1L80.5,156.8L82.3,157.9L84.1,159.5L89.2,167.3L90.9,168.8L95.9,174.6L97.6,176.8L101.0,178.9L102.7,180.8L104.4,182.6L107.7,186.6L111.2,190.0L112.8,193.2L114.5,195.0L119.6,198.2L121.3,202.4L123.0,203.5L126.4,197.1L129.8,200.9L131.5,202.1L133.3,204.1L136.7,209.9L141.8,146.5L145.2,150.1L150.3,156.4L153.7,159.5L155.5,162.4L157.1,164.3L158.9,166.8L162.3,171.5L164.0,171.9L165.7,174.0L167.4,176.1L169.0,177.5L174.2,185.4L175.9,187.4L177.5,189.4L179.2,190.7L182.6,194.3L184.3,197.3L186.0,204.2L187.8,206.1L191.2,209.4L194.6,176.6L198.0,181.3L201.3,187.0L203.0,188.6L206.4,192.5L209.9,200.4L211.6,201.8L216.8,208.3L218.5,210.3L221.8,179.1L223.5,181.2L227.0,184.8L228.7,186.6L232.2,195.7L233.8,197.6L237.2,201.3L238.8,203.8L243.9,209.4L245.6,175.7L249.0,179.9L252.4,182.3L257.5,188.9L259.2,190.3L262.7,193.1L264.4,194.7L267.7,199.7L269.4,201.6L271.2,202.3L272.9,204.1L276.3,208.8L281.4,38.6L286.5,44.0L288.1,46.0L291.5,49.7L293.2,51.7L296.7,54.8L298.3,56.0L301.7,59.8L304.0,64.8" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="48" cy="117.92817455360515" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="51.43567917968828" cy="122.53281137192715" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="54.81837563893979" cy="124.62842007871765" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="58.26429297092753" cy="128.7661780865132" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="59.989702899146835" cy="131.09700817875978" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="61.70829781341622" cy="132.34439431375415" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="63.46559797185896" cy="134.1192465858318" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="65.13695629184006" cy="137.5513404372591" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="68.6091166238521" cy="141.30062676301358" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="72.05349699294634" cy="144.66500536711263" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="73.80529892097428" cy="146.76417803428882" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="77.18311308275185" cy="151.07657010098362" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="80.5415806300566" cy="156.8323661238861" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="82.30365821936795" cy="157.90868216036694" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="84.06184362671098" cy="159.49108057161692" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="89.21927897434819" cy="167.29258985591014" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="90.9028945886102" cy="168.81440094060326" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="95.93446363688918" cy="174.57376092389146" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="97.62323618943913" cy="176.84756764996686" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="100.96894194567389" cy="178.9431763567574" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="102.68697478119084" cy="180.8356393215631" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="104.35287456992953" cy="182.61405555402646" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="107.73067902399099" cy="186.5700515821514" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="111.16075323824923" cy="189.97006979010743" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="112.82150732277108" cy="193.16694225607867" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="114.5027629620722" cy="195.02020165664172" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="119.57914322832009" cy="198.18143451875596" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="121.32298351677503" cy="202.44036717966526" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="123.03032427211159" cy="203.54519489923166" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="120.90113217087543,207.1193743238179 131.90113217087543,207.1193743238179 126.40113217087543,198.1193743238179" fill="#34d399" opacity=".9"></polygon><circle cx="129.84626827554516" cy="200.9363758969006" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="131.5260672674437" cy="202.1196107449524" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="133.29104594424285" cy="204.07266103631497" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="136.66892963909515" cy="209.88548042538866" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="136.33233438921698,156.52895664883278 147.33233438921698,156.52895664883278 141.83233438921698,147.52895664883278" fill="#34d399" opacity=".9"></polygon><circle cx="145.24215115594575" cy="150.07866119298808" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="150.28790781665163" cy="156.44033048145928" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="153.72961479693674" cy="159.53741205663098" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="155.49578133711276" cy="162.42778392943217" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="157.14158847934766" cy="164.30599105269508" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="158.9050825829635" cy="166.7936354019124" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="162.2776740038447" cy="171.47667934871976" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="164.01206443241722" cy="171.90079063461783" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="165.6682143645335" cy="174.03560290565102" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="167.36474792986849" cy="176.05993240472756" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="169.0231014254802" cy="177.47838863823543" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="174.1620747504158" cy="185.37968881332822" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="175.875549104509" cy="187.40045435201907" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="177.54558594545102" cy="189.37845236608155" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="179.179318325781" cy="190.72919335226112" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="182.62055910461763" cy="194.2575141341023" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="184.34028969410625" cy="197.27262462040295" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="186.03885059662974" cy="204.22591133290004" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="187.7985717286144" cy="206.1468859807913" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="191.21500781046387" cy="209.432857456405" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="189.0574590634385,186.598090422968 200.0574590634385,186.598090422968 194.5574590634385,177.598090422968" fill="#34d399" opacity=".9"></polygon><circle cx="197.99939335936693" cy="181.25975060746117" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="201.349707260216" cy="187.03693039267787" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="202.98194328791553" cy="188.57299731891376" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="206.44027264140908" cy="192.50404562433883" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="209.88376467258394" cy="200.35188639364614" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="211.643745052182" cy="201.77390658753967" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="216.78701022391104" cy="208.3209018160672" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="218.4992526240196" cy="210.28108002820116" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="216.33379268004305,189.05722308909972 227.33379268004305,189.05722308909972 221.83379268004305,180.05722308909972" fill="#34d399" opacity=".9"></polygon><circle cx="223.5292073810756" cy="181.15283179589022" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="226.98889914546234" cy="184.82727495354501" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="228.73643303982178" cy="186.5557957406086" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="232.16338522626225" cy="195.73655769416703" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="233.80374624054969" cy="197.55774145125878" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="237.1608523165753" cy="201.29277193547045" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="238.84082722003336" cy="203.76616044314497" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="243.93624317912992" cy="209.38652597139094" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="240.1379806205772,185.67858864345786 251.1379806205772,185.67858864345786 245.6379806205772,176.67858864345786" fill="#34d399" opacity=".9"></polygon><circle cx="249.00273855210895" cy="179.8769339778103" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="252.4263483828546" cy="182.26122347584234" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="257.5232606849985" cy="188.8973177140123" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="259.2462173489983" cy="190.2623145417347" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="262.71487191852884" cy="193.12061077106458" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="264.40246950481446" cy="194.72795690501445" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="267.7492959307217" cy="199.73888520730605" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="269.4490143480058" cy="201.62778421172607" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="271.1668411731994" cy="202.25860519999463" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="272.87394449015267" cy="204.10830064017196" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="276.286369861067" cy="208.77352478505085" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><polygon points="275.93851431244445,48.60154428873585 286.93851431244445,48.60154428873585 281.43851431244445,39.60154428873585" fill="#34d399" opacity=".9"></polygon><circle cx="286.50806655929864" cy="43.986688431525735" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="288.13951709176285" cy="46.046657534459285" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="291.5240927524396" cy="49.73535653365685" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="293.2146383916862" cy="51.702662666562226" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="296.6647119791213" cy="54.796180281348214" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="298.31904468693097" cy="56.00079889171419" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="301.71938267519" cy="59.76434105901143" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><circle cx="304" cy="64.8216008463171" r="3" fill="#0e1626" stroke="#38bdf8" stroke-width="2"></circle><line id="tCross" y1="18" y2="220" stroke="rgba(226,232,240,.2)" stroke-dasharray="3 3" opacity="0"></line><circle id="tFocus" r="5" fill="none" stroke="#7dd3fc" stroke-width="2" opacity="0"></circle><rect id="tHit" x="48" y="18" width="256" height="202" fill="transparent"></rect></svg>
+<div class="trend-wrap" id="trendWrap" style="display: none;">
+<svg id="trendSvg"></svg>
 </div>
-<div class="list-empty" id="trendEmpty" hidden="">至少记录两笔后，这里会画出余额走势</div>
+<div class="list-empty" id="trendEmpty"><div>至少记录两笔后，这里会画出余额走势</div><button type="button" class="btn-primary cta-btn" onclick="document.getElementById('fabAdd').click()">+ 记一笔</button></div>
 </section>
 <section class="panel">
 <div class="p-head">
@@ -556,20 +586,20 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 </div>
 </div>
 <div class="bills-nav">
-<button type="button" class="bn-btn" id="billPrev" data-i18n="bill_prev" disabled="">‹ 上</button>
-<span class="bn-period" id="billPeriod">2026年 2–7月</span>
-<button type="button" class="bn-btn" id="billNext" data-i18n="bill_next" disabled="">下 ›</button>
+<button type="button" class="bn-btn" id="billPrev" data-i18n="bill_prev" style="visibility: hidden;">‹ 上</button>
+<span class="bn-period" id="billPeriod">—</span>
+<button type="button" class="bn-btn" id="billNext" data-i18n="bill_next" style="visibility: hidden;">下 ›</button>
 </div>
-<div class="bills-cards" id="billsCards"><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年2月<span class="bm-sub"></span></span><span class="bill-kwh">22.6<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥14.68</b></div><div class="bill-row"><span>充值</span><b class="rch">—</b></div><div class="bill-row"><span>日均用电</span><b class="avg">0.8 度</b></div><div class="bill-row"><span>28天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年3月<span class="bm-sub"></span></span><span class="bill-kwh">260.8<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥169.52</b></div><div class="bill-row"><span>充值</span><b class="rch">—</b></div><div class="bill-row"><span>日均用电</span><b class="avg">8.4 度</b></div><div class="bill-row"><span>31天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年4月<span class="bm-sub"></span></span><span class="bill-kwh">296.8<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥192.91</b></div><div class="bill-row"><span>充值</span><b class="rch">¥250.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">9.9 度</b></div><div class="bill-row"><span>30天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年5月<span class="bm-sub"></span></span><span class="bill-kwh">304.6<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥198.02</b></div><div class="bill-row"><span>充值</span><b class="rch">¥100.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">9.8 度</b></div><div class="bill-row"><span>31天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card"><div class="bill-head"><span class="bill-month">2026年6月<span class="bm-sub"></span></span><span class="bill-kwh">276.1<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥179.45</b></div><div class="bill-row"><span>充值</span><b class="rch">¥200.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">9.2 度</b></div><div class="bill-row"><span>30天 · 0.65元/度</span><b></b></div></div></div><div class="bill-card current"><div class="bill-head"><span class="bill-month">2026年7月<span class="bm-sub">(本月)</span></span><span class="bill-kwh">225.2<span class="u">度</span></span></div><div class="bill-rows"><div class="bill-row"><span>电费</span><b class="cost">¥146.41</b></div><div class="bill-row"><span>充值</span><b class="rch">¥500.00</b></div><div class="bill-row"><span>日均用电</span><b class="avg">7.3 度</b></div><div class="bill-row"><span>31天 · 0.65元/度</span><b></b></div></div></div></div>
-<div class="list-empty" id="billsEmpty" hidden="">至少记录两笔后，这里会生成账单汇总</div>
+<div class="bills-cards" id="billsCards" style="display: none;"></div>
+<div class="list-empty" id="billsEmpty"><div>至少记录两笔后，这里会生成账单汇总</div><button type="button" class="btn-primary cta-btn" onclick="document.getElementById('fabAdd').click()">+ 记一笔</button></div>
 </section>
 </section>
 <section class="view" data-view="ledger" hidden="">
 <section class="panel">
 <div class="p-head">
-<div><h2 data-i18n="ledger_title">记录清单</h2><span class="en" id="ledgerSub">Ledger Entries · 94 条 · 自动与上一笔结算</span></div>
+<div><h2 data-i18n="ledger_title">记录清单</h2><span class="en" id="ledgerSub">Ledger Entries · 0 条 · 自动与上一笔结算</span></div>
 </div>
-<div class="list-toolbar" id="listToolbar">
+<div class="list-toolbar" id="listToolbar" hidden="">
 <div class="list-search"><input type="text" id="listSearch" data-i18n-ph="search_ph" placeholder="搜索备注或日期（如 7月、充值）" maxlength="30"></div>
 <div class="chips" id="listTypeChips">
 <button type="button" class="chip on" data-t="all" data-i18n="t_all">全部</button>
@@ -577,7 +607,7 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <button type="button" class="chip" data-t="balance" data-i18n="t_balance">仅余额</button>
 </div>
 </div>
-<div class="list-filter-row" id="listFilterRow">
+<div class="list-filter-row" id="listFilterRow" hidden="">
 <span class="fl-label" data-i18n="range_label">区间</span>
 <input type="date" id="listStart" data-i18n-aria="list_start_aria" aria-label="记录开始日期">
 <span class="arrow">→</span>
@@ -590,25 +620,40 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <button type="button" class="chip" data-lp="lastMonth" data-i18n="lp_lastMonth">上月</button>
 <button type="button" class="chip" data-lp="year" data-i18n="lp_year">今年</button>
 </div>
-<span class="list-summary" id="listSummary">94 条记录</span>
+<span class="list-summary" id="listSummary"></span>
 </div>
-<div class="rows" id="recList"><div class="row" data-id="83fdb41b-290e-4d02-af33-5810c84f3223"><button type="button" class="row-del" data-del="83fdb41b-290e-4d02-af33-5810c84f3223" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥435.41</b><span>7/26 21:36 · 演示·周末</span></div><div class="r-info">≈ <b>21.8</b> 度 · ¥14.19 <span class="dim">/ 1.3天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="83fdb41b-290e-4d02-af33-5810c84f3223" title="编辑">✎</button><button type="button" class="del" data-id="83fdb41b-290e-4d02-af33-5810c84f3223" title="删除">✕</button></div></div></div><div class="row" data-id="499371fc-5fbf-4592-afd5-4dd38a45a9a2"><button type="button" class="row-del" data-del="499371fc-5fbf-4592-afd5-4dd38a45a9a2" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥449.60</b><span>7/25 13:25</span></div><div class="r-info">≈ <b>16.2</b> 度 · ¥10.56 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="499371fc-5fbf-4592-afd5-4dd38a45a9a2" title="编辑">✎</button><button type="button" class="del" data-id="499371fc-5fbf-4592-afd5-4dd38a45a9a2" title="删除">✕</button></div></div></div><div class="row" data-id="a60e41b8-64ee-4f85-a14c-050f95a423a7"><button type="button" class="row-del" data-del="a60e41b8-64ee-4f85-a14c-050f95a423a7" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥460.16</b><span>7/23 13:26</span></div><div class="r-info">≈ <b>5.2</b> 度 · ¥3.38 <span class="dim">/ 23小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="a60e41b8-64ee-4f85-a14c-050f95a423a7" title="编辑">✎</button><button type="button" class="del" data-id="a60e41b8-64ee-4f85-a14c-050f95a423a7" title="删除">✕</button></div></div></div><div class="row" data-id="f6d3cbb2-8a59-4588-8090-4aef240442d8"><button type="button" class="row-del" data-del="f6d3cbb2-8a59-4588-8090-4aef240442d8" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥463.54</b><span>7/22 14:06</span></div><div class="r-info">≈ <b>13.4</b> 度 · ¥8.68 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="f6d3cbb2-8a59-4588-8090-4aef240442d8" title="编辑">✎</button><button type="button" class="del" data-id="f6d3cbb2-8a59-4588-8090-4aef240442d8" title="删除">✕</button></div></div></div><div class="row" data-id="37809c00-a8d5-420c-9419-8aa64bb159ed"><button type="button" class="row-del" data-del="37809c00-a8d5-420c-9419-8aa64bb159ed" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥472.22</b><span>7/20 13:25</span></div><div class="r-info">≈ <b>8.5</b> 度 · ¥5.52 <span class="dim">/ 24小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="37809c00-a8d5-420c-9419-8aa64bb159ed" title="编辑">✎</button><button type="button" class="del" data-id="37809c00-a8d5-420c-9419-8aa64bb159ed" title="删除">✕</button></div></div></div><div class="row" data-id="cc9ac7d2-92f6-478f-85ed-83118cc9141f"><button type="button" class="row-del" data-del="cc9ac7d2-92f6-478f-85ed-83118cc9141f" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥477.74</b><span>7/19 13:33 · 演示·周末</span></div><div class="r-info">≈ <b>15.9</b> 度 · ¥10.35 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="cc9ac7d2-92f6-478f-85ed-83118cc9141f" title="编辑">✎</button><button type="button" class="del" data-id="cc9ac7d2-92f6-478f-85ed-83118cc9141f" title="删除">✕</button></div></div></div><div class="row" data-id="60edbbd9-4733-45b5-ad35-aaac7508b6f0"><button type="button" class="row-del" data-del="60edbbd9-4733-45b5-ad35-aaac7508b6f0" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥488.09</b><span>7/17 13:48</span></div><div class="r-info">≈ <b>8.9</b> 度 · ¥5.78 <span class="dim">/ 23小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="60edbbd9-4733-45b5-ad35-aaac7508b6f0" title="编辑">✎</button><button type="button" class="del" data-id="60edbbd9-4733-45b5-ad35-aaac7508b6f0" title="删除">✕</button></div></div></div><div class="row" data-id="fd6a844e-f042-43b4-be30-d3e2161b96e1"><button type="button" class="row-del" data-del="fd6a844e-f042-43b4-be30-d3e2161b96e1" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥493.87</b><span>7/16 14:46</span></div><div class="r-info">≈ <b>23.2</b> 度 · ¥15.11 <span class="dim">/ 3.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="fd6a844e-f042-43b4-be30-d3e2161b96e1" title="编辑">✎</button><button type="button" class="del" data-id="fd6a844e-f042-43b4-be30-d3e2161b96e1" title="删除">✕</button></div></div></div><div class="row" data-id="c0ece709-2f05-4a87-9243-67ebab33dd4b"><button type="button" class="row-del" data-del="c0ece709-2f05-4a87-9243-67ebab33dd4b" aria-label="删除">删除</button><div class="row-c"><span class="tag r">充</span><div class="r-main"><b>¥508.98</b><em>+¥500.00</em><span>7/13 15:14 · 演示·线上充值</span></div><div class="r-info">≈ <b>34.6</b> 度 · ¥22.52 <span class="dim">/ 3.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="c0ece709-2f05-4a87-9243-67ebab33dd4b" title="编辑">✎</button><button type="button" class="del" data-id="c0ece709-2f05-4a87-9243-67ebab33dd4b" title="删除">✕</button></div></div></div><div class="row" data-id="3a9843f8-3674-4511-9ff7-b097962d2a09"><button type="button" class="row-del" data-del="3a9843f8-3674-4511-9ff7-b097962d2a09" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥31.50</b><span>7/10 14:32 · 演示·周末</span></div><div class="r-info">≈ <b>20.1</b> 度 · ¥13.09 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="3a9843f8-3674-4511-9ff7-b097962d2a09" title="编辑">✎</button><button type="button" class="del" data-id="3a9843f8-3674-4511-9ff7-b097962d2a09" title="删除">✕</button></div></div></div><div class="row" data-id="4763c05a-eac4-458e-953d-c48582f12301"><button type="button" class="row-del" data-del="4763c05a-eac4-458e-953d-c48582f12301" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥44.59</b><span>7/8 14:23</span></div><div class="r-info">≈ <b>8.0</b> 度 · ¥5.19 <span class="dim">/ 1.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="4763c05a-eac4-458e-953d-c48582f12301" title="编辑">✎</button><button type="button" class="del" data-id="4763c05a-eac4-458e-953d-c48582f12301" title="删除">✕</button></div></div></div><div class="row" data-id="df6ffbfa-2859-4d36-806e-d668a53262eb"><button type="button" class="row-del" data-del="df6ffbfa-2859-4d36-806e-d668a53262eb" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥49.78</b><span>7/7 14:18</span></div><div class="r-info">≈ <b>2.7</b> 度 · ¥1.77 <span class="dim">/ 1.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="df6ffbfa-2859-4d36-806e-d668a53262eb" title="编辑">✎</button><button type="button" class="del" data-id="df6ffbfa-2859-4d36-806e-d668a53262eb" title="删除">✕</button></div></div></div><div class="row" data-id="335fb241-e141-47ef-a6c8-5877008b54f4"><button type="button" class="row-del" data-del="335fb241-e141-47ef-a6c8-5877008b54f4" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥51.55</b><span>7/6 14:03 · 演示·周末</span></div><div class="r-info">≈ <b>8.2</b> 度 · ¥5.30 <span class="dim">/ 24小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="335fb241-e141-47ef-a6c8-5877008b54f4" title="编辑">✎</button><button type="button" class="del" data-id="335fb241-e141-47ef-a6c8-5877008b54f4" title="删除">✕</button></div></div></div><div class="row" data-id="1447eac9-1662-4727-98e5-a73302d94673"><button type="button" class="row-del" data-del="1447eac9-1662-4727-98e5-a73302d94673" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥56.85</b><span>7/5 14:04</span></div><div class="r-info">≈ <b>21.6</b> 度 · ¥14.06 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="1447eac9-1662-4727-98e5-a73302d94673" title="编辑">✎</button><button type="button" class="del" data-id="1447eac9-1662-4727-98e5-a73302d94673" title="删除">✕</button></div></div></div><div class="row" data-id="569d2432-e2d4-4b42-86bc-b06bc78e204f"><button type="button" class="row-del" data-del="569d2432-e2d4-4b42-86bc-b06bc78e204f" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥70.91</b><span>7/3 14:50</span></div><div class="r-info">≈ <b>6.9</b> 度 · ¥4.51 <span class="dim">/ 24小时</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="569d2432-e2d4-4b42-86bc-b06bc78e204f" title="编辑">✎</button><button type="button" class="del" data-id="569d2432-e2d4-4b42-86bc-b06bc78e204f" title="删除">✕</button></div></div></div><div class="row" data-id="efc7faef-2ac6-465e-9436-6cd117a2068f"><button type="button" class="row-del" data-del="efc7faef-2ac6-465e-9436-6cd117a2068f" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥75.42</b><span>7/2 15:02 · 演示·周末</span></div><div class="r-info">≈ <b>12.3</b> 度 · ¥8.02 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="efc7faef-2ac6-465e-9436-6cd117a2068f" title="编辑">✎</button><button type="button" class="del" data-id="efc7faef-2ac6-465e-9436-6cd117a2068f" title="删除">✕</button></div></div></div><div class="row" data-id="b142eb46-b82d-42b4-91e0-fa440c22cf18"><button type="button" class="row-del" data-del="b142eb46-b82d-42b4-91e0-fa440c22cf18" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥83.44</b><span>6/30 14:05</span></div><div class="r-info">≈ <b>5.9</b> 度 · ¥3.83 <span class="dim">/ 1.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="b142eb46-b82d-42b4-91e0-fa440c22cf18" title="编辑">✎</button><button type="button" class="del" data-id="b142eb46-b82d-42b4-91e0-fa440c22cf18" title="删除">✕</button></div></div></div><div class="row" data-id="f6c0cc71-d658-4ce4-a6bb-951c08c8fa17"><button type="button" class="row-del" data-del="f6c0cc71-d658-4ce4-a6bb-951c08c8fa17" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥87.27</b><span>6/29 13:46</span></div><div class="r-info">≈ <b>28.6</b> 度 · ¥18.62 <span class="dim">/ 3.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="f6c0cc71-d658-4ce4-a6bb-951c08c8fa17" title="编辑">✎</button><button type="button" class="del" data-id="f6c0cc71-d658-4ce4-a6bb-951c08c8fa17" title="删除">✕</button></div></div></div><div class="row" data-id="ca3410e9-9ac2-4171-8188-6daf70ba7441"><button type="button" class="row-del" data-del="ca3410e9-9ac2-4171-8188-6daf70ba7441" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥105.89</b><span>6/26 13:51</span></div><div class="r-info">≈ <b>10.3</b> 度 · ¥6.69 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="ca3410e9-9ac2-4171-8188-6daf70ba7441" title="编辑">✎</button><button type="button" class="del" data-id="ca3410e9-9ac2-4171-8188-6daf70ba7441" title="删除">✕</button></div></div></div><div class="row" data-id="47a1a7fc-3f81-4016-bddc-41119fc16b15"><button type="button" class="row-del" data-del="47a1a7fc-3f81-4016-bddc-41119fc16b15" aria-label="删除">删除</button><div class="row-c"><span class="tag b">余</span><div class="r-main"><b>¥112.58</b><span>6/24 13:32</span></div><div class="r-info">≈ <b>18.1</b> 度 · ¥11.78 <span class="dim">/ 2.0天</span></div><div class="r-actions"><button type="button" class="edit-btn" data-edit="47a1a7fc-3f81-4016-bddc-41119fc16b15" title="编辑">✎</button><button type="button" class="del" data-id="47a1a7fc-3f81-4016-bddc-41119fc16b15" title="删除">✕</button></div></div></div></div>
-<div class="pager" id="pager"><button class="pg-btn" data-pg="prev" disabled="">‹</button><button class="pg-btn on" data-pg="1">1</button><button class="pg-btn" data-pg="2">2</button><button class="pg-btn" data-pg="3">3</button><button class="pg-btn" data-pg="4">4</button><button class="pg-btn" data-pg="5">5</button><button class="pg-btn" data-pg="next">›</button><div class="pg-info" style="width:100%">第 1–20 条 / 共 94 条 · 每页 20 条</div></div>
+<div class="rows" id="recList"><div class="list-empty"><div>还没有记录 · 先记一笔吧</div><button type="button" class="btn-primary cta-btn" onclick="document.getElementById('fabAdd').click()">+ 记一笔</button></div></div>
+<div class="pager" id="pager"></div>
 </section>
 </section>
 <section class="view" data-view="me" hidden="">
 <section class="panel me-panel">
 <div class="p-head"><div><h2 data-i18n="me_title">我的</h2><span class="en" data-i18n="me_sub">Me · Settings &amp; Data</span></div></div>
+<div class="settings-groups">
+<div class="settings-group">
+<div class="settings-group-title" data-i18n="me_group_sync">数据同步</div>
 <div class="foot-btns">
 <button type="button" class="btn-ghost" id="cloudBtn" data-i18n="cloud">☁️ 云端</button>
 <button type="button" class="btn-ghost" id="installBtn" hidden="" data-i18n="install">📱 安装应用</button>
+</div>
+</div>
+<div class="settings-group">
+<div class="settings-group-title" data-i18n="me_group_manage">数据管理</div>
+<div class="foot-btns">
 <button type="button" class="btn-ghost" id="priceBtn" data-i18n="price">⚙️ 设置电价</button>
 <button type="button" class="btn-ghost" id="exportBtn" data-i18n="exportBtn">📤 导出备份</button>
 <button type="button" class="btn-ghost" id="importBtn" data-i18n="importBtn">📥 导入数据</button>
+</div>
+</div>
+<div class="settings-group danger-zone">
+<div class="settings-group-title" data-i18n="me_group_danger">危险区</div>
+<div class="foot-btns">
 <button type="button" class="btn-ghost danger" id="clearBtn" data-i18n="clear">🗑️ 清空数据</button>
+</div>
+</div>
 <input type="file" id="importFile" accept="application/json,.json" hidden="">
 </div>
-<p><span class="cloud-status " id="cloudStatus"><span class="dot"></span><span class="ctxt">未连接</span></span> · <span data-i18n="me_note">修改电价后历史用电按新电价重新折算 · 当前电价 </span><b id="footPrice">0.65</b><span data-i18n="me_note_suffix"> 元/度</span></p>
+<p><span class="cloud-status " id="cloudStatus"><span class="dot"></span><span class="ctxt">未连接</span></span> · <span data-i18n="me_note">支持分段电价 · 当前电价 </span><b id="footPrice">0.65</b><span data-i18n="me_note_suffix"> 元/度</span></p>
 <p id="verInfo" style="text-align:center;font-size:.7rem;color:var(--dim);margin-top:8px;font-family:var(--mono)">V1.1.0</p>
 </section>
 </section>
@@ -638,18 +683,18 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <div class="sheet-handle" id="sheetHandle" role="button" tabindex="0" data-i18n-aria="close" aria-label="关闭"></div>
 <button type="button" class="sheet-close" id="sheetClose" data-i18n-aria="close" aria-label="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
 <div class="sheet-head">
-<h2 data-i18n="entry_title">记一笔</h2>
-<span class="en" data-i18n="entry_sub">Quick Entry · 余额与充值一次记清</span>
+<h2 id="entryTitle" data-i18n="entry_title">记一笔</h2>
+<span class="en" id="entrySub" data-i18n="entry_sub">Quick Entry · 余额与充值一次记清</span>
 </div>
 <div class="edit-banner" id="editBanner" hidden="">
 <span class="eb-tag" data-i18n="editing">编辑中</span>
 <span id="editInfo">正在修改记录</span>
 <button type="button" class="eb-cancel" id="editCancel" data-i18n="cancel_edit">✕ 取消编辑</button>
 </div>
-<form id="formEntry" class="entry">
-<label class="fld"><span data-i18n="f_time">抄表时间</span><input type="datetime-local" id="eTime"></label>
-<label class="fld"><span data-i18n="f_note">备注（可选）</span><input type="text" id="eNote" maxlength="30" data-i18n-ph="f_note_ph" placeholder="如：网上国网充值 / 换了新热水器"></label>
-<label class="fld"><span data-i18n="f_balance">电表余额（元）</span><input type="number" id="eBalance" step="0.01" min="0" data-i18n-ph="f_balance_ph" placeholder="如 128.45" inputmode="decimal"></label>
+<form id="formEntry" class="entry" novalidate="">
+<label class="fld"><span data-i18n="f_time">抄表时间</span><input type="datetime-local" id="eTime" required=""></label>
+<label class="fld"><span data-i18n="f_note">备注（可选）</span><input type="text" id="eNote" maxlength="60" data-i18n-ph="f_note_ph" placeholder="如：网上国网充值 / 换了新热水器"></label>
+<label class="fld"><span data-i18n="f_balance">电表余额（元）</span><input type="number" id="eBalance" step="0.01" min="0" required="" data-i18n-ph="f_balance_ph" placeholder="如 128.45" inputmode="decimal"></label>
 <label class="fld"><span data-i18n="f_recharge">本次充值（元，无则填0）</span><input type="number" id="eRecharge" step="0.01" min="0" value="0" data-i18n-ph="f_recharge_ph" placeholder="0" inputmode="decimal"></label>
 <div class="chips-row"><span class="lbl" data-i18n="quick_recharge">快捷充值</span>
 <div class="chips" id="eChips">
@@ -683,28 +728,30 @@ lang_aria:'切换语言',lang_zh:'中',lang_en:'EN',fab_aria:'记一笔',nav_add
 theme_to_dark:'切换到深色模式',theme_to_light:'切换到浅色模式',
 balance:'当前余额',bal_normal:'余额正常 · 继续保持',bal_low:'⚠ 余额偏低，建议尽快充值',bal_none:'在下方记一笔，开始追踪用电',
 bal_days_left:'余额可用约 {n} 天，注意及时充值',last_rec:'最近抄表 {t}',no_rec:'暂无抄表记录',
-tile_daily_usage:'日均用电',tile_daily_cost:'日均电费',tile_monthly_cost:'月均电费',tile_days_left:'余额可用',
+tile_daily_usage:'日均用电',tile_daily_cost:'日均电费',tile_month_usage:'本月已用',tile_month_usage_sub:'自本月1日起累计',tile_days_left:'余额可用',
 tile_usage_unit:'度/天',tile_cost_unit:'元 / 天',tile_month_unit:'元 / 30天',tile_days_unit:'天',tile_usage_sub:'近14天',
 days_left_sub:'约 {d} 需充值',
 entry_title:'记一笔',entry_sub:'Quick Entry · 余额与充值一次记清',editing:'编辑中',editing_info:'正在修改记录',
 editing_info_dt:'正在修改 {t} 的记录',cancel_edit:'✕ 取消编辑',
+edit_title:'编辑记录',edit_sub:'Edit · 修改这条记录的信息',
 f_time:'抄表时间',f_note:'备注（可选）',f_balance:'电表余额（元）',f_recharge:'本次充值（元，无则填0）',
 f_note_ph:'如：网上国网充值 / 换了新热水器',f_balance_ph:'如 128.45',f_recharge_ph:'0',
 quick_recharge:'快捷充值',no_recharge:'不充值',save:'✅ 保存记录',update:'✏️ 更新记录',
 stats_title:'用电统计',stats_sub:'Usage Analytics · 自由选择区间',
 g_day:'日',g_week:'周',g_month:'月',g_year:'年',range_start_aria:'开始日期',range_end_aria:'结束日期',
 p_7d:'近7天',p_30d:'近30天',p_month:'本月',p_lastMonth:'上月',p_year:'今年',p_all:'全部',
-range_info:'{a} → {b} · {n} 天',legend_usage:'用电量（度）',legend_recharge:'▲ 该区间有充值',
+range_info:'{a} → {b} · {n} 天',legend_usage:'用电量（度）',legend_recharge:'▲ 该区间有充值',legend_peak:'峰值',
 stat_note:'结算口径：上期余额 + 期间充值 − 本期余额，跨区间按时间比例分摊',
 sum_total_usage:'总用电',sum_total_cost:'总电费',sum_daily_usage:'日均用电',sum_peak:'峰值{g}',sum_recharge:'充值合计',
 sum_cost_note:'电价 {p} 元/度',sum_range_note:'区间 {n} 天',sum_delta_up:'▲ {n}% 较上一同长区间',sum_delta_down:'▼ {n}% 较上一同长区间',sum_delta_none:'较上一同长区间 --',sum_recharge_note:'▲ 已在结算中抵扣',
 unit_kwh:'度',per_kwh:'元/度',day_unit:'天',hour_unit:'小时',
 chart_tip:'{label}用电 {k} 度 · {c}',chart_tip_recharge:'<br><span class="g">▲ 充值 +{c}</span>',
 stats_empty_2:'需要至少两笔记录才能结算用电区间',stats_empty_0:'还没有任何记录 · 先记一笔吧',
+cta_add:'+ 记一笔',
 trend_title:'余额走势',trend_sub:'Balance Trend · ▲ 绿色标记为充值',trend_empty:'至少记录两笔后，这里会画出余额走势',
 trend_tip_recharge:'充值 <span class="g">+{c}</span> · 余额 {v}',trend_tip_bal:'余额 {v}',
 bills_title:'账单汇总',bills_sub:'Bills Summary · 按月/年回顾电费开销',bg_month:'月度',bg_year:'年度',
-bill_prev:'‹ 上',bill_next:'下 ›',bill_period_m:'{y}年 {a}–{b}月',bill_period_y:'{a}–{b}年',bill_label_m:'{y}年{m}月',bill_label_y:'{y}年',bill_current:'(本月)',
+bill_prev:'‹ 上',bill_next:'下 ›',bill_period_m:'{y}年 {a}–{b}月',bill_period_y:'{a}–{b}年',bill_label_m:'{y}年{m}月',bill_label_y:'{y}年',bill_current:'(本月)',bill_jump_hint:'已跳转到该区间统计',bill_card_aria:'查看该区间统计明细',
 bill_cost_label:'电费',bill_recharge_label:'充值',bill_avg_label:'日均用电',bill_meta:'{d}天 · {p}元/度',bills_empty:'至少记录两笔后，这里会生成账单汇总',
 ledger_title:'记录清单',ledger_sub:'Ledger Entries · {n} 条 · 自动与上一笔结算',
 search_ph:'搜索备注或日期（如 7月、充值）',t_all:'全部',t_recharge:'仅充值',t_balance:'仅余额',
@@ -717,14 +764,17 @@ row_first:'首笔基准 · 开始追踪',row_anomaly:'⚠️ 余额反升 {c}（
 row_seg:'≈ <b>{k}</b> 度 · {c} <span class="dim">/ {d}</span>',row_seg_h:'{n}小时',row_seg_d:'{n}天',
 tag_recharge:'充',tag_balance:'余',edit_aria:'编辑',del_aria:'删除',
 me_title:'我的',me_sub:'Me · Settings & Data',cloud:'☁️ 云端',install:'📱 安装应用',price:'⚙️ 设置电价',exportBtn:'📤 导出备份',importBtn:'📥 导入数据',clear:'🗑️ 清空数据',
-me_note:'修改电价后历史用电按新电价重新折算 · 当前电价 ',me_note_suffix:' 元/度',
+me_group_sync:'数据同步',me_group_manage:'数据管理',me_group_danger:'危险区',
+me_note:'支持分段电价 · 当前电价 ',me_note_suffix:' 元/度',
 cs_disconnected:'未连接',cs_connecting:'连接中…',cs_syncing:'同步中…',cs_synced:'已同步',cs_err_auth:'令牌失效',cs_err_branch:'分支或仓库不存在',cs_err_sync:'同步失败 ({m})',
+cloud_commit_msg:'更新电费账本',
 ok:'确定',cancel:'取消',
 del_title:'删除这条记录？',del_body_time:'时间：',del_body_bal:'余额：',del_body_recharge:' · 充值 ',del_note:'删除后会重新计算相邻记录的用电区间，此操作不可撤销。',del_confirm:'确认删除',del_done:'已删除 1 条记录',
 err_time:'⚠️ 请选择抄表时间',err_balance:'⚠️ 请输入有效余额',err_recharge:'⚠️ 请输入有效充值金额',err_duplicate:'⚠️ {t} 已有记录，请修改原记录或调整时间',
+err_save:'⚠️ 存储写入失败，数据未保存，请清理浏览器或导出备份',
 adj_title:'相邻区间出现余额反升？',adj_note:'可能是抄表、充值金额填写有误，也可能发生了换表。请核对后再继续。',adj_prev:'上一笔',adj_next:'下一笔',adj_li:'{side}（{t}）相邻区间余额反升 {c}',adj_still:'仍要{v}',verb_save:'保存',verb_update:'更新',
 saved_new:'⚡ 已记录：余额 {b}{r}',saved_upd:'✏️ 已更新记录：余额 {b}{r}',recharge_part:' · 充值 {r}',
-price_title:'⚙️ 电价设置',price_label:'电价（元 / 度）',price_ph:'0.65',price_err:'⚠️ 请输入有效电价',price_done:'电价已更新为 {v} 元/度',price_modal_note:'修改后，所有历史用电将按新电价重新折算。',close:'关闭',
+price_title:'⚙️ 电价设置',price_label:'电价（元 / 度）',price_ph:'0.65',price_err:'⚠️ 请输入有效电价',price_err_date:'⚠️ 请选择生效日期',price_err_past:'⚠️ 生效日期不能早于上一次调价',price_done:'电价已更新为 {v} 元/度',price_modal_note:'修改后，所有历史用电将按新电价重新折算。',price_modal_note_v5:'新增调价后，该日期起的用电按新电价计算，之前的用电仍按当时电价。',price_hist_now_label:'当前电价',price_hist_title:'调价历史',price_hist_add_title:'新增调价',price_hist_add_btn:'新增调价',price_hist_from:'生效日期',price_hist_initial:'初始',price_hist_current:'当前',price_hist_del:'删除此调价',price_hist_deleted:'已删除最近一次调价',close:'关闭',
 backup_filename:'电费小账本-备份-{d}.json',backup_done:'📤 备份已下载',
 import_done:'📥 新增 {add} 条{upd}，跳过重复 {dup} 条',import_upd_part:'，更新 {n} 条',import_err:'⚠️ 文件格式无法识别',
 clear_none:'当前没有数据',clear_title:'🗑️ 清空全部数据',clear_body:'将先<b>自动下载一份备份</b>，随后删除全部 <b>{n}</b> 条记录，此操作不可撤销。',clear_confirm:'仍要清空',clear_done:'已清空，备份已下载',
@@ -744,28 +794,30 @@ lang_aria:'Switch language',lang_zh:'中',lang_en:'EN',fab_aria:'Add Entry',nav_
 theme_to_dark:'Switch to dark mode',theme_to_light:'Switch to light mode',
 balance:'Balance',bal_normal:'Balance OK · keep it up',bal_low:'⚠ Balance low, top up soon',bal_none:'Add an entry below to start tracking',
 bal_days_left:'Balance lasts ~{n} days, top up soon',last_rec:'Last reading {t}',no_rec:'No readings yet',
-tile_daily_usage:'Daily Usage',tile_daily_cost:'Daily Cost',tile_monthly_cost:'Monthly Cost',tile_days_left:'Days Left',
+tile_daily_usage:'Daily Usage',tile_daily_cost:'Daily Cost',tile_month_usage:'This Month',tile_month_usage_sub:'since the 1st',tile_days_left:'Days Left',
 tile_usage_unit:'kWh/d',tile_cost_unit:'CNY / day',tile_month_unit:'CNY / 30d',tile_days_unit:'days',tile_usage_sub:'last 14d',
 days_left_sub:'top up ~{d}',
 entry_title:'Add Entry',entry_sub:'Quick Entry · balance & recharge in one',editing:'Editing',editing_info:'Editing record',
 editing_info_dt:'Editing record of {t}',cancel_edit:'✕ Cancel edit',
+edit_title:'Edit Record',edit_sub:'Edit · modify this entry',
 f_time:'Reading time',f_note:'Note (optional)',f_balance:'Meter balance (CNY)',f_recharge:'Recharge (CNY, 0 if none)',
 f_note_ph:'e.g. online top-up / new water heater',f_balance_ph:'e.g. 128.45',f_recharge_ph:'0',
 quick_recharge:'Quick recharge',no_recharge:'No recharge',save:'✅ Save',update:'✏️ Update',
 stats_title:'Usage Stats',stats_sub:'Usage Analytics · pick any range',
 g_day:'D',g_week:'W',g_month:'M',g_year:'Y',range_start_aria:'Start date',range_end_aria:'End date',
 p_7d:'7d',p_30d:'30d',p_month:'This month',p_lastMonth:'Last month',p_year:'This year',p_all:'All',
-range_info:'{a} → {b} · {n} d',legend_usage:'Usage (kWh)',legend_recharge:'▲ recharged in this range',
+range_info:'{a} → {b} · {n} d',legend_usage:'Usage (kWh)',legend_recharge:'▲ recharged in this range',legend_peak:'Peak',
 stat_note:'Formula: prev balance + recharge − this balance; split proportionally across ranges',
 sum_total_usage:'Total Usage',sum_total_cost:'Total Cost',sum_daily_usage:'Daily Avg',sum_peak:'Peak {g}',sum_recharge:'Recharge',
 sum_cost_note:'price {p} CNY/kWh',sum_range_note:'range {n} d',sum_delta_up:'▲ {n}% vs same-length prior',sum_delta_down:'▼ {n}% vs same-length prior',sum_delta_none:'vs same-length prior --',sum_recharge_note:'▲ already deducted',
 unit_kwh:'kWh',per_kwh:'CNY/kWh',day_unit:'days',hour_unit:'hours',
 chart_tip:'{label} usage {k} kWh · {c}',chart_tip_recharge:'<br><span class="g">▲ recharge +{c}</span>',
 stats_empty_2:'Need at least two records to settle usage',stats_empty_0:'No records yet · add one to start',
+cta_add:'+ Add Entry',
 trend_title:'Balance Trend',trend_sub:'Balance Trend · ▲ green marks are recharges',trend_empty:'Record at least two readings to see the trend',
 trend_tip_recharge:'Recharge <span class="g">+{c}</span> · Balance {v}',trend_tip_bal:'Balance {v}',
 bills_title:'Bills',bills_sub:'Bills Summary · review cost by month / year',bg_month:'Monthly',bg_year:'Yearly',
-bill_prev:'‹ Prev',bill_next:'Next ›',bill_period_m:'{y} {a}–{b}',bill_period_y:'{a}–{b}',bill_label_m:'{y}-{m}',bill_label_y:'{y}',bill_current:'(this month)',
+bill_prev:'‹ Prev',bill_next:'Next ›',bill_period_m:'{y} {a}–{b}',bill_period_y:'{a}–{b}',bill_label_m:'{y}-{m}',bill_label_y:'{y}',bill_current:'(this month)',bill_jump_hint:'Jumped to stats for this period',bill_card_aria:'View stats for this period',
 bill_cost_label:'Cost',bill_recharge_label:'Recharge',bill_avg_label:'Daily avg',bill_meta:'{d}d · {p} CNY/kWh',bills_empty:'Record at least two readings to see bills',
 ledger_title:'Ledger',ledger_sub:'Ledger Entries · {n} entries · auto-settled with previous',
 search_ph:'Search note or date (e.g. Jul, recharge)',t_all:'All',t_recharge:'Recharge only',t_balance:'Balance only',
@@ -778,14 +830,17 @@ row_first:'First baseline · tracking starts',row_anomaly:'⚠️ Balance rose {
 row_seg:'≈ <b>{k}</b> kWh · {c} <span class="dim">/ {d}</span>',row_seg_h:'{n}h',row_seg_d:'{n}d',
 tag_recharge:'R',tag_balance:'B',edit_aria:'Edit',del_aria:'Delete',
 me_title:'Me',me_sub:'Me · Settings & Data',cloud:'☁️ Cloud',install:'📱 Install',price:'⚙️ Set Price',exportBtn:'📤 Export',importBtn:'📥 Import',clear:'🗑️ Clear Data',
-me_note:'Changing price re-evaluates past usage · current price ',me_note_suffix:' CNY/kWh',
+me_group_sync:'Sync',me_group_manage:'Data Management',me_group_danger:'Danger Zone',
+me_note:'Supports tiered price history · current price ',me_note_suffix:' CNY/kWh',
 cs_disconnected:'Disconnected',cs_connecting:'Connecting…',cs_syncing:'Syncing…',cs_synced:'Synced',cs_err_auth:'Token expired',cs_err_branch:'Branch or repo not found',cs_err_sync:'Sync failed ({m})',
+cloud_commit_msg:'update electricity ledger',
 ok:'OK',cancel:'Cancel',
 del_title:'Delete this record?',del_body_time:'Time: ',del_body_bal:'Balance: ',del_body_recharge:' · recharge ',del_note:'Adjacent intervals will be re-settled. This cannot be undone.',del_confirm:'Delete',del_done:'Deleted 1 record',
 err_time:'⚠️ Please pick a reading time',err_balance:'⚠️ Please enter a valid balance',err_recharge:'⚠️ Please enter a valid recharge',err_duplicate:'⚠️ A record already exists at {t}, edit it or change the time',
+err_save:'⚠️ Storage write failed, data not saved. Please clear browser storage or export a backup',
 adj_title:'Balance rose in an adjacent interval?',adj_note:'The reading or recharge may be wrong, or the meter was replaced. Please check before continuing.',adj_prev:'Previous',adj_next:'Next',adj_li:'{side} ({t}) adjacent interval balance rose {c}',adj_still:'{v} anyway',verb_save:'Save',verb_update:'Update',
 saved_new:'⚡ Saved: balance {b}{r}',saved_upd:'✏️ Updated: balance {b}{r}',recharge_part:' · recharge {r}',
-price_title:'⚙️ Price Setting',price_label:'Price (CNY / kWh)',price_ph:'0.65',price_err:'⚠️ Please enter a valid price',price_done:'Price updated to {v} CNY/kWh',price_modal_note:'After changing, all past usage is re-evaluated at the new price.',close:'Close',
+price_title:'⚙️ Price Setting',price_label:'Price (CNY / kWh)',price_ph:'0.65',price_err:'⚠️ Please enter a valid price',price_err_date:'⚠️ Please pick an effective date',price_err_past:'⚠️ Effective date cannot be earlier than the last change',price_done:'Price updated to {v} CNY/kWh',price_modal_note:'After changing, all past usage is re-evaluated at the new price.',price_modal_note_v5:'After adding, usage from this date uses the new price; earlier usage keeps its original price.',price_hist_now_label:'Current Price',price_hist_title:'Price History',price_hist_add_title:'Add Price Change',price_hist_add_btn:'Add Change',price_hist_from:'Effective Date',price_hist_initial:'Initial',price_hist_current:'current',price_hist_del:'Remove this change',price_hist_deleted:'Removed the latest price change',close:'Close',
 backup_filename:'elec-ledger-backup-{d}.json',backup_done:'📤 Backup downloaded',
 import_done:'📥 Added {add}{upd}, skipped {dup} duplicates',import_upd_part:', updated {n}',import_err:'⚠️ Unrecognized file format',
 clear_none:'No data yet',clear_title:'🗑️ Clear all data',clear_body:'A backup will be <b>auto-downloaded</b> first, then all <b>{n}</b> records will be deleted. This cannot be undone.',clear_confirm:'Clear',clear_done:'Cleared, backup downloaded',
@@ -859,8 +914,34 @@ function isoWeek(ts){const d=new Date(ts);d.setHours(0,0,0,0);d.setDate(d.getDat
 function weekStart(ts){const d=new Date(ts);d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime();}
 /* ================= 状态 ================= */
 const KEY='elec.ledger.v2';
-const SCHEMA_VERSION=4;
-let state={v:SCHEMA_VERSION,price:0.65,priceUpdatedAt:0,records:[],deleted:[]};
+const SCHEMA_VERSION=5;
+let state={v:SCHEMA_VERSION,price:0.65,priceHistory:[{from:0,price:0.65}],priceUpdatedAt:0,records:[],deleted:[]};
+/* 查询任意时刻的电价；priceHistory 按 from 升序，from=0 表示初始电价 */
+function priceAt(ts){
+const h=state.priceHistory||[];
+if(!h.length)return state.price||0;
+for(let i=h.length-1;i>=0;i--){if(ts>=h[i].from)return h[i].price;}
+return h[0].price;
+}
+/* 当前电价 = priceHistory 末尾 */
+function currentPrice(){const h=state.priceHistory||[];return h.length?h[h.length-1].price:(state.price||0);}
+/* 把 [t0,t1] 按调价点切成子区间，每段带当时电价 */
+function splitByPrice(t0,t1){
+const h=state.priceHistory||[];
+if(!h.length)return[{t0,t1,price:state.price||0}];
+const out=[];
+let lo=t0;
+for(let i=0;i<h.length;i++){
+const from=h[i].from;
+if(from>t1)break;
+if(i>0&&from>lo&&from<=t1){
+out.push({t0:lo,t1:from,price:h[i-1].price});
+lo=from;
+}
+}
+out.push({t0:lo,t1,price:priceAt(Math.min(t1,h[h.length-1].from+1))});
+return out;
+}
 let _dm=null,_segsCache=null,_segsDirty=true;
 const valid=r=>r&&typeof r.ts==='number'&&isFinite(r.balance);
 function normalizeRecordId(value,fallback){
@@ -891,12 +972,29 @@ if(!latest.has(id)||latest.get(id)<deletedAt)latest.set(id,deletedAt);
 }
 return[...latest].map(([id,deletedAt])=>({id,deletedAt}));
 }
+function normalizePriceHistory(data,fallbackPrice){
+/* 兼容 v4(单值price) 与 v5(priceHistory 数组)，输出按 from 升序的 priceHistory */
+const wrapped=!Array.isArray(data)&&data&&typeof data==='object';
+const fb=wrapped&&+data.price>0?+data.price:fallbackPrice;
+let h=wrapped&&Array.isArray(data.priceHistory)?data.priceHistory:null;
+if(h){
+h=h.filter(p=>p&&typeof p.price==='number'&&p.price>0&&typeof p.from==='number')
+.map(p=>({from:Math.max(0,Math.floor(p.from)),price:+p.price}))
+.sort((x,y)=>x.from-y.from);
+if(!h.length)h=fb>0?[{from:0,price:fb}]:[];
+}else{
+h=fb>0?[{from:0,price:fb}]:[];
+}
+return h;
+}
 function parseLedger(data,fallbackPrice){
 const wrapped=!Array.isArray(data)&&data&&typeof data==='object';
-const price=wrapped&&+data.price>0?+data.price:fallbackPrice;
+const priceHistory=normalizePriceHistory(data,fallbackPrice);
+const price=priceHistory.length?priceHistory[priceHistory.length-1].price:fallbackPrice;
 return{
 v:SCHEMA_VERSION,
 price,
+priceHistory,
 priceUpdatedAt:wrapped?normalizedTime(data.priceUpdatedAt,0):0,
 records:sanitizeRecords(wrapped&&Array.isArray(data.records)?data.records:[]),
 deleted:sanitizeDeleted(wrapped&&Array.isArray(data.deleted)?data.deleted:[])
@@ -910,18 +1008,26 @@ for(const d of source.deleted||[]){if(!deleted.has(d.id)||d.deletedAt>deleted.ge
 }
 const active=[...records.values()].filter(r=>r.updatedAt>(deleted.get(r.id)||0)).sort((x,y)=>x.ts-y.ts||x.id.localeCompare(y.id));
 const tombstones=[...deleted].map(([id,deletedAt])=>({id,deletedAt})).sort((x,y)=>x.id.localeCompare(y.id));
+/* 电价历史合并：取 priceUpdatedAt 较新一方，但补齐另一方独有的更早调价点 */
 const useB=(b.priceUpdatedAt||0)>=(a.priceUpdatedAt||0);
-return{v:SCHEMA_VERSION,price:useB?b.price:a.price,priceUpdatedAt:useB?(b.priceUpdatedAt||0):(a.priceUpdatedAt||0),records:active,deleted:tombstones};
+const base=useB?(b.priceHistory||[]):(a.priceHistory||[]);
+const other=useB?(a.priceHistory||[]):(b.priceHistory||[]);
+const seen=new Set(base.map(p=>p.from));
+const mergedHist=[...base];
+for(const p of other){if(!seen.has(p.from)&&p.from<(base.length?base[base.length-1].from:Infinity)){mergedHist.push(p);}}
+mergedHist.sort((x,y)=>x.from-y.from);
+const price=mergedHist.length?mergedHist[mergedHist.length-1].price:(useB?b.price:a.price);
+return{v:SCHEMA_VERSION,price,priceHistory:mergedHist,priceUpdatedAt:useB?(b.priceUpdatedAt||0):(a.priceUpdatedAt||0),records:active,deleted:tombstones};
 }
 function ledgerPayload(data){
 const source=data||state;
-return{v:SCHEMA_VERSION,price:source.price,priceUpdatedAt:source.priceUpdatedAt||0,
+return{v:SCHEMA_VERSION,price:source.price,priceHistory:source.priceHistory||[{from:0,price:source.price}],priceUpdatedAt:source.priceUpdatedAt||0,
 records:[...(source.records||[])].sort((a,b)=>a.id.localeCompare(b.id)),
 deleted:[...(source.deleted||[])].sort((a,b)=>a.id.localeCompare(b.id))};
 }
 function ledgerJSON(data){return JSON.stringify(ledgerPayload(data));}
-function applyLedger(data){state.v=SCHEMA_VERSION;state.price=data.price;state.priceUpdatedAt=data.priceUpdatedAt||0;state.records=data.records;state.deleted=data.deleted;}
-function emptyLedger(price){return{v:SCHEMA_VERSION,price,priceUpdatedAt:0,records:[],deleted:[]};}
+function applyLedger(data){state.v=SCHEMA_VERSION;state.price=data.price;state.priceHistory=data.priceHistory||[{from:0,price:data.price}];state.priceUpdatedAt=data.priceUpdatedAt||0;state.records=data.records;state.deleted=data.deleted;}
+function emptyLedger(price){return{v:SCHEMA_VERSION,price,priceHistory:[{from:0,price}],priceUpdatedAt:0,records:[],deleted:[]};}
 function markRecordDeleted(id,deletedAt){
 const ts=deletedAt||Date.now();
 state.records=state.records.filter(r=>r.id!==id);
@@ -944,7 +1050,7 @@ function estimateDaysLeft(balance,dailyCost){return balance!=null&&dailyCost>0?b
 function load(){try{const raw=localStorage.getItem(KEY);if(!raw)return;const parsed=parseLedger(JSON.parse(raw),state.price);
 applyLedger(mergeLedger(emptyLedger(parsed.price),parsed));
 }catch(e){}}
-function save(){_dm=null;_segsDirty=true;try{localStorage.setItem(KEY,ledgerJSON());}catch(e){}scheduleCloudPush();}
+function save(){_dm=null;_segsDirty=true;try{localStorage.setItem(KEY,ledgerJSON());}catch(e){toast(t('err_save'));return false;}scheduleCloudPush();return true;}
 function sorted(){return[...state.records].sort((a,b)=>a.ts-b.ts);}
 /* ================= 结算核心 =================
 每笔记录同时包含余额和充值：用电 = (上期余额 + 本期充值 − 本期余额) ÷ 电价
@@ -956,7 +1062,18 @@ for(let i=0;i<rs.length-1;i++){
 const a=rs[i],b=rs[i+1];
 const rSum=b.recharge||0;
 const cost=r2(a.balance+rSum-b.balance);
-out.push({a,b,rSum,cost,kwh:cost/state.price,days:(b.ts-a.ts)/DAY,anomaly:cost<-0.3});
+/* 分段电价：segment 跨调价点时，kwh 按各时段电价分摊（cost 按时间比例切分） */
+let kwh=0;
+if(cost>0&&b.ts>a.ts){
+const sps=splitByPrice(a.ts,b.ts); /* [{t0,t1,price}] */
+const span=b.ts-a.ts;
+for(const sp of sps){
+const segCost=cost*(sp.t1-sp.t0)/span;
+kwh+=segCost/sp.price;
+}
+kwh=r2(kwh);
+}else if(cost>0){kwh=cost/priceAt(b.ts);}
+out.push({a,b,rSum,cost,kwh,days:(b.ts-a.ts)/DAY,anomaly:cost<-0.3});
 }
 _segsCache=out;_segsDirty=false;return out;
 }
@@ -1010,11 +1127,10 @@ function computeStats(g,start,end){
 const{use}=getDM();
 const buckets=bucketsFor(g,start,end);
 for(const b of buckets){
-b.kwh=0;b.rch=0;
+b.kwh=0;b.rch=0;b.cost=0;
 let d=new Date(Math.max(b.t0,start));d.setHours(0,0,0,0);
 const stop=Math.min(b.t1,end+DAY);
-while(d.getTime()<stop){const v=use.get(dKey(d.getTime()));if(v)b.kwh+=v;d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);}
-b.cost=b.kwh*state.price;
+while(d.getTime()<stop){const v=use.get(dKey(d.getTime()));if(v){b.kwh+=v;b.cost+=v*priceAt(d.getTime()+12*3600*1000);}d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);}
 }
 for(const r of state.records){
 if(r.recharge<=0||r.ts<start||r.ts>=end+DAY)continue;
@@ -1065,9 +1181,21 @@ const rs=sorted();
 const latest=rs.length?rs[rs.length-1]:null;
 const bal=latest?latest.balance:null;
 const rate=recentRate();
-const dailyCost=rate!=null?rate*state.price:null;
+const dailyCost=rate!=null?rate*currentPrice():null;
 const daysLeft=estimateDaysLeft(bal,dailyCost);
 const low=bal!=null&&bal<20;
+/* 无记录时 bal-card 可点打开录入 */
+const balCard=$('.bal-card');
+if(bal==null){balCard.style.cursor='pointer';balCard.onclick=()=>{cancelEdit();openSheet();};balCard.title=t('bal_none');}
+else{balCard.style.cursor='';balCard.onclick=null;balCard.title='';}
+/* 本月实际已用电（1日至今） */
+const nowD=new Date();
+const monthStart=new Date(nowD.getFullYear(),nowD.getMonth(),1).getTime();
+let monthKwh=null;
+if(rs.length>=2){
+const s=computeStats('day',monthStart,Date.now());
+monthKwh=s.kwh>0?s.kwh:null;
+}
 renderOdo(bal);
 const tag=$('#balTag');
 if(low)tag.innerHTML='<span class="warn-badge">'+t('bal_low')+'</span>';
@@ -1078,10 +1206,17 @@ const warn=low||(daysLeft!=null&&daysLeft<3);
 $('#tiles').innerHTML=
 '<div class="tile"><div class="tile-label">'+t('tile_daily_usage')+'</div><div class="tile-val">'+(rate==null?'--':fmt1(rate))+' <span class="u">'+t('tile_usage_unit')+'</span></div><div class="tile-sub">'+t('tile_usage_sub')+'</div></div>'+
 '<div class="tile"><div class="tile-label">'+t('tile_daily_cost')+'</div><div class="tile-val">'+fmtY(dailyCost)+'</div><div class="tile-sub">'+t('tile_cost_unit')+'</div></div>'+
-'<div class="tile"><div class="tile-label">'+t('tile_monthly_cost')+'</div><div class="tile-val">'+fmtY(dailyCost!=null?dailyCost*30:null)+'</div><div class="tile-sub">'+t('tile_month_unit')+'</div></div>'+
+'<div class="tile"><div class="tile-label">'+t('tile_month_usage')+'</div><div class="tile-val">'+(monthKwh==null?'--':fmt1(monthKwh))+' <span class="u">'+t('tile_usage_unit')+'</span></div><div class="tile-sub">'+t('tile_month_usage_sub')+'</div></div>'+
 '<div class="tile'+(warn?' warn':'')+'"><div class="tile-label">'+t('tile_days_left')+'</div><div class="tile-val">'+(daysLeft==null?'--':fmt1(daysLeft))+' <span class="u">'+t('tile_days_unit')+'</span></div><div class="tile-sub">'+(daysLeft!=null?tf('days_left_sub',{d:fmtD(Date.now()+daysLeft*DAY)}):'--')+'</div></div>';
 $('#lastRec').textContent=latest?tf('last_rec',{t:fmtDT(latest.ts)}):t('no_rec');
 $('#serial').textContent='EL-'+dKey(Date.now()).replace(/-/g,'');
+/* 无记录时首页显示醒目 CTA */
+const heroCta=$('#heroCta');
+if(bal==null&&!heroCta){
+const btn=document.createElement('button');btn.type='button';btn.className='btn-primary cta-btn hero-cta';btn.id='heroCta';btn.textContent=t('cta_add');
+btn.onclick=()=>{cancelEdit();openSheet();};
+$('.hero').insertBefore(btn,$('.hero-foot'));
+}else if(bal!=null&&heroCta){heroCta.remove();}
 }
 /* ================= 统计面板 ================= */
 function summarize(buckets,start,end){
@@ -1100,7 +1235,7 @@ const gn=t('g_'+view.g);
 const dHtml=s.delta==null?'<em>'+t('sum_delta_none')+'</em>':'<em class="'+(s.delta>0?'up':'down')+'">'+tf(s.delta>0?'sum_delta_up':'sum_delta_down',{n:Math.abs(s.delta).toFixed(0)})+'</em>';
 $('#sums').innerHTML=
 '<div class="sum"><span>'+t('sum_total_usage')+'</span><b>'+fmt1(s.kwh)+'<i>'+t('unit_kwh')+'</i></b>'+dHtml+'</div>'+
-'<div class="sum"><span>'+t('sum_total_cost')+'</span><b>'+fmtY(s.cost)+'</b><em>'+tf('sum_cost_note',{p:state.price})+'</em></div>'+
+'<div class="sum"><span>'+t('sum_total_cost')+'</span><b>'+fmtY(s.cost)+'</b><em>'+tf('sum_cost_note',{p:currentPrice()})+'</em></div>'+
 '<div class="sum"><span>'+t('sum_daily_usage')+'</span><b>'+fmt1(s.kwh/s.rangeDays)+'<i>'+t('unit_kwh')+'</i></b><em>'+tf('sum_range_note',{n:s.rangeDays})+'</em></div>'+
 '<div class="sum"><span>'+tf('sum_peak',{g:gn})+'</span><b>'+fmt1(s.peak.kwh)+'<i>'+t('unit_kwh')+'</i></b><em>'+(s.peak.kwh>0?bucketFull(s.peak,view.g):'--')+'</em></div>'+
 '<div class="sum"><span>'+t('sum_recharge')+'</span><b class="g">'+fmtY(s.rch)+'</b><em>'+t('sum_recharge_note')+'</em></div>';
@@ -1122,34 +1257,35 @@ return '<div class="bcol'+(peak?' peak':'')+'" data-i="'+i+'">'+
 requestAnimationFrame(()=>requestAnimationFrame(()=>{
 el.querySelectorAll('.btrack i').forEach(i=>{i.style.height=i.dataset.h+'%';});
 }));
-let barTipTimer=null;
-function showBarTip(x,y){
+el._buckets=buckets;el._max=max;
+if(!el._tipBound){
+el._tipBound=true;let barTipTimer=null;
+const showBarTip=(x,y)=>{
 const el0=document.elementFromPoint(x,y);const col=el0&&el0.closest?el0.closest('.bcol'):null;
 if(!col){tip.classList.remove('show');return;}
-const b=buckets[+col.dataset.i];
+const b=el._buckets[+col.dataset.i];
 tip.innerHTML=tf('chart_tip',{label:'<b>'+bucketFull(b,view.g)+'</b>',k:fmt1(b.kwh),c:fmtY(b.cost)})+
 (b.rch>0?tf('chart_tip_recharge',{c:fmtY(b.rch)}):'');
 tip.classList.add('show');
 const r=col.querySelector('.btrack').getBoundingClientRect();
-const frac=b.kwh>0?Math.max(0.03,b.kwh/max):0;
+const frac=b.kwh>0?Math.max(0.03,b.kwh/el._max):0;
 tip.style.left=Math.max(85,Math.min(innerWidth-85,r.left+r.width/2))+'px';
 tip.style.top=Math.max(8,r.top+r.height*(1-frac)-tip.offsetHeight-10)+'px';
 clearTimeout(barTipTimer);
-}
+};
 el.addEventListener('mousemove',e=>showBarTip(e.clientX,e.clientY));
 el.addEventListener('mouseleave',()=>{tip.classList.remove('show');clearTimeout(barTipTimer);});
 el.addEventListener('touchstart',e=>{const t=e.touches[0];showBarTip(t.clientX,t.clientY);},{passive:true});
 el.addEventListener('touchmove',e=>{const t=e.touches[0];showBarTip(t.clientX,t.clientY);},{passive:true});
 el.addEventListener('touchend',()=>{clearTimeout(barTipTimer);barTipTimer=setTimeout(()=>tip.classList.remove('show'),1500);},{passive:true});
 }
+}
 function renderStats(){
 const hasBal=state.records.length>=2;
 $('#statsBody').style.display=hasBal?'':'none';
 const empty=$('#statEmpty');empty.hidden=hasBal;
 if(!hasBal){
-empty.innerHTML=state.records.length
-?t('stats_empty_2')
-:t('stats_empty_0');
+empty.innerHTML='<div>'+(state.records.length?t('stats_empty_2'):t('stats_empty_0'))+'</div><button type="button" class="btn-primary cta-btn" onclick="document.getElementById(\'fabAdd\').click()">'+t('cta_add')+'</button>';
 $('#rangeInfo').textContent='';return;
 }
 const buckets=computeStats(view.g,view.start,view.end);
@@ -1166,7 +1302,7 @@ const rs=sorted(),pts=[];
 for(const r of rs){
 pts.push({ts:r.ts,v:r.balance,kind:r.recharge>0?'r':'b',r});
 }
-if(pts.length<2){svg.innerHTML='';$('#trendEmpty').hidden=false;wrap.style.display='none';return;}
+if(pts.length<2){svg.innerHTML='';const te=$('#trendEmpty');te.hidden=false;te.innerHTML='<div>'+t('trend_empty')+'</div><button type="button" class="btn-primary cta-btn" onclick="document.getElementById(\'fabAdd\').click()">'+t('cta_add')+'</button>';wrap.style.display='none';return;}
 $('#trendEmpty').hidden=true;wrap.style.display='';
 const styles=getComputedStyle(document.documentElement);
 const color=(name,fallback)=>styles.getPropertyValue(name).trim()||fallback;
@@ -1245,12 +1381,11 @@ return out;
 function computeBill(p){
 const{use,rch}=getDM();
 const days=Math.round((p.t1-p.t0)/DAY);
-let kwh=0;
+let kwh=0,cost=0;
 let d=new Date(Math.max(p.t0,sod(p.t0)));d.setHours(0,0,0,0);
-while(d.getTime()<p.t1){const v=use.get(dKey(d.getTime()));if(v)kwh+=v;d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);}
+while(d.getTime()<p.t1){const v=use.get(dKey(d.getTime()));if(v){kwh+=v;cost+=v*priceAt(d.getTime()+12*3600*1000);}d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);}
 let rchSum=0;
 for(const r of state.records){if(r.recharge>0&&r.ts>=p.t0&&r.ts<p.t1)rchSum+=r.recharge;}
-const cost=kwh*state.price;
 const now=Date.now();
 const isCurrent=p.t0<=now&&now<p.t1;
 return{kwh,cost,rch:rchSum,days,avg:kwh/Math.max(1,days),isCurrent};
@@ -1261,7 +1396,7 @@ const hasBal=state.records.length>=2;
 empty.hidden=hasBal;el.style.display=hasBal?'':'none';
 $('#billPrev').style.visibility=hasBal?'':'hidden';
 $('#billNext').style.visibility=hasBal?'':'hidden';
-if(!hasBal){el.innerHTML='';periodEl.textContent='—';return;}
+if(!hasBal){el.innerHTML='';empty.innerHTML='<div>'+t('bills_empty')+'</div><button type="button" class="btn-primary cta-btn" onclick="document.getElementById(\'fabAdd\').click()">'+t('cta_add')+'</button>';periodEl.textContent='—';return;}
 const periods=billPeriods();
 const pageSize=billState.gran==='month'?6:3;
 const total=Math.max(1,Math.ceil(periods.length/pageSize));
@@ -1280,14 +1415,14 @@ el.innerHTML=slice.map(p=>{
 const b=computeBill(p);
 const label=billState.gran==='month'?tf('bill_label_m',{y:p.y,m:p.m}):tf('bill_label_y',{y:p.y});
 const sub=b.isCurrent?t('bill_current'):'';
-return '<div class="bill-card'+(b.isCurrent?' current':'')+'">'+
+return '<div class="bill-card'+(b.isCurrent?' current':'')+'" data-t0="'+p.t0+'" data-t1="'+p.t1+'" data-gran="'+(billState.gran==='month'?'day':'year')+'" role="button" tabindex="0" data-i18n-aria="bill_card_aria" aria-label="'+label+'">'+
 '<div class="bill-head"><span class="bill-month">'+label+'<span class="bm-sub">'+sub+'</span></span>'+
 '<span class="bill-kwh">'+fmt1(b.kwh)+'<span class="u">'+t('unit_kwh')+'</span></span></div>'+
 '<div class="bill-rows">'+
 '<div class="bill-row"><span>'+t('bill_cost_label')+'</span><b class="cost">'+fmtY(b.cost)+'</b></div>'+
 '<div class="bill-row"><span>'+t('bill_recharge_label')+'</span><b class="rch">'+(b.rch>0?fmtY(b.rch):'—')+'</b></div>'+
 '<div class="bill-row"><span>'+t('bill_avg_label')+'</span><b class="avg">'+fmt1(b.avg)+' '+t('unit_kwh')+'</b></div>'+
-'<div class="bill-row"><span>'+tf('bill_meta',{d:b.days,p:state.price})+'</span><b></b></div>'+
+'<div class="bill-row"><span>'+tf('bill_meta',{d:b.days,p:priceAt(p.t0+12*3600*1000)})+'</span><b></b></div>'+
 '</div></div>';
 }).join('');
 }
@@ -1298,6 +1433,25 @@ billState.gran=b.dataset.bg;billState.offset=Infinity;renderBills();
 });
 $('#billPrev').addEventListener('click',()=>{billState.offset=Math.max(0,billState.offset-1);renderBills();});
 $('#billNext').addEventListener('click',()=>{billState.offset++;renderBills();});
+/* 点击账单卡片跳转到统计页对应区间 */
+$('#billsCards').addEventListener('click',e=>{
+const card=e.target.closest('.bill-card');if(!card)return;
+jumpToStats(+card.dataset.t0,+card.dataset.t1,card.dataset.gran);
+});
+$('#billsCards').addEventListener('keydown',e=>{
+if(e.key!=='Enter'&&e.key!==' ')return;
+const card=e.target.closest('.bill-card');if(!card)return;
+e.preventDefault();jumpToStats(+card.dataset.t0,+card.dataset.t1,card.dataset.gran);
+});
+function jumpToStats(t0,t1,gran){
+view.g=gran||'day';
+view.start=t0;view.end=Math.min(t1-1,Date.now());
+syncDates();
+document.querySelectorAll('#granChips .chip').forEach(x=>x.classList.toggle('on',x.dataset.g===view.g));
+switchView('stats');
+renderStats();
+toast(t('bill_jump_hint'));
+}
 /* ================= 记录清单 ================= */
 const listState={page:1,size:20,filter:{start:null,end:null,keyword:'',type:'all'}};
 function applyListFilter(records){
@@ -1365,7 +1519,7 @@ $('#ledgerSub').innerHTML=tf('ledger_sub',{n:all.length});
 const hasData=all.length>0;
 $('#listToolbar').hidden=!hasData;
 $('#listFilterRow').hidden=!hasData;
-if(!hasData){el.innerHTML='<div class="list-empty">'+t('list_empty_none')+'</div>';$('#pager').innerHTML='';$('#listSummary').textContent='';return;}
+if(!hasData){el.innerHTML='<div class="list-empty"><div>'+t('list_empty_none')+'</div><button type="button" class="btn-primary cta-btn" onclick="document.getElementById(\'fabAdd\').click()">'+t('cta_add')+'</button></div>';$('#pager').innerHTML='';$('#listSummary').textContent='';return;}
 const filtered=applyListFilter([...all].reverse());
 const segMap=new Map(segments().map(s=>[s.b.id,s]));
 const totalPages=Math.max(1,Math.ceil(filtered.length/listState.size));
@@ -1479,14 +1633,43 @@ listState.page=1;renderList();
 });
 /* ================= 弹层 / 提示 ================= */
 let modalOk=null;
+/* Focus trap：Tab/Shift+Tab 圈在容器内 */
+const FOCUSABLE='a[href],button:not([disabled]),input:not([disabled]),select,textarea,[tabindex]:not([tabindex="-1"])';
+let _trapHandler=null,_trapFocusIn=null,_lastFocus=null,_trapContainer=null;
+function trapFocus(container){
+removeTrap();
+_lastFocus=document.activeElement;
+_trapContainer=container;
+_trapHandler=e=>{
+if(e.key!=='Tab'||!_trapContainer)return;
+const els=[..._trapContainer.querySelectorAll(FOCUSABLE)].filter(el=>el.offsetParent!==null||el===document.activeElement||el.offsetHeight>0);
+if(!els.length)return;
+const first=els[0],last=els[els.length-1];
+if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+};
+_trapFocusIn=e=>{
+if(!_trapContainer)return;
+if(!_trapContainer.contains(e.target)){const els=[..._trapContainer.querySelectorAll(FOCUSABLE)].filter(el=>el.offsetParent!==null||el.offsetHeight>0);if(els.length)els[0].focus();}
+};
+document.addEventListener('keydown',_trapHandler,true);
+document.addEventListener('focusin',_trapFocusIn,true);
+}
+function removeTrap(){
+if(_trapHandler){document.removeEventListener('keydown',_trapHandler,true);_trapHandler=null;}
+if(_trapFocusIn){document.removeEventListener('focusin',_trapFocusIn,true);_trapFocusIn=null;}
+_trapContainer=null;
+if(_lastFocus){_lastFocus.focus&&_lastFocus.focus();_lastFocus=null;}
+}
 function openModal(title,html,okText,onOk,danger){
 $('#mTitle').textContent=title;$('#mBody').innerHTML=html;
 const ok=$('#mOk');ok.textContent=okText||t('ok');ok.classList.toggle('danger',!!danger);
 modalOk=onOk;
 const m=$('#mask');m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));
 const inp=m.querySelector('input');setTimeout(()=>{(inp||$('#mOk')).focus();},80);
+trapFocus($('.modal'));
 }
-function closeModal(){const m=$('#mask');m.classList.remove('show');setTimeout(()=>{m.hidden=true;},200);modalOk=null;}
+function closeModal(){const m=$('#mask');m.classList.remove('show');setTimeout(()=>{m.hidden=true;},200);modalOk=null;removeTrap();}
 $('#mOk').addEventListener('click',()=>{if(modalOk&&modalOk()===false)return;closeModal();});
 $('#mCancel').addEventListener('click',closeModal);
 $('#mask').addEventListener('click',e=>{if(e.target.id==='mask')closeModal();});
@@ -1497,8 +1680,8 @@ setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300);},2400
 }
 /* ================= 记一笔 ================= */
 const editState={id:null};
-function openSheet(){const s=$('#sheet'),m=$('#sheetMask');m.hidden=false;s.hidden=false;s.setAttribute('aria-hidden','false');void s.offsetWidth;requestAnimationFrame(()=>{m.classList.add('show');s.classList.add('show');});if(window.matchMedia('(min-width:768px)').matches){const tm=$('#eTime');if(tm)setTimeout(()=>tm.focus(),300);}}
-function closeSheet(){const s=$('#sheet'),m=$('#sheetMask');s.classList.remove('show');m.classList.remove('show');s.setAttribute('aria-hidden','true');setTimeout(()=>{s.hidden=true;m.hidden=true;},300);}
+function openSheet(){const s=$('#sheet'),m=$('#sheetMask');m.hidden=false;s.hidden=false;s.setAttribute('aria-hidden','false');void s.offsetWidth;requestAnimationFrame(()=>{m.classList.add('show');s.classList.add('show');});trapFocus(s);if(window.matchMedia('(min-width:768px)').matches){const tm=$('#eTime');if(tm)setTimeout(()=>tm.focus(),300);}}
+function closeSheet(){const s=$('#sheet'),m=$('#sheetMask');s.classList.remove('show');s.classList.remove('show');s.setAttribute('aria-hidden','true');setTimeout(()=>{s.hidden=true;m.hidden=true;},300);removeTrap();}
 function dismissSheet(){if(editState.id)cancelEdit();closeSheet();}
 $('#sheetMask').addEventListener('click',dismissSheet);
 const sheetCloseBtn=$('#sheetClose');if(sheetCloseBtn)sheetCloseBtn.addEventListener('click',dismissSheet);
@@ -1515,6 +1698,7 @@ $('#eNote').value=r.note||'';
 document.querySelectorAll('#eChips .chip').forEach(x=>x.classList.toggle('on',+x.dataset.v===(r.recharge||0)));
 $('#editBanner').hidden=false;
 $('#editInfo').textContent=tf('editing_info_dt',{t:fmtDT(r.ts)});
+$('#entryTitle').textContent=t('edit_title');$('#entrySub').textContent=t('edit_sub');
 $('#entrySubmit').textContent=t('update');
 renderList();
 openSheet();
@@ -1522,6 +1706,7 @@ openSheet();
 function cancelEdit(){
 editState.id=null;
 $('#editBanner').hidden=true;
+$('#entryTitle').textContent=t('entry_title');$('#entrySub').textContent=t('entry_sub');
 $('#entrySubmit').textContent=t('save');
 $('#eBalance').value='';$('#eRecharge').value='0';$('#eNote').value='';$('#eTime').value=nowInputVal();
 document.querySelectorAll('#eChips .chip').forEach(x=>x.classList.toggle('on',x.dataset.v==='0'));
@@ -1533,6 +1718,10 @@ const c=e.target.closest('.chip');if(!c)return;
 $('#eRecharge').value=c.dataset.v;
 document.querySelectorAll('#eChips .chip').forEach(x=>x.classList.toggle('on',x===c));
 if(navigator.vibrate)try{navigator.vibrate(6);}catch(e){}
+});
+$('#eRecharge').addEventListener('input',()=>{
+const v=$('#eRecharge').value;
+document.querySelectorAll('#eChips .chip').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
 });
 function afterSave(msg){save();refreshAll();toast(msg);closeSheet();if(navigator.vibrate)try{navigator.vibrate(12);}catch(e){}}
 function confirmAdjacent(candidate,excludeId,action,verb){
@@ -1549,12 +1738,15 @@ tf('adj_still',{v:verb}),action);
 }
 $('#formEntry').addEventListener('submit',e=>{
 e.preventDefault();
-const ts=parseLocal($('#eTime').value);
-const bal=+$('#eBalance').value;
-const rch=+$('#eRecharge').value||0;
-if(!isFinite(ts)){toast(t('err_time'));return;}
-if(!(bal>=0)){toast(t('err_balance'));return;}
-if(!(rch>=0)){toast(t('err_recharge'));return;}
+const timeInp=$('#eTime'),balInp=$('#eBalance'),rchInp=$('#eRecharge');
+let bad=false;
+if(!timeInp.value){timeInp.setCustomValidity(t('err_time'));bad=true;}else timeInp.setCustomValidity('');
+if(!(+balInp.value>=0)){balInp.setCustomValidity(t('err_balance'));bad=true;}else balInp.setCustomValidity('');
+if(!(+rchInp.value>=0)){rchInp.setCustomValidity(t('err_recharge'));bad=true;}else rchInp.setCustomValidity('');
+if(bad){[timeInp,balInp,rchInp].find(i=>!i.checkValidity())?.reportValidity();return;}
+const ts=parseLocal(timeInp.value);
+const bal=+balInp.value;
+const rch=+rchInp.value||0;
 const candidate={ts,balance:r2(bal),recharge:r2(rch),note:$('#eNote').value.trim()};
 if(editState.id){
 const r=state.records.find(x=>x.id===editState.id);
@@ -1608,11 +1800,55 @@ view.start=s;view.end=t;syncDates();renderStats();
 });
 /* ================= 设置 / 备份 ================= */
 $('#priceBtn').addEventListener('click',()=>{
-openModal(t('price_title'),'<label class="fld"><span>'+t('price_label')+'</span><input type="number" id="mPrice" step="0.01" min="0.01" value="'+state.price+'"></label><p class="m-note">'+t('price_modal_note')+'</p>',t('verb_save'),()=>{
+const h=state.priceHistory||[{from:0,price:state.price}];
+const today=new Date();today.setHours(0,0,0,0);
+const todayStr=today.toISOString().slice(0,10);
+const cur=currentPrice();
+/* 调价历史列表（倒序，最新在上） */
+const histHtml=h.slice().reverse().map((p,i)=>{
+const realIdx=h.length-1-i;
+const isLast=realIdx===h.length-1;
+const label=p.from===0?t('price_hist_initial'):(lang==='en'?new Date(p.from).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}):new Date(p.from).getFullYear()+'-'+pad(new Date(p.from).getMonth()+1)+'-'+pad(new Date(p.from).getDate()));
+return '<div class="price-hist-row'+(isLast?' cur':'')+'">'+
+'<div class="ph-info"><span class="ph-label">'+label+'</span>'+(isLast?'<em class="ph-now">'+t('price_hist_current')+'</em>':'')+'</div>'+
+'<div class="ph-right"><b>'+p.price.toFixed(2)+'</b><span class="u">'+t('unit_yuan')+'</span>'+
+(isLast&&h.length>1?'<button class="ph-del" data-i="'+realIdx+'" title="'+t('price_hist_del')+'">✕</button>':'')+
+'</div></div>';
+}).join('');
+const body='<div class="price-cur"><span>'+t('price_hist_now_label')+'</span><b>'+cur.toFixed(2)+'</b><span class="u">'+t('unit_yuan')+'/'+t('unit_kwh')+'</span></div>'+
+'<div class="price-hist"><div class="price-hist-title">'+t('price_hist_title')+'</div>'+histHtml+'</div>'+
+'<div class="price-add"><div class="price-hist-title">'+t('price_hist_add_title')+'</div>'+
+'<label class="fld"><span>'+t('price_hist_from')+'</span><input type="date" id="mPriceFrom" value="'+todayStr+'"></label>'+
+'<label class="fld"><span>'+t('price_label')+'</span><input type="number" id="mPrice" step="0.01" min="0.01" value="'+cur.toFixed(2)+'"></label>'+
+'<p class="m-note">'+t('price_modal_note_v5')+'</p></div>';
+openModal(t('price_title'),body,t('price_hist_add_btn'),()=>{
 const v=+$('#mPrice').value;
 if(!(v>0)){toast(t('price_err'));return false;}
-state.price=v;state.priceUpdatedAt=Date.now();save();refreshAll();toast(tf('price_done',{v:v}));
+const fromStr=$('#mPriceFrom').value;
+if(!fromStr){toast(t('price_err_date'));return false;}
+const fromTs=new Date(fromStr+'T00:00:00').getTime();
+if(isNaN(fromTs)){toast(t('price_err_date'));return false;}
+/* 校验：from 不能早于已有最后一条（除初始） */
+const last=h[h.length-1];
+if(last&&fromTs<=last.from){toast(t('price_err_past'));return false;}
+/* 新增调价点 */
+state.priceHistory=[...h,{from:fromTs,price:v}];
+state.price=v;state.priceUpdatedAt=Date.now();save();refreshAll();
+toast(tf('price_done',{v:v}));
 });
+/* 删除最近一条调价的委托 */
+setTimeout(()=>{
+const delBtn=document.querySelector('#mBox .ph-del');
+if(delBtn)delBtn.addEventListener('click',()=>{
+const idx=+delBtn.dataset.i;
+const hh=state.priceHistory||[];
+if(idx!==hh.length-1||hh.length<=1)return;
+state.priceHistory=hh.slice(0,-1);
+state.price=currentPrice();state.priceUpdatedAt=Date.now();save();refreshAll();
+closeModal();
+toast(t('price_hist_deleted'));
+});
+},60);
 });
 function exportData(){
 const payload=ledgerPayload();payload.exportedAt=new Date().toISOString();
@@ -1692,7 +1928,7 @@ const j=await res.json();return{sha:j.sha,content:j.content?b64dec(j.content):''
 }
 async function ghPut(token,owner,repo,path,branch,content,sha){
 const url=`https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
-const body={message:'chore: 更新电费账本 '+new Date().toISOString(),content:b64enc(content),branch:branch};
+const body={message:'chore: '+t('cloud_commit_msg')+' '+new Date().toISOString(),content:b64enc(content),branch:branch};
 if(sha)body.sha=sha;
 const res=await fetchTo(url,{method:'PUT',headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},body:JSON.stringify(body)},20000);
 if(res.status===409||res.status===422)throw new Error('conflict');
@@ -1902,7 +2138,7 @@ if(l)l.onclick=()=>{closeModal();cloudLogout();};
 };
 })();
 /* ================= 总渲染 / 初始化 ================= */
-function refreshAll(){renderHead();renderStats();renderTrend();renderBills();renderList();$('#footPrice').textContent=state.price;}
+function refreshAll(){renderHead();renderStats();renderTrend();renderBills();renderList();$('#footPrice').textContent=currentPrice();}
 let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(renderTrend,160);});
 /* === 多页面路由 === */
 function switchView(name){
@@ -2057,4 +2293,4 @@ toast(t('install_ios_tip'));
 </script>
 
 
-</body><grammarly-desktop-integration data-grammarly-shadow-root="true" style="visibility: visible !important;"></grammarly-desktop-integration></html>
+</body></html>
