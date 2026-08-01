@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="电费账本">
 <meta name="color-scheme" content="dark">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.github.com; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.github.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <script>
 /* 方案A：启动即写入主题纯色，减少系统栏先白后变 */
 try{
@@ -527,7 +527,7 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <div id="odo"><span class="bal-placeholder">— — —</span></div>
 <div class="bal-note" id="balTag">在下方记一笔，开始追踪用电</div>
 </div>
-<div class="tiles" id="tiles"><div class="tile"><div class="tile-label">日均用电</div><div class="tile-val">-- <span class="u">度/天</span></div><div class="tile-sub">近14天</div></div><div class="tile"><div class="tile-label">日均电费</div><div class="tile-val">--</div><div class="tile-sub">元 / 天</div></div><div class="tile"><div class="tile-label">本月已用</div><div class="tile-val">-- <span class="u">度/天</span></div><div class="tile-sub">自本月1日起累计</div></div><div class="tile"><div class="tile-label">余额可用</div><div class="tile-val">-- <span class="u">天</span></div><div class="tile-sub">--</div></div></div>
+<div class="tiles" id="tiles"><div class="tile"><div class="tile-label">日均用电</div><div class="tile-val">-- <span class="u">度/天</span></div><div class="tile-sub">近14天</div></div><div class="tile"><div class="tile-label">日均电费</div><div class="tile-val">--</div><div class="tile-sub">元 / 天</div></div><div class="tile"><div class="tile-label">本月已用</div><div class="tile-val">-- <span class="u">度</span></div><div class="tile-sub">自本月1日起累计</div></div><div class="tile"><div class="tile-label">余额可用</div><div class="tile-val">-- <span class="u">天</span></div><div class="tile-sub">--</div></div></div>
 </div>
 <button type="button" class="btn-primary cta-btn hero-cta" id="heroCta">+ 记一笔</button><div class="hero-foot">
 <span id="lastRec">暂无抄表记录</span>
@@ -1193,8 +1193,8 @@ const nowD=new Date();
 const monthStart=new Date(nowD.getFullYear(),nowD.getMonth(),1).getTime();
 let monthKwh=null;
 if(rs.length>=2){
-const s=computeStats('day',monthStart,Date.now());
-monthKwh=s.kwh>0?s.kwh:null;
+const kwh=computeStats('day',monthStart,Date.now()).reduce((sum,b)=>sum+b.kwh,0);
+monthKwh=kwh>0.05?kwh:null;
 }
 renderOdo(bal);
 const tag=$('#balTag');
@@ -1206,7 +1206,7 @@ const warn=low||(daysLeft!=null&&daysLeft<3);
 $('#tiles').innerHTML=
 '<div class="tile"><div class="tile-label">'+t('tile_daily_usage')+'</div><div class="tile-val">'+(rate==null?'--':fmt1(rate))+' <span class="u">'+t('tile_usage_unit')+'</span></div><div class="tile-sub">'+t('tile_usage_sub')+'</div></div>'+
 '<div class="tile"><div class="tile-label">'+t('tile_daily_cost')+'</div><div class="tile-val">'+fmtY(dailyCost)+'</div><div class="tile-sub">'+t('tile_cost_unit')+'</div></div>'+
-'<div class="tile"><div class="tile-label">'+t('tile_month_usage')+'</div><div class="tile-val">'+(monthKwh==null?'--':fmt1(monthKwh))+' <span class="u">'+t('tile_usage_unit')+'</span></div><div class="tile-sub">'+t('tile_month_usage_sub')+'</div></div>'+
+'<div class="tile"><div class="tile-label">'+t('tile_month_usage')+'</div><div class="tile-val">'+(monthKwh==null?'--':fmt1(monthKwh))+' <span class="u">'+t('unit_kwh')+'</span></div><div class="tile-sub">'+t('tile_month_usage_sub')+'</div></div>'+
 '<div class="tile'+(warn?' warn':'')+'"><div class="tile-label">'+t('tile_days_left')+'</div><div class="tile-val">'+(daysLeft==null?'--':fmt1(daysLeft))+' <span class="u">'+t('tile_days_unit')+'</span></div><div class="tile-sub">'+(daysLeft!=null?tf('days_left_sub',{d:fmtD(Date.now()+daysLeft*DAY)}):'--')+'</div></div>';
 $('#lastRec').textContent=latest?tf('last_rec',{t:fmtDT(latest.ts)}):t('no_rec');
 $('#serial').textContent='EL-'+dKey(Date.now()).replace(/-/g,'');
@@ -1447,7 +1447,7 @@ function jumpToStats(t0,t1,gran){
 view.g=gran||'day';
 view.start=t0;view.end=Math.min(t1-1,Date.now());
 syncDates();
-document.querySelectorAll('#granChips .chip').forEach(x=>x.classList.toggle('on',x.dataset.g===view.g));
+document.querySelectorAll('#granTabs button').forEach(x=>x.classList.toggle('on',x.dataset.g===view.g));
 switchView('stats');
 renderStats();
 toast(t('bill_jump_hint'));
@@ -1802,7 +1802,7 @@ view.start=s;view.end=t;syncDates();renderStats();
 $('#priceBtn').addEventListener('click',()=>{
 const h=state.priceHistory||[{from:0,price:state.price}];
 const today=new Date();today.setHours(0,0,0,0);
-const todayStr=today.toISOString().slice(0,10);
+const todayStr=dKey(today.getTime());
 const cur=currentPrice();
 /* 调价历史列表（倒序，最新在上） */
 const histHtml=h.slice().reverse().map((p,i)=>{
