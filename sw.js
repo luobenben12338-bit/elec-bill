@@ -1,5 +1,5 @@
 // Service Worker - 电费小账本 PWA 离线支持
-const VERSION = '1.1.1';
+const VERSION = '1.2.0';
 const CACHE = 'elec-ledger-v' + VERSION;
 const ASSETS = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
