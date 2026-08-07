@@ -235,6 +235,7 @@ input::placeholder{color:var(--dim)}
 .bills-nav .bn-btn{border:1px solid var(--line);background:var(--bg2);color:var(--mut);border-radius:8px;padding:.55rem .9rem;cursor:pointer;font-size:.82rem;font-weight:500;transition:.15s;font-family:var(--mono)}
 .bills-nav .bn-btn:hover{color:var(--cyan2);border-color:var(--cyan)}
 .bills-nav .bn-btn:disabled{opacity:.4;cursor:default;pointer-events:none}
+.nav-jump{cursor:pointer}
 .bills-nav .bn-period{font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--ink);min-width:140px;text-align:center}
 .bills-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
 .bill-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--rs);padding:14px 16px;transition:transform .15s,border-color .15s;cursor:pointer}
@@ -562,24 +563,17 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <section class="panel">
 <div class="p-head">
 <div><h2 data-i18n="stats_title">用电统计</h2><span class="en" data-i18n="stats_sub">Usage Analytics · 自由选择区间</span></div>
-<div class="tabs" id="granTabs">
-<button type="button" data-g="day" class="on" data-i18n="g_day">日</button>
-<button type="button" data-g="week" data-i18n="g_week">周</button>
-<button type="button" data-g="month" data-i18n="g_month">月</button>
-<button type="button" data-g="year" data-i18n="g_year">年</button>
+<div class="tabs" id="statModeTabs">
+<button type="button" data-m="week" data-i18n="g_week">周</button>
+<button type="button" data-m="month" class="on" data-i18n="g_month">月</button>
+<button type="button" data-m="year" data-i18n="g_year">年</button>
+<button type="button" data-m="all" data-i18n="p_all">全部</button>
 </div>
 </div>
-<div class="range-row">
-<input type="date" id="dStart" data-i18n-aria="range_start_aria" aria-label="开始日期"><span class="arrow">→</span><input type="date" id="dEnd" data-i18n-aria="range_end_aria" aria-label="结束日期">
-<div class="chips" id="presetChips">
-<button type="button" class="chip" data-p="7d" data-i18n="p_7d">近7天</button>
-<button type="button" class="chip on" data-p="30d" data-i18n="p_30d">近30天</button>
-<button type="button" class="chip" data-p="month" data-i18n="p_month">本月</button>
-<button type="button" class="chip" data-p="lastMonth" data-i18n="p_lastMonth">上月</button>
-<button type="button" class="chip" data-p="year" data-i18n="p_year">今年</button>
-<button type="button" class="chip" data-p="all" data-i18n="p_all">全部</button>
-</div>
-<span class="range-info" id="rangeInfo"></span>
+<div class="bills-nav" id="statNav">
+<button type="button" class="bn-btn" id="statPrev" data-i18n-aria="nav_prev" aria-label="上一周期">‹</button>
+<span class="bn-period nav-jump" id="statPeriod" data-i18n-title="nav_back" title="回到本期">—</span>
+<button type="button" class="bn-btn" id="statNext" data-i18n-aria="nav_next" aria-label="下一周期">›</button>
 </div>
 <div id="statsBody" style="display: none;">
 <div class="sums" id="sums"></div>
@@ -594,7 +588,12 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <div class="list-empty" id="statEmpty"><div>还没有任何记录 · 先记一笔吧</div><button type="button" class="btn-primary cta-btn" onclick="document.getElementById('fabAdd').click()">+ 记一笔</button></div>
 </div></section>
 <section class="panel">
-<div class="p-head"><div><h2 data-i18n="trend_title">余额走势</h2><span class="en" data-i18n="trend_sub">Balance Trend · ▲ 绿色标记为充值</span></div><div class="tabs" id="trendTabs"><button type="button" data-tr="30d" class="on" data-i18n="tr_30d">近30天</button><button type="button" data-tr="90d" data-i18n="tr_90d">近90天</button><button type="button" data-tr="year" data-i18n="tr_year">今年</button><button type="button" data-tr="all" data-i18n="tr_all">全部</button></div></div>
+<div class="p-head"><div><h2 data-i18n="trend_title">余额走势</h2><span class="en" data-i18n="trend_sub">Balance Trend · ▲ 绿色标记为充值</span></div><div class="tabs" id="trendModeTabs"><button type="button" data-m="week" data-i18n="g_week">周</button><button type="button" data-m="month" class="on" data-i18n="g_month">月</button><button type="button" data-m="year" data-i18n="g_year">年</button><button type="button" data-m="all" data-i18n="p_all">全部</button></div></div>
+<div class="bills-nav" id="trendNav">
+<button type="button" class="bn-btn" id="trendPrev" data-i18n-aria="nav_prev" aria-label="上一周期">‹</button>
+<span class="bn-period nav-jump" id="trendPeriod" data-i18n-title="nav_back" title="回到本期">—</span>
+<button type="button" class="bn-btn" id="trendNext" data-i18n-aria="nav_next" aria-label="下一周期">›</button>
+</div>
 <div class="trend-wrap" id="trendWrap" style="display: none;">
 <svg id="trendSvg"></svg>
 </div>
@@ -781,7 +780,6 @@ chart_tip:'{label}用电 {k} 度 · {c}',chart_tip_recharge:'<br><span class="g"
 stats_empty_2:'需要至少两笔记录才能结算用电区间',stats_empty_0:'还没有任何记录 · 先记一笔吧',
 cta_add:'+ 记一笔',
 trend_title:'余额走势',trend_sub:'Balance Trend · ▲ 绿色标记为充值',trend_empty:'至少记录两笔后，这里会画出余额走势',trend_empty_range:'该区间记录不足 · 试试切换更大区间',
-tr_30d:'近30天',tr_90d:'近90天',tr_year:'今年',tr_all:'全部',
 trend_tip_recharge:'充值 <span class="g">+{c}</span> · 余额 {v}',trend_tip_bal:'余额 {v}',
 bills_title:'账单汇总',bills_sub:'Bills Summary · 按月/年回顾电费开销',bg_month:'月度',bg_year:'年度',
 bill_prev:'‹ 上',bill_next:'下 ›',bill_period_m:'{y}年 {a}–{b}月',bill_period_y:'{a}–{b}年',bill_label_m:'{y}年{m}月',bill_label_y:'{y}年',bill_current:'(本月)',bill_jump_hint:'已跳转到该区间统计',bill_card_aria:'查看该区间统计明细',
@@ -850,7 +848,6 @@ chart_tip:'{label} usage {k} kWh · {c}',chart_tip_recharge:'<br><span class="g"
 stats_empty_2:'Need at least two records to settle usage',stats_empty_0:'No records yet · add one to start',
 cta_add:'+ Add Entry',
 trend_title:'Balance Trend',trend_sub:'Balance Trend · ▲ green marks are recharges',trend_empty:'Record at least two readings to see the trend',trend_empty_range:'Not enough records in this range · try a wider range',
-tr_30d:'30d',tr_90d:'90d',tr_year:'This year',tr_all:'All',
 trend_tip_recharge:'Recharge <span class="g">+{c}</span> · Balance {v}',trend_tip_bal:'Balance {v}',
 bills_title:'Bills',bills_sub:'Bills Summary · review cost by month / year',bg_month:'Monthly',bg_year:'Yearly',
 bill_prev:'‹ Prev',bill_next:'Next ›',bill_period_m:'{y} {a}–{b}',bill_period_y:'{a}–{b}',bill_label_m:'{y}-{m}',bill_label_y:'{y}',bill_current:'(this month)',bill_jump_hint:'Jumped to stats for this period',bill_card_aria:'View stats for this period',
@@ -1188,15 +1185,59 @@ if(g==='week'){const a=new Date(b.t0),z=new Date(b.t1-1);return tf('bucket_week'
 if(g==='month')return tf('full_month',{y:b.y,m:b.m});
 return tf('full_year',{y:b.y});
 }
-/* ================= 视图状态 ================= */
+/* ================= 视图状态 / 周期选择器 ================= */
+/* view 仍作统计窗口载体，由 selStat 推导；周期选择器为用电统计与余额走势共用 */
 const view={g:'day',start:sod(Date.now())-29*DAY,end:sod(Date.now())};
-function defaultRange(g){
-const t=sod(Date.now());
-if(g==='day')return[t-29*DAY,t];
-if(g==='week')return[weekStart(t-77*DAY),t];
-if(g==='month'){const d=new Date();return[new Date(d.getFullYear(),d.getMonth()-11,1).getTime(),t];}
-const minTs=state.records.length?Math.min(...state.records.map(r=>r.ts)):t-364*DAY;
-return[new Date(new Date(minTs).getFullYear(),0,1).getTime(),t];
+const selStat={id:'stat',mode:'month',anchor:Date.now()};
+const selTrend={id:'trend',mode:'month',anchor:Date.now()};
+function periodWindow(mode,anchor){
+const now=sod(Date.now());
+if(mode==='all'){const rs=state.records;const minTs=rs.length?Math.min(...rs.map(r=>r.ts)):now;return[sod(minTs),now];}
+if(mode==='year'){const d=new Date(anchor);return[new Date(d.getFullYear(),0,1).getTime(),Math.min(new Date(d.getFullYear(),11,31).getTime(),now)];}
+if(mode==='month'){const d=new Date(anchor);return[new Date(d.getFullYear(),d.getMonth(),1).getTime(),Math.min(new Date(d.getFullYear(),d.getMonth()+1,0).getTime(),now)];}
+const ws=weekStart(anchor);return[ws,Math.min(ws+6*DAY,now)];
+}
+function periodStep(mode,anchor,dir){
+const d=new Date(anchor);
+if(mode==='week')return weekStart(anchor)+dir*7*DAY;
+if(mode==='month')return new Date(d.getFullYear(),d.getMonth()+dir,1).getTime();
+return new Date(d.getFullYear()+dir,0,1).getTime();
+}
+function canStep(mode,anchor,dir){
+if(dir>0)return periodWindow(mode,periodStep(mode,anchor,1))[0]<=sod(Date.now());
+if(!state.records.length)return false;
+const minTs=Math.min(...state.records.map(r=>r.ts));
+return periodWindow(mode,periodStep(mode,anchor,-1))[1]>=sod(minTs);
+}
+function periodLabel(mode,anchor){
+const[s,e]=periodWindow(mode,anchor);const a=new Date(s),b=new Date(e);
+if(lang==='zh'){
+if(mode==='year')return a.getFullYear()+'年';
+if(mode==='month')return a.getFullYear()+'年'+(a.getMonth()+1)+'月';
+return (a.getMonth()+1)+'月'+a.getDate()+'日 – '+(b.getMonth()+1)+'月'+b.getDate()+'日';
+}
+if(mode==='year')return String(a.getFullYear());
+if(mode==='month')return a.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+return a.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '+b.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+function renderPeriodNav(sel){
+const nav=$('#'+sel.id+'Nav');
+nav.style.display=sel.mode==='all'?'none':'';
+if(sel.mode==='all')return;
+$('#'+sel.id+'Period').textContent=periodLabel(sel.mode,sel.anchor);
+$('#'+sel.id+'Prev').disabled=!canStep(sel.mode,sel.anchor,-1);
+$('#'+sel.id+'Next').disabled=!canStep(sel.mode,sel.anchor,1);
+}
+function syncModeTabs(sel){document.querySelectorAll('#'+sel.id+'ModeTabs button').forEach(x=>x.classList.toggle('on',x.dataset.m===sel.mode));}
+function bindPeriodCtl(sel,render){
+$('#'+sel.id+'ModeTabs').addEventListener('click',e=>{
+const b=e.target.closest('button');if(!b)return;
+sel.mode=b.dataset.m;sel.anchor=Date.now();
+syncModeTabs(sel);render();
+});
+$('#'+sel.id+'Prev').addEventListener('click',()=>{if(!canStep(sel.mode,sel.anchor,-1))return;sel.anchor=periodStep(sel.mode,sel.anchor,-1);render();});
+$('#'+sel.id+'Next').addEventListener('click',()=>{if(!canStep(sel.mode,sel.anchor,1))return;sel.anchor=periodStep(sel.mode,sel.anchor,1);render();});
+$('#'+sel.id+'Period').addEventListener('click',()=>{sel.anchor=Date.now();render();});
 }
 /* ================= 头部渲染 ================= */
 let _odoVal=null,_odoAnim=null;
@@ -1323,39 +1364,53 @@ el.addEventListener('touchend',()=>{clearTimeout(barTipTimer);barTipTimer=setTim
 }
 function renderStats(){
 const hasBal=state.records.length>=2;
+/* 由周期模式推导窗口与粒度：周→7天日柱，月→当月日柱，年→12个月柱，全部→月柱（超长按年） */
+const[w0,w1]=periodWindow(selStat.mode,selStat.anchor);
+view.start=w0;view.end=w1;
+view.g=selStat.mode==='year'?'month':selStat.mode==='all'?((w1-w0)>1100*DAY?'year':'month'):'day';
+renderPeriodNav(selStat);
 $('#statsBody').style.display=hasBal?'':'none';
 const empty=$('#statEmpty');empty.hidden=hasBal;
 if(!hasBal){
 empty.innerHTML='<div>'+(state.records.length?t('stats_empty_2'):t('stats_empty_0'))+'</div><button type="button" class="btn-primary cta-btn" onclick="document.getElementById(\'fabAdd\').click()">'+t('cta_add')+'</button>';
-$('#rangeInfo').textContent='';return;
+return;
 }
 const buckets=computeStats(view.g,view.start,view.end);
 const s=summarize(buckets,view.start,view.end);
 renderSums(s);renderStatChart(buckets,s);
-$('#rangeInfo').textContent=tf('range_info',{a:fmtD(view.start),b:fmtD(view.end),n:s.rangeDays});
 $('#statNote').textContent=t('stat_note');
 }
-function syncDates(){$('#dStart').value=dKey(view.start);$('#dEnd').value=dKey(view.end);}
 /* ================= 余额走势 ================= */
-const trendState={range:'30d'};/* 走势图区间：30d / 90d / year / all，默认近30天 */
-function trendSince(){
-const t=sod(Date.now());
-if(trendState.range==='90d')return t-89*DAY;
-if(trendState.range==='year')return new Date(new Date().getFullYear(),0,1).getTime();
-if(trendState.range==='all')return -Infinity;
-return t-29*DAY;
+/* Fritsch–Carlson 单调三次插值：平滑且不过冲，x 需严格递增 */
+function smoothPath(xs,ys){
+const n=xs.length;
+if(n===1)return'M'+xs[0].toFixed(1)+','+ys[0].toFixed(1);
+if(n===2)return'M'+xs[0].toFixed(1)+','+ys[0].toFixed(1)+'L'+xs[1].toFixed(1)+','+ys[1].toFixed(1);
+const dx=[],sl=[];
+for(let i=0;i<n-1;i++){dx.push(Math.max(1e-6,xs[i+1]-xs[i]));sl.push((ys[i+1]-ys[i])/dx[i]);}
+const d=[sl[0]];
+for(let i=1;i<n-1;i++)d.push(sl[i-1]*sl[i]<=0?0:(sl[i-1]+sl[i])/2);
+d.push(sl[n-2]);
+for(let i=0;i<n-1;i++){
+if(sl[i]===0){d[i]=0;d[i+1]=0;}
+else{const a=d[i]/sl[i],b=d[i+1]/sl[i],q=a*a+b*b;
+if(q>9){const tau=3/Math.sqrt(q);d[i]=tau*a*sl[i];d[i+1]=tau*b*sl[i];}}
+}
+let p='M'+xs[0].toFixed(1)+','+ys[0].toFixed(1);
+for(let i=0;i<n-1;i++){const h=dx[i]/3;
+p+='C'+(xs[i]+h).toFixed(1)+','+(ys[i]+h*d[i]).toFixed(1)+' '+(xs[i+1]-h).toFixed(1)+','+(ys[i+1]-h*d[i+1]).toFixed(1)+' '+xs[i+1].toFixed(1)+','+ys[i+1].toFixed(1);}
+return p;
 }
 function renderTrend(){
 const wrap=$('#trendWrap'),svg=$('#trendSvg'),tip=$('#tip');
 const rs=sorted(),pts=[];
-/* 区间过滤：区间之前有记录时带上前一笔作锚点，区间起点的余额才连续准确 */
-const since=trendSince();
-let idx=0;
-if(since!==-Infinity){
-idx=rs.findIndex(r=>r.ts>=since);
-if(idx===-1)idx=rs.length;else if(idx>0)idx--;
-}
-for(let i=idx;i<rs.length;i++){const r=rs[i];const p={ts:Math.max(r.ts,since),v:r.balance,kind:r.recharge>0?'r':'b',r};if(pts.length&&pts[pts.length-1].ts===p.ts)pts[pts.length-1]={ts:p.ts,v:r.balance,kind:p.kind,r};else pts.push(p);}
+renderPeriodNav(selTrend);
+/* 区间过滤：由周期选择器推导窗口；窗口之前有记录时带上前一笔作锚点，区间起点余额才连续 */
+const[s,e]=periodWindow(selTrend.mode,selTrend.anchor),eod=e+DAY-1;
+let lo=rs.findIndex(r=>r.ts>=s);if(lo===-1)lo=rs.length;
+let hi=rs.length;while(hi>0&&rs[hi-1].ts>eod)hi--;
+const from=(lo<hi&&lo>0)?lo-1:lo;
+for(let i=from;i<hi;i++){const r=rs[i];const p={ts:Math.max(r.ts,s),v:r.balance,kind:r.recharge>0?'r':'b',r};if(pts.length&&pts[pts.length-1].ts===p.ts)pts[pts.length-1]=p;else pts.push(p);}
 const t0=pts.length?pts[0].ts:0,t1=pts.length?pts[pts.length-1].ts:0;
 if(pts.length<2){svg.innerHTML='';const te=$('#trendEmpty');te.hidden=false;
 te.innerHTML=rs.length<2
@@ -1378,14 +1433,21 @@ g+='<line x1="'+Pl+'" x2="'+(W-Pr)+'" y1="'+y+'" y2="'+y+'" stroke="'+chart.grid
 const spanYear=new Date(t0).getFullYear()!==new Date(t1).getFullYear();
 const tickLabel=ts=>{const d=new Date(ts);if(lang==='zh')return spanYear?String(d.getFullYear()).slice(2)+'/'+(d.getMonth()+1)+'/'+d.getDate():(d.getMonth()+1)+'/'+d.getDate();return d.toLocaleDateString('en-US',spanYear?{month:'short',day:'numeric',year:'2-digit'}:{month:'short',day:'numeric'});};
 for(let i=0;i<5;i++){if(small&&i!==0&&i!==2&&i!==4)continue;const ts=t0+(t1-t0)*i/4;g+='<text x="'+X(ts)+'" y="'+(H-8)+'" text-anchor="middle" class="ax">'+tickLabel(ts)+'</text>';}
-const line=pts.map((p,i)=>(i?'L':'M')+X(p.ts).toFixed(1)+','+Y(p.v).toFixed(1)).join('');
-const area=line+'L'+X(t1).toFixed(1)+','+Y(mn).toFixed(1)+'L'+X(t0).toFixed(1)+','+Y(mn).toFixed(1)+'Z';
+
+/* 同一时间戳只保留最后一笔，再作单调平滑；面积与曲线共用同一路径 */
+const ux=[],uy=[];
+for(const p of pts){const x=X(p.ts),y=Y(p.v);if(ux.length&&x===ux[ux.length-1])uy[uy.length-1]=y;else{ux.push(x);uy.push(y);}}
+const line=smoothPath(ux,uy);
+const area=line+'L'+ux[ux.length-1].toFixed(1)+','+Y(mn).toFixed(1)+'L'+ux[0].toFixed(1)+','+Y(mn).toFixed(1)+'Z';
 let marks='';
 const tri=small?7:5.5,pr=small?4:3;
+/* 点过密（相邻水平间距不足 14px）时隐藏圆点，只留平滑曲线；充值三角常显 */
+let dense=false;
+for(let i=1;i<ux.length;i++){if(ux[i]-ux[i-1]<14){dense=true;break;}}
 for(const p of pts){const x=X(p.ts),y=Y(p.v);
 marks+=p.kind==='r'
 ?'<polygon points="'+(x-tri)+','+(y+10)+' '+(x+tri)+','+(y+10)+' '+x+','+(y+1)+'" fill="'+chart.recharge+'" opacity=".9"/>'
-:'<circle cx="'+x+'" cy="'+y+'" r="'+pr+'" fill="'+chart.point+'" stroke="'+chart.line+'" stroke-width="2"/>';}
+:(dense?'':'<circle cx="'+x+'" cy="'+y+'" r="'+pr+'" fill="'+chart.point+'" stroke="'+chart.line+'" stroke-width="2"/>');}
 svg.innerHTML='<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+chart.area+'"/><stop offset="1" stop-color="'+chart.areaEnd+'"/></linearGradient></defs>'+
 g+'<path d="'+area+'" fill="url(#ga)"/><path d="'+line+'" fill="none" stroke="'+chart.line+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+marks+
 '<line id="tCross" y1="'+Pt+'" y2="'+(H-Pb)+'" stroke="'+chart.cross+'" stroke-dasharray="3 3" opacity="0"/><circle id="tFocus" r="5" fill="none" stroke="'+chart.focus+'" stroke-width="2" opacity="0"/>'+
@@ -1489,12 +1551,6 @@ const b=e.target.closest('button');if(!b)return;
 document.querySelectorAll('#billTabs button').forEach(x=>x.classList.toggle('on',x===b));
 billState.gran=b.dataset.bg;billState.offset=Infinity;renderBills();
 });
-$('#trendTabs').addEventListener('click',e=>{
-const b=e.target.closest('button');if(!b)return;
-trendState.range=b.dataset.tr;
-document.querySelectorAll('#trendTabs button').forEach(x=>x.classList.toggle('on',x===b));
-renderTrend();
-});
 $('#billPrev').addEventListener('click',()=>{billState.offset=Math.max(0,billState.offset-1);renderBills();});
 $('#billNext').addEventListener('click',()=>{billState.offset++;renderBills();});
 /* 点击账单卡片跳转到统计页对应区间 */
@@ -1507,11 +1563,11 @@ if(e.key!=='Enter'&&e.key!==' ')return;
 const card=e.target.closest('.bill-card');if(!card)return;
 e.preventDefault();jumpToStats(+card.dataset.t0,+card.dataset.t1,card.dataset.gran);
 });
+/* 账单卡片跳转：gran为月/年，映射到周期模式并锚定该周期 */
 function jumpToStats(t0,t1,gran){
-view.g=gran||'day';
-view.start=t0;view.end=Math.min(t1-1,Date.now());
-syncDates();
-document.querySelectorAll('#granTabs button').forEach(x=>x.classList.toggle('on',x.dataset.g===view.g));
+selStat.mode=gran==='year'?'year':'month';
+selStat.anchor=t0;
+syncModeTabs(selStat);
 switchView('stats');
 renderStats();
 toast(t('bill_jump_hint'));
@@ -1863,37 +1919,8 @@ updateEntryConv();
 confirmAdjacent(candidate,null,doSave,t('verb_save'));
 });
 /* ================= 统计交互 ================= */
-$('#granTabs').addEventListener('click',e=>{
-const b=e.target.closest('button');if(!b)return;
-view.g=b.dataset.g;
-document.querySelectorAll('#granTabs button').forEach(x=>x.classList.toggle('on',x===b));
-const[s,en]=defaultRange(view.g);view.start=s;view.end=en;
-syncDates();
-document.querySelectorAll('#presetChips .chip').forEach(x=>x.classList.remove('on'));
-renderStats();
-});
-$('#dStart').addEventListener('change',e=>{
-if(!e.target.value)return;let s=parseDateVal(e.target.value);
-if(s>view.end)view.end=s;view.start=s;renderStats();
-});
-$('#dEnd').addEventListener('change',e=>{
-if(!e.target.value)return;let en=parseDateVal(e.target.value);
-if(en<view.start)view.start=en;view.end=en;renderStats();
-});
-$('#presetChips').addEventListener('click',e=>{
-const c=e.target.closest('.chip');if(!c)return;
-document.querySelectorAll('#presetChips .chip').forEach(x=>x.classList.toggle('on',x===c));
-const t=sod(Date.now()),d=new Date();let s=t;
-switch(c.dataset.p){
-case'7d':s=t-6*DAY;break;
-case'30d':s=t-29*DAY;break;
-case'month':s=new Date(d.getFullYear(),d.getMonth(),1).getTime();break;
-case'lastMonth':s=new Date(d.getFullYear(),d.getMonth()-1,1).getTime();view.end=new Date(d.getFullYear(),d.getMonth(),0).getTime();syncDates();view.start=s;renderStats();return;
-case'year':s=new Date(d.getFullYear(),0,1).getTime();break;
-case'all':{const minTs=state.records.length?Math.min(...state.records.map(r=>r.ts)):t-364*DAY;s=new Date(new Date(minTs).getFullYear(),0,1).getTime();break;}
-}
-view.start=s;view.end=t;syncDates();renderStats();
-});
+bindPeriodCtl(selStat,renderStats);
+bindPeriodCtl(selTrend,renderTrend);
 /* ================= 设置 / 备份 ================= */
 $('#priceBtn').addEventListener('click',()=>{
 const h=state.priceHistory||[{from:0,price:state.price}];
@@ -2301,7 +2328,7 @@ else if(e.key==='elec.lang'){const nl=localStorage.getItem('elec.lang')||(naviga
 });
 load();
 $('#eTime').value=nowInputVal();
-syncDates();applyLang();switchView(location.hash.slice(1)||'home');
+applyLang();switchView(location.hash.slice(1)||'home');
 initCloud();
 </script><div class="ptr" hidden=""><span class="ptr-spin"></span><span class="ptr-txt"></span></div>
 <script>
