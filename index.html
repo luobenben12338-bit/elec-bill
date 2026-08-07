@@ -594,7 +594,7 @@ button,.chip,.pg-btn,.bill-card{touch-action:manipulation;-webkit-tap-highlight-
 <div class="list-empty" id="statEmpty"><div>还没有任何记录 · 先记一笔吧</div><button type="button" class="btn-primary cta-btn" onclick="document.getElementById('fabAdd').click()">+ 记一笔</button></div>
 </div></section>
 <section class="panel">
-<div class="p-head"><div><h2 data-i18n="trend_title">余额走势</h2><span class="en" data-i18n="trend_sub">Balance Trend · ▲ 绿色标记为充值</span></div></div>
+<div class="p-head"><div><h2 data-i18n="trend_title">余额走势</h2><span class="en" data-i18n="trend_sub">Balance Trend · ▲ 绿色标记为充值</span></div><div class="tabs" id="trendTabs"><button type="button" data-tr="30d" class="on" data-i18n="tr_30d">近30天</button><button type="button" data-tr="90d" data-i18n="tr_90d">近90天</button><button type="button" data-tr="year" data-i18n="tr_year">今年</button><button type="button" data-tr="all" data-i18n="tr_all">全部</button></div></div>
 <div class="trend-wrap" id="trendWrap" style="display: none;">
 <svg id="trendSvg"></svg>
 </div>
@@ -780,7 +780,8 @@ unit_kwh:'度',per_kwh:'元/度',day_unit:'天',hour_unit:'小时',
 chart_tip:'{label}用电 {k} 度 · {c}',chart_tip_recharge:'<br><span class="g">▲ 充值 +{c}</span>',
 stats_empty_2:'需要至少两笔记录才能结算用电区间',stats_empty_0:'还没有任何记录 · 先记一笔吧',
 cta_add:'+ 记一笔',
-trend_title:'余额走势',trend_sub:'Balance Trend · ▲ 绿色标记为充值',trend_empty:'至少记录两笔后，这里会画出余额走势',
+trend_title:'余额走势',trend_sub:'Balance Trend · ▲ 绿色标记为充值',trend_empty:'至少记录两笔后，这里会画出余额走势',trend_empty_range:'该区间记录不足 · 试试切换更大区间',
+tr_30d:'近30天',tr_90d:'近90天',tr_year:'今年',tr_all:'全部',
 trend_tip_recharge:'充值 <span class="g">+{c}</span> · 余额 {v}',trend_tip_bal:'余额 {v}',
 bills_title:'账单汇总',bills_sub:'Bills Summary · 按月/年回顾电费开销',bg_month:'月度',bg_year:'年度',
 bill_prev:'‹ 上',bill_next:'下 ›',bill_period_m:'{y}年 {a}–{b}月',bill_period_y:'{a}–{b}年',bill_label_m:'{y}年{m}月',bill_label_y:'{y}年',bill_current:'(本月)',bill_jump_hint:'已跳转到该区间统计',bill_card_aria:'查看该区间统计明细',
@@ -848,7 +849,8 @@ unit_kwh:'kWh',per_kwh:'CNY/kWh',day_unit:'days',hour_unit:'hours',
 chart_tip:'{label} usage {k} kWh · {c}',chart_tip_recharge:'<br><span class="g">▲ recharge +{c}</span>',
 stats_empty_2:'Need at least two records to settle usage',stats_empty_0:'No records yet · add one to start',
 cta_add:'+ Add Entry',
-trend_title:'Balance Trend',trend_sub:'Balance Trend · ▲ green marks are recharges',trend_empty:'Record at least two readings to see the trend',
+trend_title:'Balance Trend',trend_sub:'Balance Trend · ▲ green marks are recharges',trend_empty:'Record at least two readings to see the trend',trend_empty_range:'Not enough records in this range · try a wider range',
+tr_30d:'30d',tr_90d:'90d',tr_year:'This year',tr_all:'All',
 trend_tip_recharge:'Recharge <span class="g">+{c}</span> · Balance {v}',trend_tip_bal:'Balance {v}',
 bills_title:'Bills',bills_sub:'Bills Summary · review cost by month / year',bg_month:'Monthly',bg_year:'Yearly',
 bill_prev:'‹ Prev',bill_next:'Next ›',bill_period_m:'{y} {a}–{b}',bill_period_y:'{a}–{b}',bill_label_m:'{y}-{m}',bill_label_y:'{y}',bill_current:'(this month)',bill_jump_hint:'Jumped to stats for this period',bill_card_aria:'View stats for this period',
@@ -1335,20 +1337,37 @@ $('#statNote').textContent=t('stat_note');
 }
 function syncDates(){$('#dStart').value=dKey(view.start);$('#dEnd').value=dKey(view.end);}
 /* ================= 余额走势 ================= */
+const trendState={range:'30d'};/* 走势图区间：30d / 90d / year / all，默认近30天 */
+function trendSince(){
+const t=sod(Date.now());
+if(trendState.range==='90d')return t-89*DAY;
+if(trendState.range==='year')return new Date(new Date().getFullYear(),0,1).getTime();
+if(trendState.range==='all')return -Infinity;
+return t-29*DAY;
+}
 function renderTrend(){
 const wrap=$('#trendWrap'),svg=$('#trendSvg'),tip=$('#tip');
 const rs=sorted(),pts=[];
-for(const r of rs){
-pts.push({ts:r.ts,v:r.balance,kind:r.recharge>0?'r':'b',r});
+/* 区间过滤：区间之前有记录时带上前一笔作锚点，区间起点的余额才连续准确 */
+const since=trendSince();
+let idx=0;
+if(since!==-Infinity){
+idx=rs.findIndex(r=>r.ts>=since);
+if(idx===-1)idx=rs.length;else if(idx>0)idx--;
 }
-if(pts.length<2){svg.innerHTML='';const te=$('#trendEmpty');te.hidden=false;te.innerHTML='<div>'+t('trend_empty')+'</div><button type="button" class="btn-primary cta-btn" onclick="document.getElementById(\'fabAdd\').click()">'+t('cta_add')+'</button>';wrap.style.display='none';return;}
+for(let i=idx;i<rs.length;i++){const r=rs[i];const p={ts:Math.max(r.ts,since),v:r.balance,kind:r.recharge>0?'r':'b',r};if(pts.length&&pts[pts.length-1].ts===p.ts)pts[pts.length-1]={ts:p.ts,v:r.balance,kind:p.kind,r};else pts.push(p);}
+const t0=pts.length?pts[0].ts:0,t1=pts.length?pts[pts.length-1].ts:0;
+if(pts.length<2){svg.innerHTML='';const te=$('#trendEmpty');te.hidden=false;
+te.innerHTML=rs.length<2
+?'<div>'+t('trend_empty')+'</div><button type="button" class="btn-primary cta-btn" onclick="document.getElementById(\'fabAdd\').click()">'+t('cta_add')+'</button>'
+:'<div>'+t('trend_empty_range')+'</div>';
+wrap.style.display='none';return;}
 $('#trendEmpty').hidden=true;wrap.style.display='';
 const styles=getComputedStyle(document.documentElement);
 const color=(name,fallback)=>styles.getPropertyValue(name).trim()||fallback;
 const chart={grid:color('--chart-grid','rgba(56,189,248,.08)'),point:color('--chart-point','#0e1626'),cross:color('--chart-cross','rgba(226,232,240,.2)'),area:color('--chart-area','rgba(56,189,248,.25)'),areaEnd:color('--chart-area-end','rgba(56,189,248,0)'),line:color('--chart-line','#38bdf8'),focus:color('--chart-focus','#7dd3fc'),recharge:color('--chart-recharge','#34d399')};
 const small=innerWidth<640,W=Math.max(wrap.clientWidth,320),H=small?180:250,Pl=48,Pr=16,Pt=18,Pb=30;
 svg.setAttribute('viewBox','0 0 '+W+' '+H);svg.setAttribute('width',W);svg.setAttribute('height',H);
-const t0=pts[0].ts,t1=pts[pts.length-1].ts;
 let mn=Math.min(...pts.map(p=>p.v)),mx=Math.max(...pts.map(p=>p.v));
 if(mx-mn<1)mx+=1;const py=(mx-mn)*.12;mn=Math.max(0,mn-py);mx+=py;
 const X=ts=>t1===t0?Pl+(W-Pl-Pr)/2:Pl+(ts-t0)/(t1-t0)*(W-Pl-Pr);
@@ -1469,6 +1488,12 @@ $('#billTabs').addEventListener('click',e=>{
 const b=e.target.closest('button');if(!b)return;
 document.querySelectorAll('#billTabs button').forEach(x=>x.classList.toggle('on',x===b));
 billState.gran=b.dataset.bg;billState.offset=Infinity;renderBills();
+});
+$('#trendTabs').addEventListener('click',e=>{
+const b=e.target.closest('button');if(!b)return;
+trendState.range=b.dataset.tr;
+document.querySelectorAll('#trendTabs button').forEach(x=>x.classList.toggle('on',x===b));
+renderTrend();
 });
 $('#billPrev').addEventListener('click',()=>{billState.offset=Math.max(0,billState.offset-1);renderBills();});
 $('#billNext').addEventListener('click',()=>{billState.offset++;renderBills();});
